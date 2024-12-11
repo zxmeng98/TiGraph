@@ -30,7 +30,6 @@ class GCN(nn.Module):
             if i != 0:
                 h = self.dropout(h)
             h = layer(g, h)
-            print(h.shape)
         return h
 
 
@@ -56,7 +55,7 @@ def train(g, features, labels, masks, model):
 
     loss_list, val_acc_list = [], []
     # training loop
-    for epoch in range(1):
+    for epoch in range(200):
         model.train()
         logits = model(g, features)
         # loss = loss_fcn(logits[train_mask], labels[train_mask])
@@ -75,8 +74,8 @@ def train(g, features, labels, masks, model):
         dataset = 'pubmed'
         if not os.path.exists(f'./exps/{dataset}'): 
             os.makedirs(f'./exps/{dataset}')
-        np.save('./exps/' + dataset + '/sepfile_gcn_loss', np.array(loss_list))
-        np.save('./exps/' + dataset + '/sepfile_gcn_val_acc', np.array(val_acc_list))
+        # np.save('./exps/' + dataset + '/sepfile_gcn_loss', np.array(loss_list))
+        # np.save('./exps/' + dataset + '/sepfile_gcn_val_acc', np.array(val_acc_list))
 
 
 if __name__ == "__main__":

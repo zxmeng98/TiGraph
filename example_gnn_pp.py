@@ -96,7 +96,7 @@ def evaluate(g, features, labels, mask, model):
 
 if __name__ == "__main__":
     init_distributed()
-    num_microbatches = 4
+    num_microbatches = 64
 
     seed = 123
     random.seed(seed)
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     data = PubmedGraphDataset(transform=transform)
     g = data[0]
     g = g.int()
-    g.remove_nodes(0) 
+    g.remove_nodes(np.arange(5)) 
     inputs = g.ndata["feat"]
     labels = g.ndata["label"]
     masks = g.ndata["train_mask"], g.ndata["val_mask"], g.ndata["test_mask"]
@@ -139,6 +139,7 @@ if __name__ == "__main__":
 
     optimizer = torch.optim.Adam(stage.submod.parameters(), lr=1e-2, weight_decay=5e-4)
 
+    g = g.to(device)
     inputs = inputs.to(device)
     labels = labels.to(device)
 
@@ -154,7 +155,7 @@ if __name__ == "__main__":
         optimizer.zero_grad()
         stage.submod.train()
         if rank == 0:
-            # TODO step里面要改，此处micro_batch includes: 1. features 2. g
+            # step里面要改，此处micro_batch includes: 1. features 2. g
             schedule.step(g, inputs)
         elif rank == 1:
             losses = []
@@ -171,10 +172,10 @@ if __name__ == "__main__":
 
         stage.submod.eval()
         if rank == 0:
-            schedule.step(inputs)
+            schedule.step(g, inputs)
         elif rank == 1:
             losses_val = []
-            output = schedule.step(target=labels, losses=losses_val)   
+            output = schedule.step(g, target=labels, losses=losses_val)   
             val_output = output[masks[1]]
             val_labels = labels[masks[1]]
             _, indices = torch.max(val_output, dim=1)
@@ -191,10 +192,10 @@ if __name__ == "__main__":
     # test acc
     stage.submod.eval()
     if rank == 0:
-        schedule.step(inputs)
+        schedule.step(g, inputs)
     elif rank == 1:
         losses = []
-        output = schedule.step(target=labels, losses=losses)
+        output = schedule.step(g, target=labels, losses=losses)
         test_output = output[masks[2]]
         test_labels = labels[masks[2]]
         _, indices = torch.max(test_output, dim=1)
@@ -203,14 +204,12 @@ if __name__ == "__main__":
         print("Test accuracy {:.4f}".format(acc))
         
 
-    # dataset = 'pubmed'
-    # if not os.path.exists(f'./exps/{dataset}'): 
-    #     os.makedirs(f'./exps/{dataset}')
-    # if rank == 1:
-    #     np.save('./exps/' + dataset + '/gcn_pp_loss', np.array(loss_list))
-    #     np.save('./exps/' + dataset + '/gcn_pp_val_acc', np.array(val_acc_list))
-    #     np.save('./exps/' + dataset + '/gcn_org_loss', np.array(loss_org_list))
-    #     np.save('./exps/' + dataset + '/gcn_org_val_acc', np.array(val_acc_org_list))
+    dataset = 'pubmed'
+    if not os.path.exists(f'./exps/{dataset}'): 
+        os.makedirs(f'./exps/{dataset}')
+    if rank == 1:
+        np.save('./exps/' + dataset + '/gcn_pp_mb64_loss', np.array(loss_list))
+        np.save('./exps/' + dataset + '/gcn_pp_mb64_val_acc', np.array(val_acc_list))
         
     # if rank == num_stages - 1:
     #     # Run the original code and get the output for comparison
