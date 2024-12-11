@@ -74,36 +74,36 @@ class RevGCN(torch.nn.Module):
 
         self.edge_encoder = torch.nn.Linear(8, hidden_channels)
 
+        self.dropout_layer = nn.Dropout(self.dropout)
         self.node_pred_linear = torch.nn.Linear(hidden_channels, args.out_size)
 
-    def forward(self, g, x):
+    def forward(self, edge_index, x):
 
         node_features_1st = x
+        
+        if self.node_features_encoder:
+            if self.use_one_hot_encoding:
+                node_features_2nd = self.node_one_hot_encoder(x)
+                # concatenate
+                node_features = torch.cat((node_features_1st, node_features_2nd), dim=1)
+            else:
+                node_features = node_features_1st
 
-        if self.use_one_hot_encoding:
-            node_features_2nd = self.node_one_hot_encoder(x)
-            # concatenate
-            node_features = torch.cat((node_features_1st, node_features_2nd), dim=1)
+            h = self.node_features_encoder(node_features)
         else:
-            node_features = node_features_1st
-
-        h = self.node_features_encoder(node_features)
-
-        # edge_emb = self.edge_encoder(edge_attr)
-        # edge_emb = torch.cat([edge_emb]*self.group, dim=-1)
+            h = node_features_1st
 
         m = torch.zeros_like(h).bernoulli_(1 - self.dropout)
         mask = m.requires_grad_(False) / (1 - self.dropout)
 
-        h = self.gcns[0](g, h, mask)
+        for layer in range(len(self.gcns)):
+            h = self.gcns[layer](h, edge_index, mask)
 
-        for layer in range(1, self.num_layers):
-            h = self.gcns[layer](g, h, mask)
+        h = F.relu(self.last_norm(h)) if self.last_norm else F.relu(h)
+        h = self.dropout_layer(h) if self.dropout_layer else h
+        h = self.node_pred_linear(h) if self.node_pred_linear else h
 
-        h = F.relu(self.last_norm(h))
-        h = F.dropout(h, p=self.dropout, training=self.training)
-
-        return self.node_pred_linear(h)
+        return h
 
 
     def print_params(self, epoch=None, final=False):

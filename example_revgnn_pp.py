@@ -11,7 +11,7 @@ from dgl.data import CiteseerGraphDataset, CoraGraphDataset, PubmedGraphDataset
 import random
 import numpy as np
 import os
-from GNNs.RevGNN.revgcn import RevGCN
+from GNNs.RevGNN.revgcn_pp import RevGCN
 from utils.dataset import OGBNDataset
 import torch.distributed as dist
 from torch.distributed.pipelining import pipeline, SplitPoint, PipelineStage, ScheduleGPipe
@@ -31,25 +31,26 @@ def init_distributed():
    num_stages = world_size
 
 
-def manual_model_split(model, example_input_microbatch) -> PipelineStage:
+def manual_model_split(args, model, example_input_microbatch) -> PipelineStage:
     if stage_index == 0:
         # prepare the first stage model
-        # del model.layers["2"]
-        model.dropout = None
-        model.layers["2"] = None
+        # for i in range(args.num_layers//2, args.num_layers):
+        #     del model.gcns[i]
+        model.gcns = model.gcns[:args.num_layers//2]
+        model.last_norm = None
+        model.dropout_layer = None
+        model.node_pred_linear = None
         stage_input_microbatch = example_input_microbatch
 
     elif stage_index == 1:
         # prepare the second stage model
-        # del model.layers["1"]
-        model.layers["1"] = None
-        # NOTE: 不管哪个stage，self.inputs的格式都要按照最开始进入forward的args来，但是h是从中间状态开始。所以这里stage 1不能只传入h，要和forward格式一样传入(g, h)
-        feature_input_microbatch = torch.randn(example_input_microbatch[1].shape[0], 16)
+        model.node_features_encoder = None
+        # for i in range(args.num_layers//2):
+        #     del model.gcns[i]
+        model.gcns = model.gcns[args.num_layers//2:]
+        feature_input_microbatch = torch.randn(example_input_microbatch[1].shape[0], args.hidden_channels)
         stage_input_microbatch = (example_input_microbatch[0], feature_input_microbatch)
         
-    # print(f"{rank}, {model}")
-    # exit(0)
-
     stage = PipelineStage(
       model,
       stage_index,
@@ -76,12 +77,13 @@ def evaluate(g, features, labels, mask, model, device):
         return correct.item() * 1.0 / len(labels)
 
 
-def train(g, features, labels, masks, model, device):
+def train(g, features, labels, masks, model, device, stage, num_microbatches):
+    schedule = ScheduleGPipe(stage, n_microbatches=num_microbatches, loss_fn=nn.BCEWithLogitsLoss())
     # define train/val samples, loss function and optimizer
     train_mask = masks[0]
     val_mask = masks[1]
-    loss_fcn = nn.BCEWithLogitsLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    # loss_fcn = nn.BCEWithLogitsLoss()
+    optimizer = torch.optim.Adam(stage.submod.parameters(), lr=args.lr)
     sg_nodes_idx = g.nodes().to(device)
     u, v = g.edges()
     sg_edges_ = torch.stack((u, v), dim=0).to(device)
@@ -232,7 +234,7 @@ if __name__ == "__main__":
     
     g = data[0]
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    g = g.int().to(device)
+    g = g.int()
     features = g.ndata["feat"]
     labels = g.ndata["label"]
     masks = g.ndata["train_mask"], g.ndata["val_mask"], g.ndata["test_mask"]
@@ -243,18 +245,15 @@ if __name__ == "__main__":
     microbatch_g.ndata.clear()
     microbatch_g.edata.clear()
     u, v = microbatch_g.edges()
-    sg_edges_ = torch.stack((u, v), dim=0).to(device)
-    example_input_microbatch = (sg_edges_, features[microbatch_idxes[0]])
+    mb_edges_ = torch.stack((u, v), dim=0).to(device)
+    example_input_microbatch = (mb_edges_, features[microbatch_idxes[0]])
 
     # create GCN model
     args.in_size = features.shape[1]
     args.out_size = data.num_classes
 
     model = RevGCN(args)
-    stage = manual_model_split(model, example_input_microbatch)
-
-    # for name, param in model.named_parameters():
-    #     print(name, param)
+    stage = manual_model_split(args, model, example_input_microbatch)
 
     # convert model and graph to bfloat16 if needed
     if args.dt == "bfloat16":
@@ -264,9 +263,11 @@ if __name__ == "__main__":
 
     # model training
     print("Training...")
-    train(g, features, labels, masks, model, device)
+    train(g, features, labels, masks, model, device, stage, num_microbatches)
 
     # test the model
     print("Testing...")
     acc = evaluate(g, features, labels, masks[2], model, device)
     print("Test accuracy {:.4f}".format(acc))
+
+    dist.destroy_process_group()

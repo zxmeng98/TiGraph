@@ -36,7 +36,11 @@ class InvertibleCheckpointFunction(torch.autograd.Function):
                 ctx.had_cuda_in_fwd = True
                 ctx.fwd_gpu_devices, ctx.fwd_gpu_states = get_device_states(*inputs)
 
-        ctx.input_requires_grad = [element.requires_grad for element in inputs]
+        # inputs: [g, h, mask]
+        ctx.input_requires_grad = [
+            element.requires_grad if isinstance(element, torch.Tensor) else False 
+            for element in inputs
+            ] 
 
         with torch.no_grad():
             # Makes a detached copy which shares the storage
@@ -59,10 +63,10 @@ class InvertibleCheckpointFunction(torch.autograd.Function):
         if not ctx.keep_input:
             if not pytorch_version_one_and_above:
                 # PyTorch 0.4 way to clear storage for node features
-                inputs[0].data.set_()
+                inputs[1].data.set_()
             else:
                 # PyTorch 1.0+ way to clear storage for node features
-                inputs[0].untyped_storage().resize_(0)
+                inputs[1].untyped_storage().resize_(0)
 
         # store these tensor nodes for backward pass
         ctx.inputs = [inputs] * num_bwd_passes
@@ -97,7 +101,7 @@ class InvertibleCheckpointFunction(torch.autograd.Function):
                 # recompute input
                 with torch.no_grad():
                     # edge_index and edge_emb
-                    inputs_inverted = ctx.fn_inverse(*(outputs+inputs[1:]))
+                    inputs_inverted = ctx.fn_inverse(*((inputs[0])+outputs+(inputs[2])))
                     # clear memory from outputs
                     if not pytorch_version_one_and_above:
                         # PyTorch 0.4 way to clear storage

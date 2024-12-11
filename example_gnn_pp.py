@@ -26,7 +26,8 @@ class GCN(torch.nn.Module):
         # self.conv2 = GraphConv(h_feats, out_feats)
 
     def forward(self, g, h):
-        # NOTE: forward里面不能一层一层hard-code conv1, conv2，才能在split的时候通过del layer删除，不然构造PipeStage会报错forward里面的某一层找不到。虽然print出来的submodule删掉了别的层，但是forward还保留了。
+        # NOTE: forward里面不能一层一层hard-code conv1, conv2，才能在split的时候通过del layer删除，不然构造PipeStage会报错forward里面的某一层找不到。虽然print出来的submodule init中删掉了别的层，但是forward还保留了。
+        # 1. delete layer的写法 
         # for layer in self.layers.values():
         #     h = layer(self.g, h)    
         

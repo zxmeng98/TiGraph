@@ -23,7 +23,7 @@ def evaluate(g, features, labels, mask, model, device):
 
     model.eval()
     with torch.no_grad():
-        logits = model(features, sg_edges_)
+        logits = model(g, features)
         logits = logits[mask]
         labels = labels[mask]
         _, indices = torch.max(logits, dim=1)
@@ -38,6 +38,8 @@ def train(g, features, labels, masks, model, device):
     loss_fcn = nn.BCEWithLogitsLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     sg_nodes_idx = g.nodes().to(device)
+    g.ndata.clear()
+    g.edata.clear()
     u, v = g.edges()
     sg_edges_ = torch.stack((u, v), dim=0).to(device)
     labels_one_hot = F.one_hot(labels, num_classes=3).float() 
@@ -48,7 +50,7 @@ def train(g, features, labels, masks, model, device):
     # training loop
     for epoch in range(50):
         model.train()
-        logits = model(features, sg_edges_)
+        logits = model(g, features)
         # loss = loss_fcn(logits[train_mask], labels[train_mask])
         loss = loss_fcn(logits, labels_one_hot)
         optimizer.zero_grad()

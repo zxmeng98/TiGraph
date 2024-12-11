@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 try:
     from torch_geometric.nn import GCNConv, SAGEConv, GATConv
+    from dgl.nn import GraphConv
     # from gcn_lib.sparse.torch_vertex import GENConv
 except:
     print("An import exception occurred")
@@ -45,7 +46,7 @@ class BasicBlock(nn.Module):
         self.norm = norm_layer(norm, in_channels)
         self.dropout = SharedDropout()
 
-    def forward(self, x, edge_index, dropout_mask=None, edge_emb=None):
+    def forward(self, g, x, dropout_mask=None, edge_emb=None):
         # dropout_mask = kwargs.get('dropout_mask', None)
         # edge_emb = kwargs.get('edge_emb', None)
         out = self.norm(x)
@@ -57,9 +58,9 @@ class BasicBlock(nn.Module):
         out = self.dropout(out)
 
         if edge_emb is not None:
-            out = self.gcn(out, edge_index, edge_emb)
+            out = self.gcn(g, out, edge_emb)
         else:
-            out = self.gcn(out, edge_index)
+            out = self.gcn(g, out)
 
         return out
 
@@ -95,7 +96,8 @@ class GCNBlock(BasicBlock):
                        norm='layer'):
         super(GCNBlock, self).__init__(norm, in_channels)
 
-        self.gcn = GCNConv(in_channels, out_channels)
+        # self.gcn = GCNConv(in_channels, out_channels)
+        self.gcn = GraphConv(in_channels, out_channels)
 
 
 class SAGEBlock(BasicBlock):
