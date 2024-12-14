@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 try:
     from torch_geometric.nn import GCNConv, SAGEConv, GATConv
-    # from gcn_lib.sparse.torch_vertex import GENConv
+    from .torch_vertex import GENConv
 except:
     print("An import exception occurred")
 
@@ -64,30 +64,30 @@ class BasicBlock(nn.Module):
         return out
 
 
-# class GENBlock(BasicBlock):
-#     def __init__(self, in_channels, out_channels,
-#                         aggr='max',
-#                         t=1.0, learn_t=False,
-#                         p=1.0, learn_p=False,
-#                         y=0.0, learn_y=False,
-#                         msg_norm=False,
-#                         learn_msg_scale=False,
-#                         encode_edge=False,
-#                         edge_feat_dim=0,
-#                         norm='layer', mlp_layers=1):
-#         super(GENBlock, self).__init__(norm, in_channels)
+class GENBlock(BasicBlock):
+    def __init__(self, in_channels, out_channels,
+                        aggr='max',
+                        t=1.0, learn_t=False,
+                        p=1.0, learn_p=False,
+                        y=0.0, learn_y=False,
+                        msg_norm=False,
+                        learn_msg_scale=False,
+                        encode_edge=False,
+                        edge_feat_dim=0,
+                        norm='layer', mlp_layers=1):
+        super(GENBlock, self).__init__(norm, in_channels)
 
-#         self.gcn = GENConv(in_channels, out_channels,
-#                            aggr=aggr,
-#                            t=t, learn_t=learn_t,
-#                            p=p, learn_p=learn_p,
-#                            y=y, learn_y=learn_y,
-#                            msg_norm=msg_norm,
-#                            learn_msg_scale=learn_msg_scale,
-#                            encode_edge=encode_edge,
-#                            edge_feat_dim=edge_feat_dim,
-#                            norm=norm,
-#                            mlp_layers=mlp_layers)
+        self.gcn = GENConv(in_channels, out_channels,
+                           aggr=aggr,
+                           t=t, learn_t=learn_t,
+                           p=p, learn_p=learn_p,
+                           y=y, learn_y=learn_y,
+                           msg_norm=msg_norm,
+                           learn_msg_scale=learn_msg_scale,
+                           encode_edge=encode_edge,
+                           edge_feat_dim=edge_feat_dim,
+                           norm=norm,
+                           mlp_layers=mlp_layers)
 
 
 class GCNBlock(BasicBlock):

@@ -11,45 +11,79 @@ from dgl.data import CiteseerGraphDataset, CoraGraphDataset, PubmedGraphDataset
 import random
 import numpy as np
 import os
-from GNNs.RevGNN.revgcn import RevGCN
+from GNNs.RevGNN.revgcn_pp import RevGCN
 from utils.dataset import OGBNDataset
 import torch.distributed as dist
 from torch.distributed.pipelining import pipeline, SplitPoint, PipelineStage, ScheduleGPipe
 
 
+# global rank, device, pp_group, stage_index, num_stages
+# def init_distributed():
+#    global rank, device, pp_group, stage_index, num_stages
+#    rank = int(os.environ["LOCAL_RANK"])
+#    world_size = int(os.environ["WORLD_SIZE"])
+#    device = torch.device(f"cuda:{rank}") if torch.cuda.is_available() else torch.device("cpu")
+#    dist.init_process_group("nccl")
+
+#    # This group can be a sub-group in the N-D parallel case
+#    pp_group = dist.new_group()
+#    stage_index = rank
+#    num_stages = world_size
+   
 global rank, device, pp_group, stage_index, num_stages
 def init_distributed():
-   global rank, device, pp_group, stage_index, num_stages
-   rank = int(os.environ["LOCAL_RANK"])
-   world_size = int(os.environ["WORLD_SIZE"])
-   device = torch.device(f"cuda:{rank}") if torch.cuda.is_available() else torch.device("cpu")
-   dist.init_process_group()
+    """Initialize torch.distributed and core model parallel."""
+    global rank, device, pp_group, stage_index, num_stages
+    device_count = torch.cuda.device_count()
+    assert device_count != 0, 'expected GPU number > 0.'
+    if torch.distributed.is_initialized():
+        if torch.distributed.get_rank() == 0:
+            print('torch distributed is already initialized, '
+                  'skipping initialization ...', flush=True)
+        rank = torch.distributed.get_rank()
+        world_size = torch.distributed.get_world_size()
 
-   # This group can be a sub-group in the N-D parallel case
-   pp_group = dist.new_group()
-   stage_index = rank
-   num_stages = world_size
+    else:
+        rank = int(os.environ["RANK"])
+        world_size = int(os.environ["WORLD_SIZE"])
+        if rank == 0:
+            print('> initializing torch distributed ...', flush=True)
+
+        # Manually set the device ids.
+        if device_count > 0:
+            device = rank % device_count
+            torch.cuda.set_device(device) # only do so when device_count > 0
+        # Call the init process
+    torch.distributed.init_process_group(
+        backend='nccl',
+        world_size=world_size, rank=rank,
+        )
+    device = f'cuda:{torch.cuda.current_device()}' 
+    pp_group = dist.new_group()
+    stage_index = rank
+    num_stages = world_size
 
 
-def manual_model_split(model, example_input_microbatch) -> PipelineStage:
+def manual_model_split(args, model, example_input_microbatch) -> PipelineStage:
     if stage_index == 0:
         # prepare the first stage model
-        # del model.layers["2"]
-        model.dropout = None
-        model.layers["2"] = None
+        # for i in range(args.num_layers//2, args.num_layers):
+        #     del model.gcns[i]
+        model.gcns = model.gcns[:args.num_layers//2]
+        model.last_norm = None
+        model.dropout_layer = None
+        model.node_pred_linear = None
         stage_input_microbatch = example_input_microbatch
 
     elif stage_index == 1:
         # prepare the second stage model
-        # del model.layers["1"]
-        model.layers["1"] = None
-        # NOTE: 不管哪个stage，self.inputs的格式都要按照最开始进入forward的args来，但是h是从中间状态开始。所以这里stage 1不能只传入h，要和forward格式一样传入(g, h)
-        feature_input_microbatch = torch.randn(example_input_microbatch[1].shape[0], 16)
+        model.node_features_encoder = None
+        # for i in range(args.num_layers//2):
+        #     del model.gcns[i]
+        model.gcns = model.gcns[args.num_layers//2:]
+        feature_input_microbatch = torch.randn(example_input_microbatch[1].shape[0], args.hidden_channels)
         stage_input_microbatch = (example_input_microbatch[0], feature_input_microbatch)
         
-    # print(f"{rank}, {model}")
-    # exit(0)
-
     stage = PipelineStage(
       model,
       stage_index,
@@ -68,7 +102,7 @@ def evaluate(g, features, labels, mask, model, device):
 
     model.eval()
     with torch.no_grad():
-        logits = model(features, sg_edges_)
+        logits = model(g, features)
         logits = logits[mask]
         labels = labels[mask]
         _, indices = torch.max(logits, dim=1)
@@ -76,41 +110,54 @@ def evaluate(g, features, labels, mask, model, device):
         return correct.item() * 1.0 / len(labels)
 
 
-def train(g, features, labels, masks, model, device):
+def train(g, features, labels, masks, model, device, stage, num_microbatches):
+    loss_fcn = nn.BCEWithLogitsLoss()
+    schedule = ScheduleGPipe(stage, n_microbatches=num_microbatches, loss_fn=loss_fcn)
     # define train/val samples, loss function and optimizer
     train_mask = masks[0]
     val_mask = masks[1]
-    loss_fcn = nn.BCEWithLogitsLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    # loss_fcn = nn.BCEWithLogitsLoss()
+    optimizer = torch.optim.Adam(stage.submod.parameters(), lr=args.lr)
+
     sg_nodes_idx = g.nodes().to(device)
     u, v = g.edges()
     sg_edges_ = torch.stack((u, v), dim=0).to(device)
     labels_one_hot = F.one_hot(labels, num_classes=3).float() 
 
-    # features = features.chunk(4)[0]
+    g = g.to(device)
+    features = features.to(device)
+    labels_one_hot = labels_one_hot.to(device)
 
     loss_list, val_acc_list = [], []
     # training loop
-    for epoch in range(50):
-        model.train()
-        logits = model(features, sg_edges_)
-        # loss = loss_fcn(logits[train_mask], labels[train_mask])
-        loss = loss_fcn(logits, labels_one_hot)
+    for epoch in range(200):
         optimizer.zero_grad()
-        loss.backward()
-        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+        stage.submod.train()
+        if rank == 0:
+            schedule.step(g, features)
+        elif rank == 1:
+            losses = []
+            output = schedule.step(g, target=labels_one_hot, losses=losses) # TODO：此时是用所有dataset训的，真实的应该只用inputs[train_mask]
+
+            train_mask = masks[0]
+            loss = loss_fcn(output, labels_one_hot)
+            loss_list.append(loss.item())
+            if epoch % 5 == 0:
+                print(
+                    "Epoch {:05d} | Loss {:.4f} ".format(
+                        epoch, loss.item()
+                    )
+                )
+
+        torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
         optimizer.step()
-        acc = evaluate(g, features, labels, val_mask, model, device)
+        # acc = evaluate(g, features, labels, val_mask, model, device)
+
         # print(
-        #     "Epoch {:05d} | Loss {:.4f} ".format(
-        #         epoch, loss.item()
+        #     "Epoch {:05d} | Loss {:.4f} | Accuracy {:.4f} ".format(
+        #         epoch, loss.item(), acc
         #     )
         # )
-        print(
-            "Epoch {:05d} | Loss {:.4f} | Accuracy {:.4f} ".format(
-                epoch, loss.item(), acc
-            )
-        )
         # loss_list.append(loss.item())
         # val_acc_list.append(acc)
         # dataset = 'pubmed'
@@ -122,7 +169,7 @@ def train(g, features, labels, masks, model, device):
 
 if __name__ == "__main__":
     init_distributed()
-    num_microbatches = 4
+    num_microbatches = 1
 
     seed = 123
     random.seed(seed)
@@ -231,8 +278,7 @@ if __name__ == "__main__":
         raise ValueError("Unknown dataset: {}".format(args.dataset))
     
     g = data[0]
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    g = g.int().to(device)
+    g = g.int()
     features = g.ndata["feat"]
     labels = g.ndata["label"]
     masks = g.ndata["train_mask"], g.ndata["val_mask"], g.ndata["test_mask"]
@@ -243,18 +289,15 @@ if __name__ == "__main__":
     microbatch_g.ndata.clear()
     microbatch_g.edata.clear()
     u, v = microbatch_g.edges()
-    sg_edges_ = torch.stack((u, v), dim=0).to(device)
-    example_input_microbatch = (sg_edges_, features[microbatch_idxes[0]])
+    mb_edges_ = torch.stack((u, v), dim=0).to(device)
+    example_input_microbatch = (microbatch_g, features[microbatch_idxes[0]])
 
     # create GCN model
     args.in_size = features.shape[1]
     args.out_size = data.num_classes
 
     model = RevGCN(args)
-    stage = manual_model_split(model, example_input_microbatch)
-
-    # for name, param in model.named_parameters():
-    #     print(name, param)
+    stage = manual_model_split(args, model, example_input_microbatch)
 
     # convert model and graph to bfloat16 if needed
     if args.dt == "bfloat16":
@@ -264,9 +307,11 @@ if __name__ == "__main__":
 
     # model training
     print("Training...")
-    train(g, features, labels, masks, model, device)
+    train(g, features, labels, masks, model, device, stage, num_microbatches)
 
     # test the model
     print("Testing...")
-    acc = evaluate(g, features, labels, masks[2], model, device)
-    print("Test accuracy {:.4f}".format(acc))
+    # acc = evaluate(g, features, labels, masks[2], model, device)
+    # print("Test accuracy {:.4f}".format(acc))
+
+    dist.destroy_process_group()

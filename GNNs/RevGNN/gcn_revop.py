@@ -106,13 +106,13 @@ class InvertibleCheckpointFunction(torch.autograd.Function):
                     else:
                         # PyTorch 1.0+ way to clear storage
                         for element in outputs:
-                            element.storage().resize_(0)
+                            element.untyped_storage().resize_(0)
 
                     if not isinstance(inputs_inverted, tuple):
                         inputs_inverted = (inputs_inverted,)
                     if pytorch_version_one_and_above:
                         for element_original, element_inverted in zip(inputs, inputs_inverted):
-                            element_original.storage().resize_(int(np.prod(element_original.size())))
+                            element_original.untyped_storage().resize_(int(np.prod(element_original.size())))
                             element_original.set_(element_inverted)
                     else:
                         for element_original, element_inverted in zip(inputs, inputs_inverted):
