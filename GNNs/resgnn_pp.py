@@ -1,6 +1,6 @@
 import torch
-from RevGNN.torch_vertex import GENConv
-from RevGNN.rev_layer import norm_layer
+from .RevGNN.torch_vertex import GENConv
+from .RevGNN.rev_layer import norm_layer
 import torch.nn.functional as F
 from torch.utils.checkpoint import checkpoint
 import logging
@@ -37,7 +37,8 @@ class DeeperGCN(torch.nn.Module):
         node_features_file_path = args.nf_path
 
         self.use_one_hot_encoding = args.use_one_hot_encoding
-        self.stage_0 = True
+        self.first_stage = True
+        self.last_stage = False
 
         # save gpu mem using gradient ckpt
         if aggr not in ['add', 'max', 'mean'] and self.num_layers > 15:
@@ -47,6 +48,7 @@ class DeeperGCN(torch.nn.Module):
         print('The number of layers {}'.format(self.num_layers),
               'Aggregation method {}'.format(aggr),
               'block: {}'.format(self.block))
+        print(self.checkpoint_grad)
 
         if self.block == 'res+':
             print('LN/BN->ReLU->GraphConv->Res')
@@ -62,7 +64,7 @@ class DeeperGCN(torch.nn.Module):
         self.gcns = torch.nn.ModuleList()
         self.layer_norms = torch.nn.ModuleList()
 
-        for layer in range(self.num_layers):
+        for layer_id in range(self.num_layers):
 
             if conv == 'gen':
                 gcn = GENConv(hidden_channels, hidden_channels,
@@ -81,16 +83,14 @@ class DeeperGCN(torch.nn.Module):
 
         if self.use_one_hot_encoding:
             self.node_one_hot_encoder = torch.nn.Linear(args.in_size, 8)
-            self.node_features_encoder = torch.nn.Linear(8 * 2, hidden_channels)
+            self.node_features_encoder = torch.nn.Linear(args.in_size+8, hidden_channels)
         else:
             self.node_features_encoder = torch.nn.Linear(args.in_size, hidden_channels)
 
         self.edge_encoder = torch.nn.Linear(8, hidden_channels)
-
         self.node_pred_linear = torch.nn.Linear(hidden_channels, args.out_size)
 
     def forward(self, g, x):
-
         u, v = g.edges()
         edge_index = torch.stack((u, v), dim=0).to(torch.int64)
 
@@ -109,9 +109,8 @@ class DeeperGCN(torch.nn.Module):
             h = node_features_1st
 
         if self.block == 'res+':
-            h = self.gcns[0](h, edge_index)
-
             if self.checkpoint_grad:
+                h = self.gcns[0](h, edge_index)
                 for layer in range(1, self.num_layers):
                     h1 = self.layer_norms[layer-1](h)
                     h2 = F.relu(h1)
@@ -123,40 +122,64 @@ class DeeperGCN(torch.nn.Module):
                         h = self.gcns[layer](h2, edge_index) + h
 
             else:
-                for layer in range(1, self.num_layers):
-                    h1 = self.layer_norms[layer-1](h)
-                    h2 = F.relu(h1)
-                    h2 = F.dropout(h2, p=self.dropout, training=self.training)
-                    h = self.gcns[layer](h2, edge_index) + h
+                if self.first_stage:
+                    h = self.gcns[0](h, edge_index) 
+                    for layer in range(1, len(self.gcns)):
+                        h1 = self.layer_norms[layer-1](h)
+                        h2 = F.relu(h1)
+                        h2 = F.dropout(h2, p=self.dropout, training=self.training)
+                        h = self.gcns[layer](h2, edge_index) + h
+                elif self.last_stage:
+                    for layer in range(len(self.gcns)):
+                        h1 = self.layer_norms[layer](h)
+                        h2 = F.relu(h1)
+                        h2 = F.dropout(h2, p=self.dropout, training=self.training)
+                        h = self.gcns[layer](h2, edge_index) + h
+                    h = F.relu(self.layer_norms[len(self.gcns)](h))
+                    h = F.dropout(h, p=self.dropout, training=self.training)
+                else:
+                    for layer in range(len(self.gcns)):
+                        h1 = self.layer_norms[layer](h)
+                        h2 = F.relu(h1)
+                        h2 = F.dropout(h2, p=self.dropout, training=self.training)
+                        h = self.gcns[layer](h2, edge_index) + h
 
-            h = F.relu(self.layer_norms[self.num_layers-1](h))
-            h = F.dropout(h, p=self.dropout, training=self.training)
+                h = self.node_pred_linear(h) if self.node_pred_linear else h
 
-            return self.node_pred_linear(h)
+            return h
 
         elif self.block == 'res':
-            if self.stage_0:
+            # block = 'res'时，layer = 112 不收敛, 少层数才行
+            if self.first_stage:
                 h = F.relu(self.layer_norms[0](self.gcns[0](h, edge_index)))
                 h = F.dropout(h, p=self.dropout, training=self.training)
 
-            for layer in range(1, self.num_layers):
-                h1 = self.gcns[layer](h, edge_index, edge_emb)
-                h2 = self.layer_norms[layer](h1)
-                h = F.relu(h2) + h
-                h = F.dropout(h, p=self.dropout, training=self.training)
+                for layer in range(1, len(self.gcns)):
+                    h1 = self.gcns[layer](h, edge_index)
+                    h2 = self.layer_norms[layer](h1)
+                    h = F.relu(h2) + h
+                    h = F.dropout(h, p=self.dropout, training=self.training)
+            else:
+                for layer in range(len(self.gcns)):
+                    h1 = self.gcns[layer](h, edge_index)
+                    h2 = self.layer_norms[layer](h1)
+                    h = F.relu(h2) + h
+                    h = F.dropout(h, p=self.dropout, training=self.training)
+            
+            h = self.node_pred_linear(h) if self.node_pred_linear else h
 
-            return self.node_pred_linear(h)
+            return h   
 
         elif self.block == 'dense':
             raise NotImplementedError('To be implemented')
 
         elif self.block == 'plain':
 
-            h = F.relu(self.layer_norms[0](self.gcns[0](h, edge_index, edge_emb)))
+            h = F.relu(self.layer_norms[0](self.gcns[0](h, edge_index)))
             h = F.dropout(h, p=self.dropout, training=self.training)
 
             for layer in range(1, self.num_layers):
-                h1 = self.gcns[layer](h, edge_index, edge_emb)
+                h1 = self.gcns[layer](h, edge_index)
                 h2 = self.layer_norms[layer](h1)
                 h = F.relu(h2)
                 h = F.dropout(h, p=self.dropout, training=self.training)

@@ -105,7 +105,7 @@ class RevGCN(torch.nn.Module):
         for layer in range(len(self.gcns)):
             h = self.gcns[layer](h, edge_index, mask)
 
-        h = F.relu(self.last_norm(h)) if self.last_norm else F.relu(h)
+        h = F.relu(self.last_norm(h)) if self.last_norm else h
         h = self.dropout_layer(h) if self.dropout_layer else h
         h = self.node_pred_linear(h) if self.node_pred_linear else h
 

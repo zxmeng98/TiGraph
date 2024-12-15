@@ -206,7 +206,7 @@ if __name__ == "__main__":
                         help='gcn backbone [deepergcn, weighttied, deq, rev]')
     parser.add_argument('--group', type=int, default=2,
                         help='num of groups for rev gnns')
-    parser.add_argument('--num_layers', type=int, default=448,
+    parser.add_argument('--num_layers', type=int, default=112,
                         help='the number of layers of the networks')
     parser.add_argument('--num_steps', type=int, default=3,
                         help='the number of steps of weight tied layers')
@@ -218,7 +218,7 @@ if __name__ == "__main__":
                         help='the dimension of embeddings of nodes and edges')
     parser.add_argument('--hidden_channels', type=int, default=224,
                         help='the dimension of embeddings of nodes and edges')
-    parser.add_argument('--block', default='plain', type=str,
+    parser.add_argument('--block', default='res', type=str,
                         help='graph backbone block type {res+, res, dense, plain}')
     parser.add_argument('--conv', type=str, default='gen',
                         help='the type of GCNs')

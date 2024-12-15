@@ -11,9 +11,76 @@ from dgl.data import CiteseerGraphDataset, CoraGraphDataset, PubmedGraphDataset
 import random
 import numpy as np
 import os
-from GNNs.RevGNN.revgcn import RevGCN
-from TiGraph.GNNs.resgnn_pp import DeeperGCN
+from .GNNs.resgnn_pp import DeeperGCN
 from utils.dataset import OGBNDataset
+import torch.distributed as dist
+from torch.distributed.pipelining import pipeline, SplitPoint, PipelineStage, ScheduleGPipe
+
+   
+global rank, device, pp_group, stage_index, num_stages
+def init_distributed():
+    """Initialize torch.distributed and core model parallel."""
+    global rank, device, pp_group, stage_index, num_stages
+    device_count = torch.cuda.device_count()
+    assert device_count != 0, 'expected GPU number > 0.'
+    if torch.distributed.is_initialized():
+        if torch.distributed.get_rank() == 0:
+            print('torch distributed is already initialized, '
+                  'skipping initialization ...', flush=True)
+        rank = torch.distributed.get_rank()
+        world_size = torch.distributed.get_world_size()
+
+    else:
+        rank = int(os.environ["RANK"])
+        world_size = int(os.environ["WORLD_SIZE"])
+        if rank == 0:
+            print('> initializing torch distributed ...', flush=True)
+
+        # Manually set the device ids.
+        if device_count > 0:
+            device = rank % device_count
+            torch.cuda.set_device(device) # only do so when device_count > 0
+        # Call the init process
+    torch.distributed.init_process_group(
+        backend='nccl',
+        world_size=world_size, rank=rank,
+        )
+    device = f'cuda:{torch.cuda.current_device()}' 
+    pp_group = dist.new_group()
+    stage_index = rank
+    num_stages = world_size
+
+
+def manual_model_split(args, model, example_input_microbatch) -> PipelineStage:
+    if stage_index == 0:
+        # prepare the first stage model
+        model.first_stage = True
+        model.last_stage = False
+        model.gcns = model.gcns[: args.num_layers//2]
+        model.layer_norms = model.layer_norms[: args.num_layers//2-1] 
+        model.node_pred_linear = None
+
+        stage_input_microbatch = example_input_microbatch
+
+    elif stage_index == 1:
+        # prepare the second stage model
+        model.first_stage = False
+        model.last_stage = True
+        model.node_features_encoder = None
+        model.gcns = model.gcns[args.num_layers//2: ]
+        model.layer_norms = model.layer_norms[args.num_layers//2-1: ] 
+
+        feature_input_microbatch = torch.randn(example_input_microbatch[1].shape[0], args.hidden_channels)
+        stage_input_microbatch = (example_input_microbatch[0], feature_input_microbatch)
+        
+    stage = PipelineStage(
+      model,
+      stage_index,
+      num_stages,
+      device,
+      input_args=stage_input_microbatch,
+   )
+    return stage
 
 
 def evaluate(g, features, labels, mask, model, device):
@@ -24,7 +91,7 @@ def evaluate(g, features, labels, mask, model, device):
 
     model.eval()
     with torch.no_grad():
-        logits = model(g.to(device), features)
+        logits = model(g, features)
         logits = logits[mask]
         labels = labels[mask]
         _, indices = torch.max(logits, dim=1)
@@ -32,41 +99,54 @@ def evaluate(g, features, labels, mask, model, device):
         return correct.item() * 1.0 / len(labels)
 
 
-def train(g, features, labels, masks, model, device):
+def train(g, features, labels, masks, model, device, stage, num_microbatches):
+    loss_fcn = nn.BCEWithLogitsLoss()
+    schedule = ScheduleGPipe(stage, n_microbatches=num_microbatches, loss_fn=loss_fcn)
     # define train/val samples, loss function and optimizer
     train_mask = masks[0]
     val_mask = masks[1]
-    loss_fcn = nn.BCEWithLogitsLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    # loss_fcn = nn.BCEWithLogitsLoss()
+    optimizer = torch.optim.Adam(stage.submod.parameters(), lr=args.lr)
+
     sg_nodes_idx = g.nodes().to(device)
     u, v = g.edges()
     sg_edges_ = torch.stack((u, v), dim=0).to(device)
     labels_one_hot = F.one_hot(labels, num_classes=3).float() 
 
-    # features = features.chunk(4)[0]
+    g = g.to(device)
+    features = features.to(device)
+    labels_one_hot = labels_one_hot.to(device)
 
     loss_list, val_acc_list = [], []
     # training loop
-    for epoch in range(1000):
-        model.train()
-        logits = model(g.to(device), features)
-        # loss = loss_fcn(logits[train_mask], labels[train_mask])
-        loss = loss_fcn(logits, labels_one_hot)
+    for epoch in range(200):
         optimizer.zero_grad()
-        loss.backward()
-        # torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+        stage.submod.train()
+        if rank == 0:
+            schedule.step(g, features)
+        elif rank == 1:
+            losses = []
+            output = schedule.step(g, target=labels_one_hot, losses=losses) # TODO：此时是用所有dataset训的，真实的应该只用inputs[train_mask]
+
+            train_mask = masks[0]
+            loss = loss_fcn(output, labels_one_hot)
+            loss_list.append(loss.item())
+            if epoch % 5 == 0:
+                print(
+                    "Epoch {:05d} | Loss {:.4f} ".format(
+                        epoch, loss.item()
+                    )
+                )
+
+        torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
         optimizer.step()
-        acc = evaluate(g, features, labels, val_mask, model, device)
+        # acc = evaluate(g, features, labels, val_mask, model, device)
+
         # print(
-        #     "Epoch {:05d} | Loss {:.4f} ".format(
-        #         epoch, loss.item()
+        #     "Epoch {:05d} | Loss {:.4f} | Accuracy {:.4f} ".format(
+        #         epoch, loss.item(), acc
         #     )
         # )
-        print(
-            "Epoch {:05d} | Loss {:.4f} | Accuracy {:.4f} ".format(
-                epoch, loss.item(), acc
-            )
-        )
         # loss_list.append(loss.item())
         # val_acc_list.append(acc)
         # dataset = 'pubmed'
@@ -77,6 +157,9 @@ def train(g, features, labels, masks, model, device):
 
 
 if __name__ == "__main__":
+    init_distributed()
+    num_microbatches = 1
+
     seed = 123
     random.seed(seed)
     np.random.seed(seed)
@@ -124,7 +207,7 @@ if __name__ == "__main__":
                         help='the dimension of embeddings of nodes and edges')
     parser.add_argument('--hidden_channels', type=int, default=64,
                         help='the dimension of embeddings of nodes and edges')
-    parser.add_argument('--block', default='plain', type=str,
+    parser.add_argument('--block', default='res', type=str,
                         help='graph backbone block type {res+, res, dense, plain}')
     parser.add_argument('--conv', type=str, default='gen',
                         help='the type of GCNs')
@@ -184,21 +267,26 @@ if __name__ == "__main__":
         raise ValueError("Unknown dataset: {}".format(args.dataset))
     
     g = data[0]
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    g = g.int().to(device)
+    g = g.int()
     features = g.ndata["feat"]
     labels = g.ndata["label"]
     masks = g.ndata["train_mask"], g.ndata["val_mask"], g.ndata["test_mask"]
+
+    all_idx = torch.arange(features.shape[0])
+    microbatch_idxes = torch.tensor_split(all_idx, num_microbatches)
+    microbatch_g = dgl.node_subgraph(g, microbatch_idxes[0].to(torch.int32))
+    microbatch_g.ndata.clear()
+    microbatch_g.edata.clear()
+    u, v = microbatch_g.edges()
+    mb_edges_ = torch.stack((u, v), dim=0).to(device)
+    example_input_microbatch = (microbatch_g, features[microbatch_idxes[0]])
 
     # create GCN model
     args.in_size = features.shape[1]
     args.out_size = data.num_classes
 
-    # model = RevGCN(args).to(device)
-    model = DeeperGCN(args).to(device)
-
-    # for name, param in model.named_parameters():
-    #     print(name, param)
+    model = DeeperGCN(args)
+    stage = manual_model_split(args, model, example_input_microbatch)
 
     # convert model and graph to bfloat16 if needed
     if args.dt == "bfloat16":
@@ -208,9 +296,11 @@ if __name__ == "__main__":
 
     # model training
     print("Training...")
-    train(g, features, labels, masks, model, device)
+    train(g, features, labels, masks, model, device, stage, num_microbatches)
 
     # test the model
     print("Testing...")
-    acc = evaluate(g, features, labels, masks[2], model, device)
-    print("Test accuracy {:.4f}".format(acc))
+    # acc = evaluate(g, features, labels, masks[2], model, device)
+    # print("Test accuracy {:.4f}".format(acc))
+
+    dist.destroy_process_group()
