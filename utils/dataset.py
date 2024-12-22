@@ -153,3 +153,18 @@ class OGBNDataset(object):
         idx_2nd = list(map(lambda x: mapper[x], sg_edges_list[1].tolist()))
         sg_edges_orig = torch.LongTensor([idx_1st, idx_2nd])
         return sg_edges_orig
+
+
+def random_split_idx(data_y, frac_train, frac_valid, frac_test, seed):
+    np.testing.assert_almost_equal(frac_train + frac_valid + frac_test, 1.0)
+    random.seed(seed)
+    all_idx = np.arange(data_y.shape[0])
+    random.shuffle(all_idx)
+    train_idx = all_idx[:int(frac_train * data_y.shape[0])]
+    val_idx = all_idx[int(frac_train * data_y.shape[0]):int((frac_train+frac_valid) * data_y.shape[0])]
+    test_idx = all_idx[int((frac_train+frac_valid) * data_y.shape[0]):]
+    split_idx = {'train': torch.tensor(train_idx),
+                'valid': torch.tensor(val_idx),
+                'test': torch.tensor(test_idx)}
+    # print(f"Train nodes: {len(train_idx)}, Valid nodes: {len(val_idx)}, Test nodes: {len(test_idx)}")
+    return split_idx

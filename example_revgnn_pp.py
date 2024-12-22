@@ -12,9 +12,10 @@ import random
 import numpy as np
 import os
 from GNNs.RevGNN.revgcn_pp import RevGCN
-from utils.dataset import OGBNDataset
+from utils.dataset import OGBNDataset, random_split_idx
 import torch.distributed as dist
 from torch.distributed.pipelining import pipeline, SplitPoint, PipelineStage, ScheduleGPipe
+from pipelining.utils import partition_uniform
 
 
 # global rank, device, pp_group, stage_index, num_stages
@@ -65,22 +66,31 @@ def init_distributed():
 
 
 def manual_model_split(args, model, example_input_microbatch) -> PipelineStage:
+    parts = partition_uniform(args.num_layers, num_stages)
+    start = parts[stage_index]
+    stop = parts[stage_index + 1]
+    print(f'stage={stage_index} layers={stop} - {start}')
     if stage_index == 0:
         # prepare the first stage model
-        # for i in range(args.num_layers//2, args.num_layers):
-        #     del model.gcns[i]
-        model.gcns = model.gcns[:args.num_layers//2]
+        model.gcns = model.gcns[start:stop]
         model.last_norm = None
         model.dropout_layer = None
         model.node_pred_linear = None
         stage_input_microbatch = example_input_microbatch
 
-    elif stage_index == 1:
+    elif stage_index == num_stages - 1:
         # prepare the second stage model
         model.node_features_encoder = None
-        # for i in range(args.num_layers//2):
-        #     del model.gcns[i]
-        model.gcns = model.gcns[args.num_layers//2:]
+        model.gcns = model.gcns[start:stop]
+        feature_input_microbatch = torch.randn(example_input_microbatch[1].shape[0], args.hidden_channels)
+        stage_input_microbatch = (example_input_microbatch[0], feature_input_microbatch)
+
+    else:
+        model.node_features_encoder = None
+        model.gcns = model.gcns[start:stop]
+        model.last_norm = None
+        model.dropout_layer = None
+        model.node_pred_linear = None
         feature_input_microbatch = torch.randn(example_input_microbatch[1].shape[0], args.hidden_channels)
         stage_input_microbatch = (example_input_microbatch[0], feature_input_microbatch)
         
@@ -94,89 +104,32 @@ def manual_model_split(args, model, example_input_microbatch) -> PipelineStage:
     return stage
 
 
-def evaluate(g, features, labels, mask, model, device):
-    sg_nodes_idx = g.nodes().to(device)
-    u, v = g.edges()
-    sg_edges_ = torch.stack((u, v), dim=0).to(device)
-    # labels_one_hot = F.one_hot(labels, num_classes=3).float() 
+def evaluate(args, g, features, labels, mask, stage, schedule):
+    labels_one_hot = F.one_hot(labels, num_classes=args.out_size).float() 
 
-    model.eval()
-    with torch.no_grad():
-        logits = model(g, features)
-        logits = logits[mask]
-        labels = labels[mask]
-        _, indices = torch.max(logits, dim=1)
-        correct = torch.sum(indices == labels)
-        return correct.item() * 1.0 / len(labels)
+    stage.submod.eval()
+    if rank == 0:
+        schedule.step(g, features)
+        return None
+    elif rank == num_stages - 1:
+        losses = []
+        output = schedule.step(g, target=labels_one_hot, losses=losses)   
+        eval_output = output[mask]
+        eval_labels = labels[mask] 
+        _, indices = torch.max(eval_output, dim=1)
+        correct = torch.sum(indices == eval_labels)
+        eval_acc = correct.item() * 1.0 / len(eval_labels)
+        return eval_acc
+    else:
+        schedule.step(g)
+        return None
 
-
-def train(g, features, labels, masks, model, device, stage, num_microbatches):
-    loss_fcn = nn.BCEWithLogitsLoss()
-    schedule = ScheduleGPipe(stage, n_microbatches=num_microbatches, loss_fn=loss_fcn)
-    # define train/val samples, loss function and optimizer
-    train_mask = masks[0]
-    val_mask = masks[1]
-    # loss_fcn = nn.BCEWithLogitsLoss()
-    optimizer = torch.optim.Adam(stage.submod.parameters(), lr=args.lr)
-
-    sg_nodes_idx = g.nodes().to(device)
-    u, v = g.edges()
-    sg_edges_ = torch.stack((u, v), dim=0).to(device)
-    labels_one_hot = F.one_hot(labels, num_classes=3).float() 
-
-    g = g.to(device)
-    features = features.to(device)
-    labels_one_hot = labels_one_hot.to(device)
-
-    loss_list, val_acc_list = [], []
-    # training loop
-    for epoch in range(200):
-        optimizer.zero_grad()
-        stage.submod.train()
-        if rank == 0:
-            schedule.step(g, features)
-        elif rank == 1:
-            losses = []
-            output = schedule.step(g, target=labels_one_hot, losses=losses) # TODO：此时是用所有dataset训的，真实的应该只用inputs[train_mask]
-
-            train_mask = masks[0]
-            loss = loss_fcn(output, labels_one_hot)
-            loss_list.append(loss.item())
-            if epoch % 5 == 0:
-                print(
-                    "Epoch {:05d} | Loss {:.4f} ".format(
-                        epoch, loss.item()
-                    )
-                )
-
-        torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
-        optimizer.step()
-        # acc = evaluate(g, features, labels, val_mask, model, device)
-
-        # print(
-        #     "Epoch {:05d} | Loss {:.4f} | Accuracy {:.4f} ".format(
-        #         epoch, loss.item(), acc
-        #     )
-        # )
-        # loss_list.append(loss.item())
-        # val_acc_list.append(acc)
-        # dataset = 'pubmed'
-        # if not os.path.exists(f'./exps/{dataset}'): 
-        #     os.makedirs(f'./exps/{dataset}')
-        # np.save('./exps/' + dataset + '/sepfile_gcn_loss', np.array(loss_list))
-        # np.save('./exps/' + dataset + '/sepfile_gcn_val_acc', np.array(val_acc_list))
-
+        # print("Test accuracy {:.4f}".format(eval_acc))
+    
 
 if __name__ == "__main__":
     init_distributed()
     num_microbatches = 1
-
-    seed = 123
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
         
     parser = argparse.ArgumentParser()
     # dataset
@@ -194,7 +147,7 @@ if __name__ == "__main__":
     parser.add_argument('--use_gpu', action='store_true')
     parser.add_argument('--device', type=int, default=0,
                         help='which gpu to use if any (default: 0)')
-    parser.add_argument('--epochs', type=int, default=2000,
+    parser.add_argument('--epochs', type=int, default=200,
                         help='number of epochs to train (default: 2000)')
     parser.add_argument('--num_evals', type=int, default=1,
                         help='The number of evaluation times')
@@ -202,11 +155,13 @@ if __name__ == "__main__":
                         help='learning rate set for optimizer.')
     parser.add_argument('--dropout', type=float, default=0.2)
     # model
+    parser.add_argument('--model', type=str, default='revgnn',
+                        help='gcn backbone [revgnn, resgnn]')
     parser.add_argument('--backbone', type=str, default='rev',
                         help='gcn backbone [deepergcn, weighttied, deq, rev]')
     parser.add_argument('--group', type=int, default=2,
                         help='num of groups for rev gnns')
-    parser.add_argument('--num_layers', type=int, default=112,
+    parser.add_argument('--num_layers', type=int, default=448,
                         help='the number of layers of the networks')
     parser.add_argument('--num_steps', type=int, default=3,
                         help='the number of steps of weight tied layers')
@@ -262,7 +217,14 @@ if __name__ == "__main__":
         default="float",
         help="data type(float, bfloat16)",
     )
+    parser.add_argument('--seed', type=int, default=123)
     args = parser.parse_args()
+
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(args.seed)
 
     # load and preprocess dataset
     transform = (
@@ -292,12 +254,32 @@ if __name__ == "__main__":
     mb_edges_ = torch.stack((u, v), dim=0).to(device)
     example_input_microbatch = (microbatch_g, features[microbatch_idxes[0]])
 
+    # Generate train data
+    if masks is None:
+        split_idx = random_split_idx(labels, frac_train=0.6, frac_valid=0.2, frac_test=0.2, seed=args.seed)
+    else:
+        train_idx = torch.nonzero(masks[0], as_tuple=True)[0]  
+        val_idx = torch.nonzero(masks[1], as_tuple=True)[0]  
+        test_idx = torch.nonzero(masks[2], as_tuple=True)[0]    
+        split_idx = {'train': train_idx,
+                'valid': val_idx,
+                'test': test_idx}
+    if rank == 0:
+        print('Dataset load successfully')
+        print(f"Train nodes: {split_idx['train'].shape[0]}, Val nodes: {split_idx['valid'].shape[0]}, Test nodes: {split_idx['test'].shape[0]}")
+
+
     # create GCN model
     args.in_size = features.shape[1]
     args.out_size = data.num_classes
 
     model = RevGCN(args)
     stage = manual_model_split(args, model, example_input_microbatch)
+
+    loss_fcn = nn.BCEWithLogitsLoss()
+    optimizer = torch.optim.Adam(stage.submod.parameters(), lr=args.lr)
+
+    schedule = ScheduleGPipe(stage, n_microbatches=num_microbatches, loss_fn=loss_fcn)
 
     # convert model and graph to bfloat16 if needed
     if args.dt == "bfloat16":
@@ -306,12 +288,60 @@ if __name__ == "__main__":
         model = model.to(dtype=torch.bfloat16)
 
     # model training
-    print("Training...")
-    train(g, features, labels, masks, model, device, stage, num_microbatches)
+    if rank == 0:
+        print("Training...")
 
-    # test the model
-    print("Testing...")
-    # acc = evaluate(g, features, labels, masks[2], model, device)
-    # print("Test accuracy {:.4f}".format(acc))
+    labels_one_hot = F.one_hot(labels, num_classes=args.out_size).float() 
+
+    g = g.to(device)
+    features = features.to(device)
+    lables = labels.to(device)
+    labels_one_hot = labels_one_hot.to(device)
+
+    loss_list, val_acc_list = [], []
+    # Training loop
+    for epoch in range(args.epochs):
+        optimizer.zero_grad()
+        stage.submod.train()
+        if rank == 0:
+            schedule.step(g, features)
+        elif rank == num_stages - 1:
+            losses = []
+            output = schedule.step(g, target=labels_one_hot, losses=losses) # TODO：此时是用所有dataset训的，真实的应该只用inputs[train_mask]
+            loss = loss_fcn(output[masks[0]], labels_one_hot[masks[0]])
+            loss_list.append(loss.item())
+
+            for i in range(len(losses)):
+                losses[i] = losses[i].item()
+        else:
+            schedule.step(g)
+
+        torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
+        optimizer.step()
+
+        # Validation
+        if epoch % 5 == 0:
+            val_acc = evaluate(args, g, features, labels, masks[1], stage, schedule)
+            if rank == num_stages - 1:  
+                print(
+                    "Epoch {:05d} | Loss {:.4f} | Val Accuracy {:.4f} ".format(
+                        epoch, loss.item(), val_acc
+                    )
+                )
+                loss_list.append(loss.item())
+                val_acc_list.append(val_acc)
+        
+
+    # Test
+    if rank == 0:
+        print("Testing...")
+    test_acc = evaluate(args, g, features, labels, masks[2], stage, schedule)
+    if rank == num_stages - 1:
+        print("Test accuracy {:.4f}".format(test_acc))
+
+        # if not os.path.exists(f'./exps/{args.dataset}'): 
+        #     os.makedirs(f'./exps/{args.dataset}')
+        # np.save(f'./exps/{args.dataset}/{args.model}_loss', np.array(loss_list))
+        # np.save(f'./exps/{args.dataset}/{args.model}_val_acc', np.array(val_acc_list))
 
     dist.destroy_process_group()

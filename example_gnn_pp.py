@@ -96,7 +96,7 @@ def evaluate(g, features, labels, mask, model):
 
 if __name__ == "__main__":
     init_distributed()
-    num_microbatches = 64
+    num_microbatches = 1
 
     seed = 123
     random.seed(seed)
@@ -119,7 +119,7 @@ if __name__ == "__main__":
 
     all_idx = torch.arange(inputs.shape[0])
     microbatch_idxes = torch.tensor_split(all_idx, num_microbatches)
-    microbatch_g = dgl.node_subgraph(g, microbatch_idxes[0].to(torch.int32))
+    microbatch_g = dgl.node_subgraph(g, microbatch_idxes[0].to(torch.int32)) # only extract edges between nodes in microbatch_idxes[0]
     microbatch_g.ndata.clear()
     microbatch_g.edata.clear()
 
@@ -158,8 +158,10 @@ if __name__ == "__main__":
             # step里面要改，此处micro_batch includes: 1. features 2. g
             schedule.step(g, inputs)
         elif rank == 1:
-            losses = []
+            losses = [] # size: [num_microbatches]
             output = schedule.step(g, target=labels, losses=losses) # TODO：此时是用所有dataset训的，真实的应该只用inputs[train_mask]
+            for i in range(len(losses)):
+                losses[i] = losses[i].item()
 
             train_mask = masks[0]
             loss = loss_fcn(output, labels)
@@ -183,7 +185,7 @@ if __name__ == "__main__":
             acc = correct.item() * 1.0 / len(val_labels)
             print(
                 "PP Epoch {:05d} | Loss {:.4f} | Val Accuracy {:.4f} ".format(
-                    epoch, losses[0].item(), acc
+                    epoch, loss.item(), acc
                 )
             )
             val_acc_list.append(acc)

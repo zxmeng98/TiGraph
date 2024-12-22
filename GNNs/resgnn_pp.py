@@ -37,13 +37,15 @@ class DeeperGCN(torch.nn.Module):
         node_features_file_path = args.nf_path
 
         self.use_one_hot_encoding = args.use_one_hot_encoding
+
+        # Use in pp: monitor
         self.first_stage = True
         self.last_stage = False
 
         # save gpu mem using gradient ckpt
-        if aggr not in ['add', 'max', 'mean'] and self.num_layers > 15:
-            self.checkpoint_grad = True
-            self.ckp_k = 9
+        # if aggr not in ['add', 'max', 'mean'] and self.num_layers > 15:
+        #     self.checkpoint_grad = True
+        #     self.ckp_k = 9
 
         print('The number of layers {}'.format(self.num_layers),
               'Aggregation method {}'.format(aggr),
