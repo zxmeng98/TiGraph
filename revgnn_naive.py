@@ -12,7 +12,7 @@ import random
 import numpy as np
 import os
 from GNNs.RevGNN.revgcn import RevGCN
-from TiGraph.GNNs.resgnn_pp import DeeperGCN
+from GNNs.resgnn_pp import DeeperGCN
 from utils.dataset import OGBNDataset
 
 
@@ -36,7 +36,7 @@ def train(g, features, labels, masks, model, device):
     # define train/val samples, loss function and optimizer
     train_mask = masks[0]
     val_mask = masks[1]
-    loss_fcn = nn.BCEWithLogitsLoss()
+    loss_fcn = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     sg_nodes_idx = g.nodes().to(device)
     u, v = g.edges()
@@ -47,11 +47,11 @@ def train(g, features, labels, masks, model, device):
 
     loss_list, val_acc_list = [], []
     # training loop
-    for epoch in range(1000):
+    for epoch in range(200):
         model.train()
         logits = model(g.to(device), features)
-        # loss = loss_fcn(logits[train_mask], labels[train_mask])
-        loss = loss_fcn(logits, labels_one_hot)
+        loss = loss_fcn(logits[train_mask], labels[train_mask])
+        # loss = loss_fcn(logits, labels_one_hot)
         optimizer.zero_grad()
         loss.backward()
         # torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
@@ -112,7 +112,7 @@ if __name__ == "__main__":
                         help='gcn backbone [deepergcn, weighttied, deq, rev]')
     parser.add_argument('--group', type=int, default=2,
                         help='num of groups for rev gnns')
-    parser.add_argument('--num_layers', type=int, default=112,
+    parser.add_argument('--num_layers', type=int, default=448,
                         help='the number of layers of the networks')
     parser.add_argument('--num_steps', type=int, default=3,
                         help='the number of steps of weight tied layers')
@@ -122,7 +122,7 @@ if __name__ == "__main__":
                         help='the dimension of embeddings of nodes and edges')
     parser.add_argument('--out_size', type=int, default=3,
                         help='the dimension of embeddings of nodes and edges')
-    parser.add_argument('--hidden_channels', type=int, default=64,
+    parser.add_argument('--hidden_channels', type=int, default=224,
                         help='the dimension of embeddings of nodes and edges')
     parser.add_argument('--block', default='plain', type=str,
                         help='graph backbone block type {res+, res, dense, plain}')
@@ -194,8 +194,8 @@ if __name__ == "__main__":
     args.in_size = features.shape[1]
     args.out_size = data.num_classes
 
-    # model = RevGCN(args).to(device)
-    model = DeeperGCN(args).to(device)
+    model = RevGCN(args).to(device)
+    # model = DeeperGCN(args).to(device)
 
     # for name, param in model.named_parameters():
     #     print(name, param)

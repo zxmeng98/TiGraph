@@ -76,7 +76,9 @@ class RevGCN(torch.nn.Module):
 
         self.node_pred_linear = torch.nn.Linear(hidden_channels, args.out_size)
 
-    def forward(self, x, edge_index):
+    def forward(self, g, x):
+        u, v = g.edges()
+        edge_index = torch.stack((u, v), dim=0).to(torch.int64)
 
         node_features_1st = x
 
