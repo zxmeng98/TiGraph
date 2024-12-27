@@ -370,7 +370,7 @@ class ScheduleGPipe(PipelineScheduleSingle):
         target_mbs: Optional[List] = None,
         losses: Optional[List] = None,
         split_idx: torch.Tensor = None, # train/vlid/test indices
-        chunked_sg_ori_node_idxes: List = None,
+        chunked_sg_ori_node_idxes: List[torch.Tensor] = None,
     ):
         """
         Run one iteration of the pipeline schedule with list of microbatches.

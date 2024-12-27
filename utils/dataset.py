@@ -1,170 +1,268 @@
-from ogb.nodeproppred import PygNodePropPredDataset
-import pandas as pd
-from sklearn import preprocessing
-import os
 import numpy as np
-import os.path
-import torch_geometric as tg
 import torch
-import pickle
+import dgl
+from torch.nn import functional as F
+from torch.utils.data import DataLoader
+from functools import partial
 import scipy.sparse as sp
-from torch_scatter import scatter
-import random
+import scipy
+from torch_geometric.datasets import Planetoid, Amazon, Actor, CitationFull, Coauthor
+import torch_geometric.transforms as T
+from torch_geometric.utils import coalesce
+import os
+import pickle as pkl
+from ogb.nodeproppred import DglNodePropPredDataset, NodePropPredDataset
 
 
-class OGBNDataset(object):
-
-    def __init__(self, dataset_name='ogbn-proteins'):
-        """
-        download the corresponding dataset based on the input name of dataset appointed
-        the dataset will be divided into training, validation and test dataset
-        the graph object will be obtained, which has three attributes
-            edge_attr=[79122504, 8]
-            edge_index=[2, 79122504]
-            x=[132534, 8]
-            y=[132534, 112]
-        :param dataset_name:
-        """
-        self.dataset_name = dataset_name
-
-        self.dataset = PygNodePropPredDataset(name=self.dataset_name, root="/home/mzhang/data/")
-        self.splitted_idx = self.dataset.get_idx_split()
-        self.whole_graph = self.dataset[0]
-        self.length = 1
-
-        self.train_idx, self.valid_idx, self.test_idx = self.splitted_idx["train"], self.splitted_idx["valid"], self.splitted_idx["test"]
-        self.num_tasks = self.dataset.num_tasks
-        self.total_no_of_edges = self.whole_graph.edge_attr.shape[0]
-        self.total_no_of_nodes = self.whole_graph.y.shape[0]
-        self.species = self.whole_graph.node_species
-        self.y = self.whole_graph.y
-
-        self.edge_index = self.whole_graph.edge_index
-        self.edge_attr = self.whole_graph.edge_attr
-
-        self.x = self.generate_one_hot_encoding()
-        # transpose and then convert it to numpy array type
-        self.edge_index_array = self.edge_index.t().numpy()
-        # obtain edge index dict
-        self.edge_index_dict = self.edge_features_index()
-        # obtain adjacent matrix
-        self.adj = self.construct_adj()
-
-    def generate_one_hot_encoding(self):
-
-        le = preprocessing.LabelEncoder()
-        species_unique = torch.unique(self.species)
-        max_no = species_unique.max()
-        le.fit(species_unique % max_no)
-        species = le.transform(self.species.squeeze() % max_no)
-        species = np.expand_dims(species, axis=1)
-
-        enc = preprocessing.OneHotEncoder()
-        enc.fit(species)
-        one_hot_encoding = enc.transform(species).toarray()
-
-        return torch.FloatTensor(one_hot_encoding)
-
-    def extract_node_features(self, aggr='add'):
-
-        file_path = 'init_node_features_{}.pt'.format(aggr)
-
-        if os.path.isfile(file_path):
-            print('{} exists'.format(file_path))
-        else:
-            if aggr in ['add', 'mean', 'max']:
-                node_features = scatter(self.edge_attr,
-                                        self.edge_index[0],
-                                        dim=0,
-                                        dim_size=self.total_no_of_nodes,
-                                        reduce=aggr)
-            else:
-                raise Exception('Unknown Aggr Method')
-            torch.save(node_features, file_path)
-            print('Node features extracted are saved into file {}'.format(file_path))
-        return file_path
-
-    def construct_adj(self):
-        adj = sp.csr_matrix((np.ones(self.total_no_of_edges, dtype=np.uint8),
-                             (self.edge_index_array[:, 0], self.edge_index_array[:, 1])),
-                            shape=(self.total_no_of_nodes, self.total_no_of_nodes))
-        return adj
-
-    def edge_features_index(self):
-        file_name = 'edge_features_index_v2.pkl'
-        if os.path.isfile(file_name):
-            print('{} exists'.format(file_name))
-            with open(file_name, 'rb') as edge_features_index:
-                edge_index_dict = pickle.load(edge_features_index)
-        else:
-            df = pd.DataFrame()
-            df['1st_index'] = self.whole_graph.edge_index[0]
-            df['2nd_index'] = self.whole_graph.edge_index[1]
-            df_reset = df.reset_index()
-            key = zip(df_reset['1st_index'], df_reset['2nd_index'])
-            edge_index_dict = df_reset.set_index(key)['index'].to_dict()
-            with open(file_name, 'wb') as edge_features_index:
-                pickle.dump(edge_index_dict, edge_features_index)
-            print('Edges\' indexes information is saved into file {}'.format(file_name))
-        return edge_index_dict
-
-    @staticmethod
-    def random_partition_graph(num_nodes, cluster_number=100):
-        parts = np.random.randint(cluster_number, size=num_nodes)
-        return parts
-
-    
-    def generate_sub_graphs(self, parts, cluster_number=10, batch_size=1):
-
-        no_of_batches = cluster_number // batch_size
-
-        print('The number of clusters: {}'.format(cluster_number))
-
-        sg_nodes = [[] for _ in range(no_of_batches)]
-        sg_edges = [[] for _ in range(no_of_batches)]
-        sg_edges_orig = [[] for _ in range(no_of_batches)]
-        sg_edges_index = [[] for _ in range(no_of_batches)]
-
-        edges_no = 0
-
-        for cluster in range(no_of_batches):
-            sg_nodes[cluster] = np.where(parts == cluster)[0]
-            sg_edges[cluster] = tg.utils.from_scipy_sparse_matrix(self.adj[sg_nodes[cluster], :][:, sg_nodes[cluster]])[0]
-            edges_no += sg_edges[cluster].shape[1]
-            # mapper
-            mapper = {nd_idx: nd_orig_idx for nd_idx, nd_orig_idx in enumerate(sg_nodes[cluster])}
-            # map edges to original edges
-            sg_edges_orig[cluster] = OGBNDataset.edge_list_mapper(mapper, sg_edges[cluster])
-            # edge index
-            sg_edges_index[cluster] = [self.edge_index_dict[(edge[0], edge[1])] for edge in
-                                       sg_edges_orig[cluster].t().numpy()]
-        print('Total number edges of sub graphs: {}, of whole graph: {}, {:.2f} % edges are lost'.
-              format(edges_no, self.total_no_of_edges, (1 - edges_no / self.total_no_of_edges) * 100))
-        # for itm in sg_nodes:
-        #     print('The number of nodes in sub graph: {}'.format(len(itm)))
+def adj_normalize(mx):
+    "A' = (D + I)^-1/2 * ( A + I ) * (D + I)^-1/2"
+    mx = mx + sp.eye(mx.shape[0])
+    rowsum = np.array(mx.sum(1))
+    r_inv = np.power(rowsum, -0.5).flatten()
+    r_inv[np.isinf(r_inv)] = 0.
+    r_mat_inv = sp.diags(r_inv)
+    mx = r_mat_inv.dot(mx).dot(r_mat_inv)
+    return mx
 
 
-
-        return sg_nodes, sg_edges, sg_edges_index, sg_edges_orig
-
-    @staticmethod
-    def edge_list_mapper(mapper, sg_edges_list):
-        idx_1st = list(map(lambda x: mapper[x], sg_edges_list[0].tolist()))
-        idx_2nd = list(map(lambda x: mapper[x], sg_edges_list[1].tolist()))
-        sg_edges_orig = torch.LongTensor([idx_1st, idx_2nd])
-        return sg_edges_orig
+def eigenvector(L):
+    EigVal, EigVec = np.linalg.eig(L.toarray())
+    idx = EigVal.argsort()  # increasing order
+    EigVal, EigVec = EigVal[idx], np.real(EigVec[:, idx])
+    return torch.tensor(EigVec[:, 1:11], dtype = torch.float32)
 
 
-def random_split_idx(data_y, frac_train, frac_valid, frac_test, seed):
-    np.testing.assert_almost_equal(frac_train + frac_valid + frac_test, 1.0)
-    random.seed(seed)
-    all_idx = np.arange(data_y.shape[0])
-    random.shuffle(all_idx)
-    train_idx = all_idx[:int(frac_train * data_y.shape[0])]
-    val_idx = all_idx[int(frac_train * data_y.shape[0]):int((frac_train+frac_valid) * data_y.shape[0])]
-    test_idx = all_idx[int((frac_train+frac_valid) * data_y.shape[0]):]
-    split_idx = {'train': torch.tensor(train_idx),
-                'valid': torch.tensor(val_idx),
-                'test': torch.tensor(test_idx)}
-    # print(f"Train nodes: {len(train_idx)}, Valid nodes: {len(val_idx)}, Test nodes: {len(test_idx)}")
-    return split_idx
+def column_normalize(mx):
+    "A' = A * D^-1 "
+    rowsum = np.array(mx.sum(1))
+    r_inv = np.power(rowsum, -1.0).flatten()
+    r_inv[np.isinf(r_inv)] = 0.
+    r_mat_inv = sp.diags(r_inv)
+    mx = mx.dot(r_mat_inv)
+    return mx
+
+
+def preprocess(graph):
+    # make bidirected
+    feat = graph.ndata["feat"]
+    graph = dgl.to_bidirected(graph)
+    graph.ndata["feat"] = feat
+
+    # add self-loop
+    print(f"Total edges before adding self-loop {graph.number_of_edges()}")
+    graph = graph.remove_self_loop().add_self_loop()
+    print(f"Total edges after adding self-loop {graph.number_of_edges()}")
+
+    graph.create_formats_()
+
+    return graph
+
+
+def get_dataset(dataset_name):
+    print(f'Get dataset {dataset_name}...')
+
+    dataset_dir = "/home/mzhang/data/"
+    # if not os.path.exists(f'{dataset_dir}/{dataset_name}'): 
+    #     os.makedirs(f'{dataset_dir}/{dataset_name}')
+
+    # if os.path.exists(dataset_path):
+    #     print(f'Already downloaded. Loading {dataset_name}...')
+    #     data_x = torch.load(dataset_dir + dataset_name + '/x.pt')
+    #     data_y = torch.load(dataset_dir + dataset_name + '/y.pt')
+    #     adj = sp.load_npz(dataset_dir + dataset_name + '/adj.npz')
+        
+    #     normalized_adj = sp.load_npz(dataset_dir + dataset_name + '/normalized_adj.npz')
+    #     column_normalized_adj = sp.load_npz(dataset_dir + dataset_name + '/column_normalized_adj.npz')
+    # else: 
+    if True:
+        if dataset_name in ['cora', 'citeseer', 'pubmed']: 
+            dataset = Planetoid(root=dataset_dir, name=dataset_name)       
+            data = dataset[0]
+            data_x = data.x
+            data_y = data.y
+            edge_index = data.edge_index
+            
+            adj = sp.coo_matrix((np.ones(data.edge_index.shape[1]), (data.edge_index[0], data.edge_index[1])),
+                                        shape=(data.y.shape[0], data.y.shape[0]), dtype=np.float32)
+            normalized_adj = adj_normalize(adj)
+            column_normalized_adj = column_normalize(adj)
+
+        elif dataset_name in ['dblp']:
+            dataset = CitationFull(root=dataset_dir, name=dataset_name, transform=T.NormalizeFeatures())
+            data = dataset[0]
+            data_x = data.x
+            data_y = data.y
+            edge_index = data.edge_index
+            
+            adj = sp.coo_matrix((np.ones(data.edge_index.shape[1]), (data.edge_index[0], data.edge_index[1])),
+                                        shape=(data.y.shape[0], data.y.shape[0]), dtype=np.float32)
+            normalized_adj = adj_normalize(adj)
+            column_normalized_adj = column_normalize(adj)
+                
+        elif dataset_name in ["CS", "Physics"]:
+        # TODO: https://pytorch-geometric.readthedocs.io/en/latest/generated/torch_geometric.datasets.Coauthor.html
+            dataset = Coauthor(root=dataset_dir, name=dataset_name, transform=T.NormalizeFeatures())
+            data = dataset[0]
+            data_x = data.x
+            data_y = data.y
+            edge_index = data.edge_index
+            
+            adj = sp.coo_matrix((np.ones(data.edge_index.shape[1]), (data.edge_index[0], data.edge_index[1])),
+                                        shape=(data.y.shape[0], data.y.shape[0]), dtype=np.float32)
+            normalized_adj = adj_normalize(adj)
+            column_normalized_adj = column_normalize(adj)
+
+        elif dataset_name in ["Photo"]:
+            dataset = Amazon(root=dataset_dir, name=dataset_name)
+            data = dataset[0]
+            data_x = data.x
+            data_y = data.y
+            edge_index = data.edge_index
+            
+            adj = sp.coo_matrix((np.ones(data.edge_index.shape[1]), (data.edge_index[0], data.edge_index[1])),
+                                        shape=(data.y.shape[0], data.y.shape[0]), dtype=np.float32)
+            normalized_adj = adj_normalize(adj)
+            column_normalized_adj = column_normalize(adj)
+        
+        elif dataset_name in ['aminer']:
+            adj = pkl.load(open(os.path.join(dataset_dir, dataset_name, "{}.adj.sp.pkl".format(dataset_name)), "rb"))
+            data_x = pkl.load(
+                open(os.path.join(dataset_dir, dataset_name, "{}.features.pkl".format(dataset_name)), "rb"))
+            data_y = pkl.load(
+                open(os.path.join(dataset_dir, dataset_name, "{}.labels.pkl".format(dataset_name)), "rb"))
+            # random_state = np.random.RandomState(split_seed)
+            data_x = torch.tensor(data_x, dtype=torch.float32)
+            data_y = torch.tensor(data_y)
+            data_y = torch.argmax(data_y, -1)
+            normalized_adj = adj_normalize(adj)
+            column_normalized_adj = column_normalize(adj)
+
+            row, col = adj.nonzero()
+            row = torch.from_numpy(row).to(torch.long)
+            col = torch.from_numpy(col).to(torch.long)
+            edge_index = torch.stack([row, col], dim=0)
+            edge_index = coalesce(edge_index, num_nodes=data_x.size(0))
+            
+        elif dataset_name in ['reddit']:
+            adj = sp.load_npz(os.path.join(dataset_dir, dataset_name, '{}_adj.npz'.format(dataset_name)))
+            data_x = np.load(os.path.join(dataset_dir, dataset_name, '{}_feat.npy'.format(dataset_name)))
+            data_y = np.load(os.path.join(dataset_dir, dataset_name, '{}_labels.npy'.format(dataset_name)))
+            # random_state = np.random.RandomState(split_seed)
+            data_x = torch.tensor(data_x, dtype=torch.float32)
+            data_y = torch.tensor(data_y)
+            data_y = torch.argmax(data_y, -1)
+            normalized_adj = adj_normalize(adj)
+            column_normalized_adj = column_normalize(adj)
+
+            row, col = adj.nonzero()
+            row = torch.from_numpy(row).to(torch.long)
+            col = torch.from_numpy(col).to(torch.long)
+            edge_index = torch.stack([row, col], dim=0)
+            edge_index = coalesce(edge_index, num_nodes=data_x.size(0))
+
+            
+        elif dataset_name in ['Amazon2M']:
+            adj = sp.load_npz(os.path.join(dataset_dir, dataset_name, '{}_adj.npz'.format(dataset_name)))
+            data_x = np.load(os.path.join(dataset_dir, dataset_name, '{}_feat.npy'.format(dataset_name)))
+            data_y = np.load(os.path.join(dataset_dir, dataset_name, '{}_labels.npy'.format(dataset_name)))
+            data_x = torch.tensor(data_x, dtype=torch.float32)
+            data_y = torch.tensor(data_y)
+            data_y = torch.argmax(data_y, -1)
+            normalized_adj = adj_normalize(adj)
+            column_normalized_adj = column_normalize(adj)
+
+            row, col = adj.nonzero()
+            row = torch.from_numpy(row).to(torch.long)
+            col = torch.from_numpy(col).to(torch.long)
+            edge_index = torch.stack([row, col], dim=0)
+            edge_index = coalesce(edge_index, num_nodes=data_x.size(0))
+            
+        elif dataset_name in ['amazon']:
+            dataset_dir = "/home/mzhang/data/"
+            adj = sp.load_npz(os.path.join(dataset_dir, dataset_name, 'adj_full.npz'))
+            data_x = np.load(os.path.join(dataset_dir, dataset_name, 'feats.npy'))
+            data_y = np.load(os.path.join(dataset_dir, dataset_name, 'labels.npy'))
+            data_x = torch.tensor(data_x, dtype=torch.float32)
+            data_y = torch.tensor(data_y)
+            data_y = torch.argmax(data_y, -1)
+            normalized_adj = adj_normalize(adj)
+            column_normalized_adj = column_normalize(adj)
+
+            row, col = adj.nonzero()
+            row = torch.from_numpy(row).to(torch.long)
+            col = torch.from_numpy(col).to(torch.long)
+            edge_index = torch.stack([row, col], dim=0)
+            edge_index = coalesce(edge_index, num_nodes=data_x.size(0))
+            
+        elif dataset_name in ['pokec']:
+            fulldata = scipy.io.loadmat(f'/home/mzhang/work/GTNodeLevel/dataset/pokec.mat')
+            edge_index = torch.tensor(fulldata['edge_index'], dtype=torch.long)
+            
+            data_x = torch.tensor(fulldata['node_feat']).float()
+            label = fulldata['label'].flatten()
+            data_y = torch.tensor(label, dtype=torch.long)
+            
+            num_nodes = data_y.shape[0]
+            adj = sp.coo_matrix((np.ones(edge_index.shape[1]), (edge_index[0], edge_index[1])),
+                                        shape=(num_nodes, num_nodes), dtype=np.float32)
+          
+            
+            normalized_adj = adj_normalize(adj)
+            column_normalized_adj = column_normalize(adj)
+
+        elif dataset_name in {"ogbn-papers100M"}:
+            file_dir = '/home/mzhang/data/'
+            ogb_dataset = NodePropPredDataset(name=dataset_name, root=file_dir)
+            split_idx = ogb_dataset.get_idx_split()
+            idx_train, idx_val, idx_test = split_idx["train"], split_idx["valid"], split_idx["test"]
+            
+            data_y = torch.as_tensor(ogb_dataset.labels).squeeze(1)
+            # data_x = torch.as_tensor(ogb_dataset.graph['node_feat'])
+            edge_index = torch.as_tensor(ogb_dataset.graph['edge_index'])
+            # num_nodes=ogb_dataset.graph['num_nodes']
+            # adj = sp.coo_matrix((np.ones(edge_index.shape[1]), (edge_index[0], edge_index[1])),
+            #                         shape=(num_nodes, num_nodes), dtype=np.float32)
+            # normalized_adj = adj_normalize(adj)
+            # column_normalized_adj = column_normalize(adj)
+        
+        elif dataset_name in ["ogbn-arxiv", "ogbn-products"]:
+            ogb_dataset = DglNodePropPredDataset(name=dataset_name, root=dataset_dir)
+            g, data_y = ogb_dataset[0]
+            
+            num_nodes = g.num_nodes()
+            nodes_to_remove = torch.tensor([num_nodes-3, num_nodes-2, num_nodes-1])
+            g.remove_nodes(nodes_to_remove) 
+            data_y = torch.as_tensor(data_y).squeeze(1)
+            data_y = data_y[:-3]
+            # g = preprocess(g)
+            
+            split_idx = ogb_dataset.get_idx_split()
+            train_idx, valid_idx, test_idx = split_idx["train"], split_idx["valid"], split_idx["test"]
+            
+            keep_in_train = ~torch.isin(train_idx, nodes_to_remove)
+            train_idx = train_idx[keep_in_train]
+
+            keep_in_valid = ~torch.isin(valid_idx, nodes_to_remove)
+            valid_idx = valid_idx[keep_in_valid]
+
+            keep_in_test = ~torch.isin(test_idx, nodes_to_remove)
+            test_idx = test_idx[keep_in_test]
+            split_idx = {'train': train_idx.to(torch.int32),
+                'valid': valid_idx.to(torch.int32),
+                'test': test_idx.to(torch.int32)}
+            
+            data_x = g.ndata["feat"]
+            # num_nodes = ogb_dataset.graph['num_nodes']
+            # adj = sp.coo_matrix((np.ones(edge_index.shape[1]), (edge_index[0], edge_index[1])),
+            #                         shape=(num_nodes, num_nodes), dtype=np.float32)
+            # normalized_adj = adj_normalize(adj)
+            # column_normalized_adj = column_normalize(adj)
+
+        # sp.save_npz(dataset_dir + dataset_name + '/adj.npz', adj)
+        # sp.save_npz(dataset_dir + dataset_name + '/normalized_adj.npz', normalized_adj)
+        # dataset_dir = './dataset/'
+        # torch.save(data_x, dataset_dir + dataset_name + '/x.pt')
+        # torch.save(data_y, dataset_dir + dataset_name + '/y.pt')
+        # torch.save(edge_index, dataset_dir + dataset_name + '/edge_index.pt')
+        # sp.save_npz(dataset_dir + dataset_name + '/column_normalized_adj.npz', column_normalized_adj)
+        return g, split_idx, data_x, data_y

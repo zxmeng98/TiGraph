@@ -12,10 +12,11 @@ import random
 import numpy as np
 import os
 from GNNs.RevGNN.revgcn_pp import RevGCN
-from utils.dataset import OGBNDataset, random_split_idx
+from utils.dataset import get_dataset
 import torch.distributed as dist
 from pipelining import pipeline, SplitPoint, PipelineStage, ScheduleGPipe
 from pipelining._utils import partition_uniform
+from ogb.nodeproppred import DglNodePropPredDataset
 
 
 # global rank, device, pp_group, stage_index, num_stages
@@ -69,7 +70,7 @@ def manual_model_split(args, model, example_input_microbatch) -> PipelineStage:
     parts = partition_uniform(args.num_layers, num_stages)
     start = parts[stage_index]
     stop = parts[stage_index + 1]
-    print(f'stage={stage_index} layers={stop} - {start}')
+    print(f'stage={stage_index} layers={start} - {stop}')
     if stage_index == 0:
         # prepare the first stage model
         model.gcns = model.gcns[start:stop]
@@ -130,7 +131,7 @@ if __name__ == "__main__":
         
     parser = argparse.ArgumentParser()
     # dataset
-    parser.add_argument('--dataset', type=str, default='pubmed',
+    parser.add_argument('--dataset', type=str, default='ogbn-arxiv',
                         help='dataset name (default: ogbn-proteins)')
     parser.add_argument('--cluster_number', type=int, default=10,
                         help='the number of sub-graphs for training')
@@ -149,9 +150,9 @@ if __name__ == "__main__":
                         help='number of epochs to train (default: 2000)')
     parser.add_argument('--num_evals', type=int, default=1,
                         help='The number of evaluation times')
-    parser.add_argument('--lr', type=float, default=0.001,
+    parser.add_argument('--lr', type=float, default=0.002,
                         help='learning rate set for optimizer.')
-    parser.add_argument('--dropout', type=float, default=0.2)
+    parser.add_argument('--dropout', type=float, default=0.75)
 
     # pipeline pearallel 
     parser.add_argument('--rank', type=int, default=None,
@@ -167,7 +168,9 @@ if __name__ == "__main__":
                        help='Timeout minutes for torch.distributed.')
     parser.add_argument('--pipeline-parallel-size', type=int, default=4,
                        help='Enable pipeline parallel.')
-    parser.add_argument('--mb_size', type=int, default=19717,
+    parser.add_argument('--bs', type=int, default=84670,
+                       help='Number of microbatches.')
+    parser.add_argument('--mb_size', type=int, default=42335,
                        help='Number of microbatches.')
     
     # model
@@ -177,7 +180,7 @@ if __name__ == "__main__":
                         help='gcn backbone [deepergcn, weighttied, deq, rev]')
     parser.add_argument('--group', type=int, default=2,
                         help='num of groups for rev gnns')
-    parser.add_argument('--num_layers', type=int, default=448,
+    parser.add_argument('--num_layers', type=int, default=112,
                         help='the number of layers of the networks')
     parser.add_argument('--num_steps', type=int, default=3,
                         help='the number of steps of weight tied layers')
@@ -187,7 +190,7 @@ if __name__ == "__main__":
                         help='the dimension of embeddings of nodes and edges')
     parser.add_argument('--out_size', type=int, default=3,
                         help='the dimension of embeddings of nodes and edges')
-    parser.add_argument('--hidden_channels', type=int, default=224,
+    parser.add_argument('--hidden_channels', type=int, default=256,
                         help='the dimension of embeddings of nodes and edges')
     parser.add_argument('--block', default='res', type=str,
                         help='graph backbone block type {res+, res, dense, plain}')
@@ -253,19 +256,26 @@ if __name__ == "__main__":
         data = CiteseerGraphDataset(transform=transform)
     elif args.dataset == "pubmed":
         data = PubmedGraphDataset(transform=transform)
+    elif args.dataset == "ogbn-arxiv":
+        data = DglNodePropPredDataset(name=args.dataset, root="/home/mzhang/data/")
     else:
         raise ValueError("Unknown dataset: {}".format(args.dataset))
     
-    g = data[0]
-    g = g.int()
-    # g.remove_nodes(np.arange(5)) 
-    features = g.ndata["feat"]
-    labels = g.ndata["label"]
-    masks = g.ndata["train_mask"], g.ndata["val_mask"], g.ndata["test_mask"]
+    masks = None
+    if args.dataset in ["cora", "citeseer", "pubmed"]:
+        g = data[0]
+        g = g.int()
+        # g.remove_nodes(np.arange(5)) 
+        features = g.ndata["feat"]
+        labels = g.ndata["label"]
+        masks = g.ndata["train_mask"], g.ndata["val_mask"], g.ndata["test_mask"]
+    elif args.dataset == "ogbn-arxiv":
+        g, split_idx, features, labels = get_dataset(args.dataset)
+    args.in_size = features.shape[1]
+    args.out_size = data.num_classes
+    
     # Generate train data
-    if masks is None:
-        split_idx = random_split_idx(labels, frac_train=0.6, frac_valid=0.2, frac_test=0.2, seed=args.seed)
-    else:
+    if masks is not None:
         train_idx = torch.nonzero(masks[0], as_tuple=True)[0]  
         val_idx = torch.nonzero(masks[1], as_tuple=True)[0]  
         test_idx = torch.nonzero(masks[2], as_tuple=True)[0]    
@@ -276,47 +286,52 @@ if __name__ == "__main__":
         print('Dataset load successfully')
         print(f"Train nodes: {split_idx['train'].shape[0]}, Val nodes: {split_idx['valid'].shape[0]}, Test nodes: {split_idx['test'].shape[0]}")
     
-
-    all_idx = torch.arange(features.shape[0])
-    num_microbatches = all_idx.shape[0] // args.mb_size # TODO 没有考虑到不整除的情况
-    microbatch_idxes = torch.tensor_split(all_idx, num_microbatches)
-    microbatch_g = dgl.node_subgraph(g, microbatch_idxes[0].to(torch.int32))
+    all_idx = torch.randperm(features.shape[0])
+    g.ndata['random_idx'] = all_idx
+    num_batches = all_idx.shape[0] // args.bs # TODO 没有考虑到不整除的情况
+    batch_idxes = torch.tensor_split(all_idx, num_batches)
+    
+    if num_batches > 1:
+        batch_g = dgl.node_subgraph(g, batch_idxes[0])
+    else:
+        batch_g = g
+    
+    num_microbatches = batch_idxes[0].shape[0] // args.mb_size
+    batch_local_idxes = torch.arange(batch_g.num_nodes())
+    microbatch_idxes = torch.tensor_split(batch_local_idxes, num_microbatches)
+    microbatch_g = dgl.node_subgraph(batch_g, microbatch_idxes[0])
+    
     microbatch_g.ndata.clear()
     microbatch_g.edata.clear()
-    u, v = microbatch_g.edges()
-    mb_edges_ = torch.stack((u, v), dim=0).to(device)
     example_input_microbatch = (microbatch_g, features[microbatch_idxes[0]])
     
-    # Pack subgraph trained in each iter beforehand
-    sg_node_idxes = [all_idx]
-    
-    num_batch = len(sg_node_idxes)
-    
-    g = g.to(device)
-    features = features.to(device)
-    lables = labels.to(device)
-    labels_one_hot = F.one_hot(labels, num_classes=args.out_size).float() 
-    labels_one_hot = labels_one_hot.to(device)  
+    # Pack batch graph trained in each iter beforehand
+    packed_batch = []
+    if num_batches > 1:
+        for i in range(num_batches):
+            idx_i = batch_idxes[i]
+            g_i = dgl.node_subgraph(g, idx_i)
+            features_i = features[idx_i]
+            labels_i = labels[idx_i]
+            packed_batch.append((g_i, features_i, labels_i))
+    elif num_batches == 1:
+        packed_batch.append((g, features, labels))
 
-    # create GCN model
-    args.in_size = features.shape[1]
-    args.out_size = data.num_classes
-
+    # Create GCN model
     model = RevGCN(args)
     stage = manual_model_split(args, model, example_input_microbatch)
 
-    loss_fcn = nn.BCEWithLogitsLoss()
+    loss_fcn = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(stage.submod.parameters(), lr=args.lr)
+    schedule = ScheduleGPipe(stage, n_microbatches=num_microbatches, loss_fn=loss_fcn)
 
-    schedule = ScheduleGPipe(stage, n_microbatches=num_microbatches, loss_fn=loss_fcn, sg_node_idxes=sg_node_idxes)
-
-    # convert model and graph to bfloat16 if needed
+    # Convert model and graph to bfloat16 if needed
     if args.dt == "bfloat16":
         g = dgl.to_bfloat16(g)
         features = features.to(dtype=torch.bfloat16)
         model = model.to(dtype=torch.bfloat16)
 
-    # model training
+    # Model training
     if rank == 0:
         print("Training...")
 
@@ -325,12 +340,14 @@ if __name__ == "__main__":
     for epoch in range(args.epochs):
         optimizer.zero_grad()
         stage.submod.train()
-        for i in range(num_batch):
+        for i in range(num_batches):
+            g_i, features_i, labels_i = packed_batch[i]
+            g_i, features_i, labels_i = g_i.to(device), features_i.to(device), labels_i.to(device)
             if rank == 0:
-                schedule.step(g, features, split_idx=split_idx['train'], batch_idx=i)
+                schedule.step(g_i, features_i, split_idx=split_idx['train'], batch_idx=i)
             elif rank == num_stages - 1:
                 losses = []
-                output = schedule.step(g, target=labels_one_hot, losses=losses, split_idx=split_idx['train'], batch_idx=i) 
+                output = schedule.step(g_i, target=labels_i, losses=losses, split_idx=split_idx['train'], batch_idx=i) 
                 for i in range(len(losses)):
                     losses[i] = losses[i].item()
                 loss = np.mean(losses)
@@ -342,7 +359,7 @@ if __name__ == "__main__":
                 )
 
             else:
-                schedule.step(g, split_idx=split_idx['train'], batch_idx=i)
+                schedule.step(g_i, split_idx=split_idx['train'], batch_idx=i)
 
             torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
             optimizer.step()
@@ -371,7 +388,7 @@ if __name__ == "__main__":
 
         if not os.path.exists(f'./exps/{args.dataset}'): 
             os.makedirs(f'./exps/{args.dataset}')
-        np.save(f'./exps/{args.dataset}/{args.model}_pp_loss-19712', np.array(loss_list))
+        # np.save(f'./exps/{args.dataset}/{args.model}_pp_loss-19712', np.array(loss_list))
         # np.save(f'./exps/{args.dataset}/{args.model}_val_acc', np.array(val_acc_list))
 
     dist.destroy_process_group()

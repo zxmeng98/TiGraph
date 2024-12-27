@@ -249,7 +249,7 @@ def _shard_dict_of_args(
 
 
 def is_subgraph(graph):
-    return 'dgl.NID' in graph.ndata and 'dgl.EID' in graph.edata
+    return '_ID' in graph.ndata or '_ID' in graph.edata
 
 
 def _shard_dict_of_args_graph(
@@ -359,20 +359,21 @@ def _shard_dict_of_args_graph(
                         
                 elif isinstance(v, dgl.DGLGraph):
                     # NOTE: 如果要在schedule里面只计算train的loss，则v最好是打乱过节点生成的图
-                    all_idx = torch.arange(v.num_nodes())
-                    # all_idx = torch.randperm(v.num_nodes())
-                    chunk_idxes = torch.tensor_split(all_idx, real_num_chunks)
+                    if is_subgraph(v):
+                        batch_idx = torch.arange(v.num_nodes())
+                    else:
+                        batch_idx = v.ndata["random_idx"]
+                    chunk_idxes = torch.tensor_split(batch_idx, real_num_chunks)
                     chunk_graphs = []
                     for each_chunk_idx in chunk_idxes:
-                        each_chunk_idx = each_chunk_idx.to(torch.int32)
+                        # each_chunk_idx = each_chunk_idx.to(torch.int32)
                         chunk_g = dgl.node_subgraph(v, each_chunk_idx.to(v.device))
                         
                         # Map chunk_g node index to original graph node index
                         if is_subgraph(v):
                             ori_node_idxes = v.ndata[dgl.NID][chunk_g.ndata[dgl.NID]] 
                         else:
-                            v_node_idxes = v.nodes()
-                            ori_node_idxes = v_node_idxes[chunk_g.ndata[dgl.NID]]
+                            ori_node_idxes = chunk_g.ndata[dgl.NID]
                             
                         # Pop all features, only save edge info
                         chunk_g.ndata.clear()
