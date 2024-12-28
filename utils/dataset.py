@@ -59,7 +59,7 @@ def preprocess(graph):
 
 
 def get_dataset(dataset_name):
-    print(f'Get dataset {dataset_name}...')
+    # print(f'Get dataset {dataset_name}...')
 
     dataset_dir = "/home/mzhang/data/"
     # if not os.path.exists(f'{dataset_dir}/{dataset_name}'): 
@@ -266,3 +266,7 @@ def get_dataset(dataset_name):
         # torch.save(edge_index, dataset_dir + dataset_name + '/edge_index.pt')
         # sp.save_npz(dataset_dir + dataset_name + '/column_normalized_adj.npz', column_normalized_adj)
         return g, split_idx, data_x, data_y
+    
+
+def intersection(lst1, lst2):
+    return list(set(lst1) & set(lst2))

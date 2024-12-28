@@ -17,6 +17,7 @@ import torch.distributed as dist
 from pipelining import pipeline, SplitPoint, PipelineStage, ScheduleGPipe
 from pipelining._utils import partition_uniform
 from ogb.nodeproppred import DglNodePropPredDataset
+from utils.dataset import intersection
 
 
 # global rank, device, pp_group, stage_index, num_stages
@@ -105,25 +106,54 @@ def manual_model_split(args, model, example_input_microbatch) -> PipelineStage:
     return stage
 
 
-def evaluate(args, g, features, labels, mask, stage, schedule):
+def evaluate(args, packed_batch, batch_idxes, split_idx, stage, schedule):
+    valid_output, test_output = [], []
+    valid_labels, test_labels = [], []
     stage.submod.eval()
-    if rank == 0:
-        schedule.step(g, features)
-        return None
-    elif rank == num_stages - 1:
-        losses = []
-        output = schedule.step(g, target=labels, losses=losses)   
-        eval_output = output
-        _, indices = torch.max(eval_output, dim=1)
-        _, eval_labels = torch.max(labels, dim=1)
-        correct = torch.sum(indices == eval_labels)
-        eval_acc = correct.item() * 1.0 / len(eval_labels)
-        return eval_acc
-    else:
-        schedule.step(g)
-        return None
+    for i in range(len(batch_idxes)):
+        g_i, features_i, labels_i = packed_batch[i]
+        g_i, features_i, labels_i = g_i.to(device), features_i.to(device), labels_i.to(device)
+        batch_idx = batch_idxes[i].tolist()
+        if rank == 0:
+            schedule.step(g_i, features_i, split_idx=split_idx['valid'])
+        elif rank == num_stages - 1:
+            output = schedule.step(g_i, target=labels_i, split_idx=split_idx['valid'])   
+            mapper = {node: idx for idx, node in enumerate(batch_idx)}
+            inter_valid_node = intersection(batch_idx, split_idx['valid'].tolist())
+            inter_test_node = intersection(batch_idx, split_idx['test'].tolist())
+            local_valid_idx = [mapper[node] for node in inter_valid_node]
+            local_test_idx = [mapper[node] for node in inter_test_node]
 
-        # print("Test accuracy {:.4f}".format(eval_acc))
+            valid_output.append(output[local_valid_idx])
+            test_output.append(output[local_test_idx])
+            valid_labels.append(labels_i[local_valid_idx])
+            test_labels.append(labels_i[local_test_idx])
+        else:
+            schedule.step(g_i, split_idx=split_idx['valid'])
+    
+    if rank == num_stages - 1:
+        # Need to make sure labels and outputs match. 
+        # 1. Save local labels in each batch and use them compute. 
+        # 2. Can reorder outputs to match the original labels[split_idx['valid']].
+        valid_output = torch.cat(valid_output, 0)
+        test_output = torch.cat(test_output, 0)
+        valid_labels = torch.cat(valid_labels, 0)
+        test_labels = torch.cat(test_labels, 0)
+
+        _, valid_indices = torch.max(valid_output, dim=1)
+        _, test_indices = torch.max(test_output, dim=1)
+
+        assert len(valid_indices) == len(valid_labels)
+        assert len(test_indices) == len(test_labels)
+
+        valid_correct = torch.sum(valid_indices == valid_labels)
+        test_correct = torch.sum(test_indices == test_labels)
+
+        valid_acc = valid_correct.item() * 100.0 / len(valid_indices)
+        test_acc = test_correct.item() * 100.0 / len(test_indices)
+        print("Valid acc: {:.4f}. Test acc: {:.4f}".format(valid_acc, test_acc))
+        return (valid_acc, test_acc)
+        
     
 
 if __name__ == "__main__":
@@ -146,7 +176,7 @@ if __name__ == "__main__":
     parser.add_argument('--use_gpu', action='store_true')
     parser.add_argument('--device', type=int, default=0,
                         help='which gpu to use if any (default: 0)')
-    parser.add_argument('--epochs', type=int, default=200,
+    parser.add_argument('--epochs', type=int, default=2000,
                         help='number of epochs to train (default: 2000)')
     parser.add_argument('--num_evals', type=int, default=1,
                         help='The number of evaluation times')
@@ -283,8 +313,9 @@ if __name__ == "__main__":
                 'valid': val_idx.to(torch.int32),
                 'test': test_idx.to(torch.int32)}
     if rank == 0:
-        print('Dataset load successfully')
+        print(f"{args.dataset} load successfully")
         print(f"Train nodes: {split_idx['train'].shape[0]}, Val nodes: {split_idx['valid'].shape[0]}, Test nodes: {split_idx['test'].shape[0]}")
+
     
     all_idx = torch.randperm(features.shape[0])
     g.ndata['random_idx'] = all_idx
@@ -304,6 +335,9 @@ if __name__ == "__main__":
     microbatch_g.ndata.clear()
     microbatch_g.edata.clear()
     example_input_microbatch = (microbatch_g, features[microbatch_idxes[0]])
+
+    if rank == 0:
+        print(f"Num of train batches: {num_batches}, num of train microbatches: {num_microbatches}")
     
     # Pack batch graph trained in each iter beforehand
     packed_batch = []
@@ -335,8 +369,8 @@ if __name__ == "__main__":
     if rank == 0:
         print("Training...")
 
-    loss_list, val_acc_list = [], []
     # Training loop
+    loss_list, val_acc_list = [], [] 
     for epoch in range(args.epochs):
         optimizer.zero_grad()
         stage.submod.train()
@@ -344,39 +378,39 @@ if __name__ == "__main__":
             g_i, features_i, labels_i = packed_batch[i]
             g_i, features_i, labels_i = g_i.to(device), features_i.to(device), labels_i.to(device)
             if rank == 0:
-                schedule.step(g_i, features_i, split_idx=split_idx['train'], batch_idx=i)
+                schedule.step(g_i, features_i, split_idx=split_idx['train'])
             elif rank == num_stages - 1:
                 losses = []
-                output = schedule.step(g_i, target=labels_i, losses=losses, split_idx=split_idx['train'], batch_idx=i) 
+                output = schedule.step(g_i, target=labels_i, losses=losses, split_idx=split_idx['train']) 
                 for i in range(len(losses)):
                     losses[i] = losses[i].item()
                 loss = np.mean(losses)
                 loss_list.append(loss)
-                print(
+
+            else:
+                schedule.step(g_i, split_idx=split_idx['train'])
+
+            torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
+            optimizer.step()
+        
+        if rank == num_stages - 1:
+            print(
                     "Epoch {:05d} | Loss {:.4f} ".format(
                         epoch, loss
                     )
                 )
 
-            else:
-                schedule.step(g_i, split_idx=split_idx['train'], batch_idx=i)
-
-            torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
-            optimizer.step()
-
-        # # Validation
-        # if epoch % 5 == 0:
-        #     num_microbatches = split_idx['valid'].shape[0] // args.mb_size
-        #     valid_schedule = ScheduleGPipe(stage, n_microbatches=num_microbatches, loss_fn=loss_fcn, masks=masks)
-        #     val_acc = evaluate(args, valid_g, valid_features, valid_labels, masks[1], stage, valid_schedule)
-        #     if rank == num_stages - 1:  
-        #         print(
-        #             "Epoch {:05d} | Loss {:.4f} | Val Accuracy {:.4f} ".format(
-        #                 epoch, loss.item(), val_acc
-        #             )
-        #         )
-        #         loss_list.append(loss.item())
-        #         val_acc_list.append(val_acc)
+        # Validation
+        if epoch % 5 == 0:
+            results = evaluate(args, packed_batch, batch_idxes, split_idx, stage, schedule)
+            # if rank == num_stages - 1:  
+            #     print(
+            #         "Epoch {:05d} | Loss {:.4f} | Val Accuracy {:.4f} ".format(
+            #             epoch, loss.item(), val_acc
+            #         )
+            #     )
+            #     loss_list.append(loss.item())
+            #     val_acc_list.append(val_acc)
         
 
     # Test

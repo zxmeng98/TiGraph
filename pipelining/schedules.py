@@ -77,10 +77,10 @@ class _PipelineSchedule(ABC):
         self._internal_losses: List[torch.Tensor] = []
         logger.info(f"Using {self.__class__.__name__}")  # noqa: G004
 
+
     def _maybe_compute_loss(self, stage, output, target_mbs, mb_index, split_idx, chunk_sg_node_idx):
         if stage.is_last and self._has_backward:
-            loss = self._compute_loss_partial(output, target_mbs[mb_index], split_idx, chunk_sg_node_idx)  # type: ignore[index]
-            # print(f'mb: {mb_index}, {loss.item()}')
+            loss = self._compute_loss_subset(output, target_mbs[mb_index], split_idx, chunk_sg_node_idx)  # type: ignore[index]
             self._internal_losses.append(loss)
 
     def _maybe_get_loss(self, stage, mb_index):
@@ -196,7 +196,7 @@ class _PipelineSchedule(ABC):
         return list(set(lst1) & set(lst2))
 
     
-    def _compute_loss_partial(self, output, target, split_idx, chunk_sg_node_idx):
+    def _compute_loss_subset(self, output, target, split_idx, chunk_sg_node_idx):
         """
         split_idx: train/valid/test node index
         chunk_sg_node_idx: original node index of current trained nodes
@@ -206,7 +206,6 @@ class _PipelineSchedule(ABC):
         inter_idx = self.intersection(chunk_sg_node_idx.tolist(), split_idx.tolist()) # original train idx
         training_idx = [mapper[t_idx] for t_idx in inter_idx] # map -> sub graph node idx 
         
-        # print(training_idx)
         return self._loss_fn(output[training_idx], target[training_idx])  # type: ignore[misc]
         # return self._loss_fn(output, target)
 
@@ -299,7 +298,6 @@ class PipelineScheduleSingle(_PipelineSchedule):
         args_chunk_spec: Optional[Tuple[TensorChunkSpec, ...]] = None,
         kwargs_chunk_spec: Optional[Dict[str, TensorChunkSpec]] = None,
         output_merge_spec: Optional[Union[Dict[str, Any], Tuple[Any]]] = None,
-        sg_node_idxes: List[torch.Tensor] = None,
     ):
         # Init parent
         super().__init__(
@@ -314,7 +312,6 @@ class PipelineScheduleSingle(_PipelineSchedule):
         self._num_stages = stage.num_stages
         # Set the same has_backward flag for stage object
         self._stage.has_backward = self._has_backward
-        self.sg_node_idxes = sg_node_idxes
 
         # TODO: later replace this with lazy shape inference during forward
         # Prepare forward send/recv infrastructure for stage
@@ -322,7 +319,7 @@ class PipelineScheduleSingle(_PipelineSchedule):
         if self._has_backward:
             stage._prepare_backward_infra(n_microbatches)
 
-    def step(self, *args, target=None, losses: Optional[List] = None, split_idx: torch.Tensor = None, batch_idx: int = None, **kwargs):
+    def step(self, *args, target=None, losses: Optional[List] = None, split_idx: torch.Tensor = None, **kwargs):
         """
         Run one iteration of the pipeline schedule with *whole-batch* input.
         Will chunk the input into microbatches automatically, and go through the
