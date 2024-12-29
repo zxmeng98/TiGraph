@@ -11,27 +11,13 @@ from dgl.data import CiteseerGraphDataset, CoraGraphDataset, PubmedGraphDataset
 import random
 import numpy as np
 import os
-from GNNs.RevGNN.revgcn_pp import RevGCN
-from utils.dataset import get_dataset, adjust_dataset
+from GNNs.resgnn_pp import DeeperGCN
+from utils.dataset import intersection
 import torch.distributed as dist
 from pipelining import pipeline, SplitPoint, PipelineStage, ScheduleGPipe
 from pipelining._utils import partition_uniform
-from ogb.nodeproppred import DglNodePropPredDataset
-from utils.dataset import intersection
+from utils.dataset import get_dataset, adjust_dataset
 
-
-# global rank, device, pp_group, stage_index, num_stages
-# def init_distributed():
-#    global rank, device, pp_group, stage_index, num_stages
-#    rank = int(os.environ["LOCAL_RANK"])
-#    world_size = int(os.environ["WORLD_SIZE"])
-#    device = torch.device(f"cuda:{rank}") if torch.cuda.is_available() else torch.device("cpu")
-#    dist.init_process_group("nccl")
-
-#    # This group can be a sub-group in the N-D parallel case
-#    pp_group = dist.new_group()
-#    stage_index = rank
-#    num_stages = world_size
    
 global rank, device, pp_group, stage_index, num_stages
 def init_distributed():
@@ -68,33 +54,45 @@ def init_distributed():
 
 
 def manual_model_split(args, model, example_input_microbatch) -> PipelineStage:
+    # NOTE: each stage model should correctly split, otherwise will stuck. So better also pass output exmaple args.
     parts = partition_uniform(args.num_layers, num_stages)
     start = parts[stage_index]
     stop = parts[stage_index + 1]
-    print(f'stage={stage_index} layers={start} - {stop}')
+    print(f'stage={stage_index} layers = {start}-{stop}')
     if stage_index == 0:
         # prepare the first stage model
+        model.first_stage = True
+        model.last_stage = False
         model.gcns = model.gcns[start:stop]
-        model.last_norm = None
-        model.dropout_layer = None
+        model.layer_norms = model.layer_norms[start:stop-1] 
         model.node_pred_linear = None
+
         stage_input_microbatch = example_input_microbatch
+        stage_output_microbatch = torch.randn(example_input_microbatch[1].shape[0], args.hidden_channels)
 
     elif stage_index == num_stages - 1:
-        # prepare the second stage model
+        # prepare final stage model
+        model.first_stage = False
+        model.last_stage = True
         model.node_features_encoder = None
         model.gcns = model.gcns[start:stop]
-        feature_input_microbatch = torch.randn(example_input_microbatch[1].shape[0], args.hidden_channels)
-        stage_input_microbatch = (example_input_microbatch[0], feature_input_microbatch)
+        model.layer_norms = model.layer_norms[start-1:stop] 
 
+        x_input_microbatch = torch.randn(example_input_microbatch[1].shape[0], args.hidden_channels)
+        stage_input_microbatch = (example_input_microbatch[0], x_input_microbatch)
+        stage_output_microbatch = torch.randn(example_input_microbatch[1].shape[0], args.out_size)
     else:
+        # prepare middle stage model
+        model.first_stage = False
+        model.last_stage = False
         model.node_features_encoder = None
         model.gcns = model.gcns[start:stop]
-        model.last_norm = None
-        model.dropout_layer = None
+        model.layer_norms = model.layer_norms[start-1:stop-1]
         model.node_pred_linear = None
-        feature_input_microbatch = torch.randn(example_input_microbatch[1].shape[0], args.hidden_channels)
-        stage_input_microbatch = (example_input_microbatch[0], feature_input_microbatch)
+
+        x_input_microbatch = torch.randn(example_input_microbatch[1].shape[0], args.hidden_channels)
+        stage_input_microbatch = (example_input_microbatch[0], x_input_microbatch)
+        stage_output_microbatch = torch.randn(example_input_microbatch[1].shape[0], args.hidden_channels)
         
     stage = PipelineStage(
       model,
@@ -102,6 +100,7 @@ def manual_model_split(args, model, example_input_microbatch) -> PipelineStage:
       num_stages,
       device,
       input_args=stage_input_microbatch,
+      output_args=stage_output_microbatch,
    )
     return stage
 
@@ -151,17 +150,16 @@ def evaluate(args, packed_batch, batch_idxes, split_idx, stage, schedule):
 
         valid_acc = valid_correct.item() * 100.0 / len(valid_indices)
         test_acc = test_correct.item() * 100.0 / len(test_indices)
-        print("Valid acc: {:.2f}%. Test acc: {:.2f}%".format(valid_acc, test_acc))
+        print("Valid acc: {:.4f}. Test acc: {:.4f}".format(valid_acc, test_acc))
         return (valid_acc, test_acc)
         
-    
 
 if __name__ == "__main__":
     init_distributed()
         
     parser = argparse.ArgumentParser()
     # dataset
-    parser.add_argument('--dataset', type=str, default='ogbn-arxiv',
+    parser.add_argument('--dataset', type=str, default='pubmed',
                         help='dataset name (default: ogbn-proteins)')
     parser.add_argument('--cluster_number', type=int, default=10,
                         help='the number of sub-graphs for training')
@@ -180,9 +178,9 @@ if __name__ == "__main__":
                         help='number of epochs to train (default: 2000)')
     parser.add_argument('--num_evals', type=int, default=1,
                         help='The number of evaluation times')
-    parser.add_argument('--lr', type=float, default=0.002,
+    parser.add_argument('--lr', type=float, default=0.001,
                         help='learning rate set for optimizer.')
-    parser.add_argument('--dropout', type=float, default=0.75)
+    parser.add_argument('--dropout', type=float, default=0.2)
 
     # pipeline pearallel 
     parser.add_argument('--rank', type=int, default=None,
@@ -202,10 +200,8 @@ if __name__ == "__main__":
                        help='Number of microbatches.')
     parser.add_argument('--mb_size', type=int, default=42335,
                        help='Number of microbatches.')
-    
+
     # model
-    parser.add_argument('--model', type=str, default='revgnn',
-                        help='gcn backbone [revgnn, resgnn]')
     parser.add_argument('--backbone', type=str, default='rev',
                         help='gcn backbone [deepergcn, weighttied, deq, rev]')
     parser.add_argument('--group', type=int, default=2,
@@ -220,9 +216,9 @@ if __name__ == "__main__":
                         help='the dimension of embeddings of nodes and edges')
     parser.add_argument('--out_size', type=int, default=3,
                         help='the dimension of embeddings of nodes and edges')
-    parser.add_argument('--hidden_channels', type=int, default=256,
+    parser.add_argument('--hidden_channels', type=int, default=64,
                         help='the dimension of embeddings of nodes and edges')
-    parser.add_argument('--block', default='res', type=str,
+    parser.add_argument('--block', default='res+', type=str,
                         help='graph backbone block type {res+, res, dense, plain}')
     parser.add_argument('--conv', type=str, default='gen',
                         help='the type of GCNs')
@@ -285,7 +281,7 @@ if __name__ == "__main__":
     num_batches = all_idx.shape[0] // args.bs 
     args.in_size = features.shape[1]
     args.out_size = num_classes
-    
+
     if rank == 0:
         print(f"{args.dataset} load successfully")
         print(f"Train nodes: {split_idx['train'].shape[0]}, Val nodes: {split_idx['valid'].shape[0]}, Test nodes: {split_idx['test'].shape[0]}")
@@ -296,7 +292,7 @@ if __name__ == "__main__":
         batch_g = dgl.node_subgraph(g, batch_idxes[0])
     else:
         batch_g = g
-    
+
     num_microbatches = batch_idxes[0].shape[0] // args.mb_size
     batch_local_idxes = torch.arange(batch_g.num_nodes())
     microbatch_idxes = torch.tensor_split(batch_local_idxes, num_microbatches)
@@ -308,7 +304,7 @@ if __name__ == "__main__":
 
     if rank == 0:
         print(f"Num of train batches: {num_batches}, num of train microbatches: {num_microbatches}, microbatch size: {args.mb_size}")
-    
+
     # Pack batch graph trained in each iter beforehand
     packed_batch = []
     if num_batches > 1:
@@ -322,25 +318,25 @@ if __name__ == "__main__":
         packed_batch.append((g, features, labels))
 
     # Create GCN model
-    model = RevGCN(args)
+    model = DeeperGCN(args)
     stage = manual_model_split(args, model, example_input_microbatch)
 
     loss_fcn = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(stage.submod.parameters(), lr=args.lr)
     schedule = ScheduleGPipe(stage, n_microbatches=num_microbatches, loss_fn=loss_fcn)
 
-    # Convert model and graph to bfloat16 if needed
+    # convert model and graph to bfloat16 if needed
     if args.dt == "bfloat16":
         g = dgl.to_bfloat16(g)
         features = features.to(dtype=torch.bfloat16)
         model = model.to(dtype=torch.bfloat16)
 
-    # Model training
+    # model training
     if rank == 0:
         print("Training...")
 
-    # Training loop
-    loss_list, val_acc_list = [], [] 
+    loss_list, val_acc_list = [], []
+    # training loop
     for epoch in range(args.epochs):
         optimizer.zero_grad()
         stage.submod.train()
@@ -373,15 +369,6 @@ if __name__ == "__main__":
         # Validation
         if epoch % 5 == 0:
             results = evaluate(args, packed_batch, batch_idxes, split_idx, stage, schedule)
-            # if rank == num_stages - 1:  
-            #     print(
-            #         "Epoch {:05d} | Loss {:.4f} | Val Accuracy {:.4f} ".format(
-            #             epoch, loss.item(), val_acc
-            #         )
-            #     )
-            #     loss_list.append(loss.item())
-            #     val_acc_list.append(val_acc)
-        
 
     # Test
     # if rank == 0:
