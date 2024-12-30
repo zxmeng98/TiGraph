@@ -231,6 +231,25 @@ def get_dataset(dataset_name):
         split_idx = ogb_dataset.get_idx_split()
         data_x = torch.as_tensor(g.ndata["feat"])
         num_classes = ogb_dataset.num_classes
+    elif dataset_name in ["ogbn-proteins"]:
+        from torch_scatter import scatter
+        ogb_dataset = DglNodePropPredDataset(name=dataset_name, root=dataset_dir)
+        g, data_y = ogb_dataset[0]
+        if data_y.shape[1] > 1:
+            data_y = torch.argmax(data_y, dim=1)
+        # data_y = torch.as_tensor(data_y).squeeze(1)
+        split_idx = ogb_dataset.get_idx_split()
+        num_classes = ogb_dataset.num_tasks
+        u, v = g.edges()
+        edge_index = torch.stack([u, v], dim=0)
+        edge_attr = g.edata["feat"] 
+        data_x = scatter(edge_attr,
+                                        edge_index[0],
+                                        dim=0,
+                                        dim_size=g.num_nodes(),
+                                        reduce='add')
+        g.ndata["feat"] = data_x
+
     else:
         raise ValueError("Unknown dataset: {}".format(dataset_name))
         
@@ -256,6 +275,7 @@ def intersection(lst1, lst2):
 
 def adjust_dataset(args, g, split_idx, features, labels):
     rest_nums = features.shape[0] % args.bs
+    # rest_nums = 2
 
     if rest_nums == 0: 
         return g, split_idx, features, labels

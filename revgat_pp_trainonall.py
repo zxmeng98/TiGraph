@@ -11,7 +11,7 @@ from dgl.data import CiteseerGraphDataset, CoraGraphDataset, PubmedGraphDataset
 import random
 import numpy as np
 import os
-from GNNs.RevGNN.revgcn_pp import RevGCN
+from GNNs.revgat_pp import RevGAT
 from utils.dataset import get_dataset, adjust_dataset
 import torch.distributed as dist
 from pipelining import pipeline, SplitPoint, PipelineStage, ScheduleGPipe
@@ -71,29 +71,37 @@ def manual_model_split(args, model, example_input_microbatch) -> PipelineStage:
     parts = partition_uniform(args.num_layers, num_stages)
     start = parts[stage_index]
     stop = parts[stage_index + 1]
-    print(f'stage={stage_index} layers={start} - {stop}')
+    print(f'stage={stage_index} layers={start} - {stop-1}')
     if stage_index == 0:
         # prepare the first stage model
-        model.gcns = model.gcns[start:stop]
-        model.last_norm = None
-        model.dropout_layer = None
-        model.node_pred_linear = None
+        model.first_stage = True
+        model.last_stage = False
+        model.convs = model.convs[start:stop]
+        model.perms = model.perms[start:stop] 
+        model.dp_last = None
+        model.bias_last = None
+        # print(f"after:{sum(p.numel() for p in model.parameters())}")
+        # exit()
         stage_input_microbatch = example_input_microbatch
 
     elif stage_index == num_stages - 1:
         # prepare the second stage model
-        model.node_features_encoder = None
-        model.gcns = model.gcns[start:stop]
-        feature_input_microbatch = torch.randn(example_input_microbatch[1].shape[0], args.hidden_channels)
+        model.first_stage = False
+        model.last_stage = True
+        model.convs = model.convs[start:stop]
+        model.perms = model.perms[start:stop] 
+
+        feature_input_microbatch = torch.randn(example_input_microbatch[1].shape[0], args.hidden_channels * args.num_heads)
         stage_input_microbatch = (example_input_microbatch[0], feature_input_microbatch)
 
     else:
-        model.node_features_encoder = None
-        model.gcns = model.gcns[start:stop]
-        model.last_norm = None
-        model.dropout_layer = None
-        model.node_pred_linear = None
-        feature_input_microbatch = torch.randn(example_input_microbatch[1].shape[0], args.hidden_channels)
+        model.first_stage = False
+        model.last_stage = False
+        model.convs = model.convs[start:stop]
+        model.perms = model.perms[start:stop] 
+        model.dp_last = None
+        model.bias_last = None
+        feature_input_microbatch = torch.randn(example_input_microbatch[1].shape[0], args.hidden_channels * args.num_heads)
         stage_input_microbatch = (example_input_microbatch[0], feature_input_microbatch)
         
     stage = PipelineStage(
@@ -171,9 +179,9 @@ if __name__ == "__main__":
     parser.add_argument('--lr', type=float, default=0.002,
                         help='learning rate set for optimizer.')
     parser.add_argument('--dropout', type=float, default=0.75)
-    parser.add_argument('--bs', type=int, default=169340,
+    parser.add_argument('--bs', type=int, default=169343,
                        help='Number of microbatches.')
-    parser.add_argument('--mb_size', type=int, default=84670,
+    parser.add_argument('--mb_size', type=int, default=169343,
                        help='Number of microbatches.')
 
     # Pipeline pearallel 
@@ -198,7 +206,7 @@ if __name__ == "__main__":
                         help='gcn backbone [deepergcn, weighttied, deq, rev]')
     parser.add_argument('--group', type=int, default=2,
                         help='num of groups for rev gnns')
-    parser.add_argument('--num_layers', type=int, default=112,
+    parser.add_argument('--num_layers', type=int, default=5,
                         help='the number of layers of the networks')
     parser.add_argument('--mlp_layers', type=int, default=2,
                         help='the number of layers of mlp in conv')
@@ -212,6 +220,7 @@ if __name__ == "__main__":
                         help='the aggregator of GENConv [mean, max, add, softmax, softmax_sg, power]')
     parser.add_argument('--norm', type=str, default='layer',
                         help='the type of normalization layer')
+    parser.add_argument("--num_heads", type=int, default=3, help="number of heads")
     
     # Learnable parameters
     parser.add_argument('--t', type=float, default=1.0,
@@ -247,8 +256,14 @@ if __name__ == "__main__":
 
     # Load and preprocess dataset
     g, split_idx, features, labels, num_classes = get_dataset(args.dataset)
-    g, split_idx, features, labels = adjust_dataset(args, g, split_idx, features, labels)
-    all_idx = torch.randperm(features.shape[0])
+    # g, split_idx, features, labels = adjust_dataset(args, g, split_idx, features, labels)
+    g = dgl.to_bidirected(g)
+    g = g.remove_self_loop().add_self_loop()
+    g.create_formats_()
+
+    # TODO: 
+    # all_idx = torch.randperm(features.shape[0])
+    all_idx = torch.arange(features.shape[0])
     g.ndata['random_idx'] = all_idx
 
     num_batches = all_idx.shape[0] // args.bs 
@@ -257,7 +272,7 @@ if __name__ == "__main__":
     
     if rank == 0:
         print(f"{args.dataset} load successfully")
-        print(f"Train nodes: {split_idx['train'].shape[0]}, Val nodes: {split_idx['valid'].shape[0]}, Test nodes: {split_idx['test'].shape[0]}")
+        print(f"Total nodes: {g.num_nodes()}, Train nodes: {split_idx['train'].shape[0]}, Val nodes: {split_idx['valid'].shape[0]}, Test nodes: {split_idx['test'].shape[0]}")
 
     batch_idxes = torch.tensor_split(all_idx, num_batches)
     
@@ -288,14 +303,31 @@ if __name__ == "__main__":
             labels_i = labels[idx_i]
             packed_batch.append((g_i, features_i, labels_i))
     elif num_batches == 1:
+        features = features[batch_idxes[0]]
+        labels = labels[batch_idxes[0]]
         packed_batch.append((g, features, labels))
+        labels = labels.to(device)
 
     # Create GCN model
-    model = RevGCN(args)
+    model = RevGAT(
+                    args.in_size,
+                    args.out_size,
+                    n_hidden=args.hidden_channels,
+                    n_layers=args.num_layers,
+                    n_heads=args.num_heads,
+                    activation=F.relu,
+                    dropout=args.dropout,
+                    input_drop=0.25,
+                    attn_drop=0.0,
+                    edge_drop=0.0,
+                    use_attn_dst=False,
+                    use_symmetric_norm=True,
+                    number_of_edges=packed_batch[0][0].num_edges(),
+                    )
     stage = manual_model_split(args, model, example_input_microbatch)
 
     loss_fcn = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(stage.submod.parameters(), lr=args.lr)
+    optimizer = torch.optim.RMSprop(stage.submod.parameters(), lr=args.lr, weight_decay=0)
     schedule = ScheduleGPipe(stage, n_microbatches=num_microbatches, loss_fn=loss_fcn)
 
     # Convert model and graph to bfloat16 if needed
@@ -325,17 +357,23 @@ if __name__ == "__main__":
                     losses[i] = losses[i].item()
                 loss = np.mean(losses)
                 loss_list.append(loss)
+                test_output = output[split_idx['test']]
+                test_labels = labels[split_idx['test']]
+                _, indices = torch.max(test_output, dim=1)
+                correct = torch.sum(indices == test_labels)
+                acc = correct.item() * 100.0 / len(test_labels)
+                # print("Test accuracy {:.2f}".format(acc))
 
             else:
                 schedule.step(g_i, split_idx=split_idx['train'])
 
-            torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
+            # torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
             optimizer.step()
         
         if rank == num_stages - 1:
             print(
-                    "Epoch {:05d} | Loss {:.4f} ".format(
-                        epoch, loss
+                    "Epoch {:05d} | Loss {:.4f} | test acc {:.2f}".format(
+                        epoch, loss, acc
                     )
                 )
 
