@@ -1,6 +1,5 @@
 import dgl.nn.pytorch as dglnn
 import torch
-import torch.distributed
 import torch.nn as nn
 import torch.nn.functional as F
 from dgl import function as fn
@@ -358,62 +357,31 @@ class RevGAT(nn.Module):
         self.activation = activation
 
     def forward(self, graph, feat):
-        """
-        If use revgat in pp, 
-        1. the layers should be evenly partitioned (n_layers % pp_size = 0). To ensure each stage has the same number of random 'perm' operations.
-        2. input_drop, dp_last should be NONE.
-        These are to ensure each stage are in the same random state, so that the mask of each stage has the same value.
-        """
         h = feat
-        
-        if self.first_stage:
-            m = torch.zeros(h.shape[0], self.n_hidden*self.num_heads, device=h.device).bernoulli_(1 - self.dropout)
-            mask = m.requires_grad_(False) / (1 - self.dropout)
-            h = self.input_drop(h) 
-            self.perms = []
-            for i in range(len(self.convs)):
-                perm = torch.randperm(graph.number_of_edges(),
-                                    device=graph.device)
-                self.perms.append(perm)
+        # h = self.input_drop(h)
 
-            h = self.convs[0](graph, h, self.perms[0]).flatten(1, -1)
+        self.perms = []
+        for i in range(self.n_layers):
+            perm = torch.randperm(graph.number_of_edges(),
+                                  device=graph.device)
+            self.perms.append(perm)
 
-            for i in range(1, len(self.convs)):
-                graph.requires_grad = False
-                perm = torch.stack([self.perms[i]]*self.group, dim=1)
-                h = self.convs[i](h, graph, mask, perm)
-        elif self.last_stage:
-            m = torch.zeros_like(h).bernoulli_(1 - self.dropout)
-            mask = m.requires_grad_(False) / (1 - self.dropout)
+        h = self.convs[0](graph, h, self.perms[0]).flatten(1, -1)
 
-            self.perms = []
-            for i in range(len(self.convs)):
-                perm = torch.randperm(graph.number_of_edges(),
-                                    device=graph.device)
-                self.perms.append(perm)
+        m = torch.zeros_like(h).bernoulli_(1 - self.dropout)
+        mask = m.requires_grad_(False) / (1 - self.dropout)
 
-            for i in range(0, len(self.convs)-1):
-                graph.requires_grad = False
-                perm = torch.stack([self.perms[i]]*self.group, dim=1)
-                h = self.convs[i](h, graph, mask, perm)
-            h = self.norm(h)
-            h = self.activation(h, inplace=True)
-            h = self.dp_last(h)
-            h = self.convs[-1](graph, h, self.perms[-1]).flatten(1, -1)
-            h = self.bias_last(h)
-        else:
-            m = torch.zeros_like(h).bernoulli_(1 - self.dropout)
-            mask = m.requires_grad_(False) / (1 - self.dropout)
+        for i in range(1, self.n_layers-1):
+            graph.requires_grad = False
+            perm = torch.stack([self.perms[i]]*self.group, dim=1)
+            h = self.convs[i](h, graph, mask, perm)
 
-            self.perms = []
-            for i in range(len(self.convs)):
-                perm = torch.randperm(graph.number_of_edges(),
-                                    device=graph.device)
-                self.perms.append(perm)
+        h = self.norm(h)
+        h = self.activation(h, inplace=True)
+        # h = self.dp_last(h)
+        h = self.convs[-1](graph, h, self.perms[-1])
 
-            for i in range(len(self.convs)):
-                graph.requires_grad = False
-                perm = torch.stack([self.perms[i]]*self.group, dim=1)
-                h = self.convs[i](h, graph, mask, perm)
+        h = h.mean(1)
+        h = self.bias_last(h)
 
         return h

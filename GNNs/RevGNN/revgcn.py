@@ -4,7 +4,7 @@ from GNNs.RevGNN.rev_layer import norm_layer
 import torch.nn.functional as F
 import logging
 import GNNs.RevGNN.memgcn as memgcn
-from GNNs.RevGNN.rev_layer import GCNBlock
+from GNNs.RevGNN.rev_layer import GCNBlock, GENBlock
 import copy
 
 
@@ -27,7 +27,10 @@ class RevGCN(torch.nn.Module):
         self.learn_y = args.learn_y
 
         self.msg_norm = args.msg_norm
+        learn_msg_scale = args.learn_msg_scale
+        conv_encode_edge = args.conv_encode_edge
         norm = args.norm
+        mlp_layers = args.mlp_layers
 
         self.use_one_hot_encoding = args.use_one_hot_encoding
 
@@ -36,17 +39,17 @@ class RevGCN(torch.nn.Module):
 
         for layer in range(self.num_layers):
             Fms = nn.ModuleList()
-            # fm = GENBlock(hidden_channels//self.group, hidden_channels//self.group,
-            #               aggr=aggr,
-            #               t=t, learn_t=self.learn_t,
-            #               p=p, learn_p=self.learn_p,
-            #               y=y, learn_y=self.learn_y,
-            #               msg_norm=self.msg_norm,
-            #               learn_msg_scale=learn_msg_scale,
-            #               encode_edge=conv_encode_edge,
-            #               edge_feat_dim=hidden_channels,
-            #               norm=norm, mlp_layers=mlp_layers)
-            fm = GCNBlock(hidden_channels//self.group, hidden_channels//self.group)
+            fm = GENBlock(hidden_channels//self.group, hidden_channels//self.group,
+                          aggr=aggr,
+                          t=t, learn_t=self.learn_t,
+                          p=p, learn_p=self.learn_p,
+                          y=y, learn_y=self.learn_y,
+                          msg_norm=self.msg_norm,
+                          learn_msg_scale=learn_msg_scale,
+                          encode_edge=conv_encode_edge,
+                          edge_feat_dim=hidden_channels,
+                          norm=norm, mlp_layers=mlp_layers)
+            # fm = GCNBlock(hidden_channels//self.group, hidden_channels//self.group)
 
             for i in range(self.group):
                 if i == 0:

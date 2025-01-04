@@ -278,7 +278,11 @@ if __name__ == "__main__":
     all_idx = torch.randperm(features.shape[0])
     g.ndata['random_idx'] = all_idx
 
-    num_batches = all_idx.shape[0] // args.bs 
+    # all_nodes = torch.randperm(features.shape[0])
+    all_nodes = torch.arange(features.shape[0])
+    g.ndata['random_idx'] = all_nodes
+
+    num_batches = all_nodes.shape[0] // args.bs 
     args.in_size = features.shape[1]
     args.out_size = num_classes
 
@@ -286,14 +290,14 @@ if __name__ == "__main__":
         print(f"{args.dataset} load successfully")
         print(f"Train nodes: {split_idx['train'].shape[0]}, Val nodes: {split_idx['valid'].shape[0]}, Test nodes: {split_idx['test'].shape[0]}")
 
-    batch_idxes = torch.tensor_split(all_idx, num_batches)
+    batch_nodes = torch.tensor_split(all_idx, num_batches)
     
     if num_batches > 1:
-        batch_g = dgl.node_subgraph(g, batch_idxes[0])
+        batch_g = dgl.node_subgraph(g, batch_nodes[0])
     else:
         batch_g = g
 
-    num_microbatches = batch_idxes[0].shape[0] // args.mb_size
+    num_microbatches = batch_nodes[0].shape[0] // args.mb_size
     batch_local_idxes = torch.arange(batch_g.num_nodes())
     microbatch_idxes = torch.tensor_split(batch_local_idxes, num_microbatches)
     microbatch_g = dgl.node_subgraph(batch_g, microbatch_idxes[0])
@@ -309,12 +313,14 @@ if __name__ == "__main__":
     packed_batch = []
     if num_batches > 1:
         for i in range(num_batches):
-            idx_i = batch_idxes[i]
+            idx_i = batch_nodes[i]
             g_i = dgl.node_subgraph(g, idx_i)
             features_i = features[idx_i]
             labels_i = labels[idx_i]
             packed_batch.append((g_i, features_i, labels_i))
     elif num_batches == 1:
+        features = features[batch_nodes[0]]
+        labels = labels[batch_nodes[0]]
         packed_batch.append((g, features, labels))
 
     # Create GCN model
@@ -335,7 +341,7 @@ if __name__ == "__main__":
     if rank == 0:
         print("Training...")
 
-    loss_list, val_acc_list = [], []
+    loss_list, val_acc_list, test_acc_list = [], [], [] 
     # training loop
     for epoch in range(args.epochs):
         optimizer.zero_grad()
@@ -351,7 +357,6 @@ if __name__ == "__main__":
                 for i in range(len(losses)):
                     losses[i] = losses[i].item()
                 loss = np.mean(losses)
-                loss_list.append(loss)
 
             else:
                 schedule.step(g_i, split_idx=split_idx['train'])
@@ -368,18 +373,19 @@ if __name__ == "__main__":
 
         # Validation
         if epoch % 5 == 0:
-            results = evaluate(args, packed_batch, batch_idxes, split_idx, stage, schedule)
+            results = evaluate(args, packed_batch, batch_nodes, split_idx, stage, schedule)
+            if rank == num_stages - 1:
+                loss_list.append(loss)
+                val_acc_list.append(results[0])
+                test_acc_list.append(results[1])
 
-    # Test
-    # if rank == 0:
-    #     print("Testing...")
-    # test_acc = evaluate(args, test_g, test_features, test_labels, masks[2], stage, schedule)
     if rank == num_stages - 1:
-        # print("Test accuracy {:.4f}".format(test_acc))
+        print("Test accuracy {:.4f}".format(max(test_acc_list)))
 
         if not os.path.exists(f'./exps/{args.dataset}'): 
             os.makedirs(f'./exps/{args.dataset}')
-        # np.save(f'./exps/{args.dataset}/{args.model}_pp_loss-19712', np.array(loss_list))
-        # np.save(f'./exps/{args.dataset}/{args.model}_val_acc', np.array(val_acc_list))
+        # np.save(f'./exps/{args.dataset}/{args.model}_pp_loss_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(loss_list))
+        # np.save(f'./exps/{args.dataset}/{args.model}_pp_val_acc_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(val_acc_list))
+        # np.save(f'./exps/{args.dataset}/{args.model}_pp_test_acc_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(test_acc_list))
 
     dist.destroy_process_group()

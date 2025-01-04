@@ -13,10 +13,11 @@ import numpy as np
 import os
 from GNNs.RevGNN.revgcn import RevGCN
 from GNNs.resgnn_pp import DeeperGCN
-from utils.dataset import OGBNDataset
+from GNNs.revgat import RevGAT
+from utils.dataset import get_dataset, adjust_dataset
 
 
-def evaluate(g, features, labels, mask, model, device):
+def evaluate(g, features, labels, split_idx, model, device):
     sg_nodes_idx = g.nodes().to(device)
     u, v = g.edges()
     sg_edges_ = torch.stack((u, v), dim=0).to(device)
@@ -25,55 +26,58 @@ def evaluate(g, features, labels, mask, model, device):
     model.eval()
     with torch.no_grad():
         logits = model(g.to(device), features)
-        logits = logits[mask]
-        labels = labels[mask]
+        logits = logits[split_idx]
+        labels = labels[split_idx]
         _, indices = torch.max(logits, dim=1)
         correct = torch.sum(indices == labels)
-        return correct.item() * 1.0 / len(labels)
+        return correct.item() * 100.0 / len(labels)
 
 
-def train(g, features, labels, masks, model, device):
+def train(g, features, labels, split_idx, model, device):
     # define train/val samples, loss function and optimizer
-    train_mask = masks[0]
-    val_mask = masks[1]
+    train_idx, valid_idx = split_idx['train'], split_idx['valid']
     loss_fcn = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
-    sg_nodes_idx = g.nodes().to(device)
-    u, v = g.edges()
-    sg_edges_ = torch.stack((u, v), dim=0).to(device)
-    labels_one_hot = F.one_hot(labels, num_classes=3).float() 
+    # optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    optimizer = torch.optim.RMSprop(model.parameters(), lr=args.lr, weight_decay=0)
+
 
     # features = features.chunk(4)[0]
 
-    loss_list, val_acc_list = [], []
+    loss_list, val_acc_list, test_acc_list = [], [], []
     # training loop
-    for epoch in range(200):
+    for epoch in range(2000):
         model.train()
-        logits = model(g.to(device), features)
-        loss = loss_fcn(logits[train_mask], labels[train_mask])
+        logits = model(g, features)
+        loss = loss_fcn(logits[train_idx], labels[train_idx])
         # loss = loss_fcn(logits, labels_one_hot)
         optimizer.zero_grad()
         loss.backward()
         # torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         optimizer.step()
-        acc = evaluate(g, features, labels, val_mask, model, device)
+        acc = evaluate(g, features, labels, valid_idx, model, device)
+        test_acc = evaluate(g, features, labels, split_idx['test'], model, device)
         # print(
         #     "Epoch {:05d} | Loss {:.4f} ".format(
         #         epoch, loss.item()
         #     )
         # )
         print(
-            "Epoch {:05d} | Loss {:.4f} | Accuracy {:.4f} ".format(
-                epoch, loss.item(), acc
+            "Epoch {:05d} | Loss {:.4f} | Val Acc {:.2f}% | Test Acc {:.2f}".format(
+                epoch, loss.item(), acc, test_acc
             )
         )
-        # loss_list.append(loss.item())
-        # val_acc_list.append(acc)
-        # dataset = 'pubmed'
-        # if not os.path.exists(f'./exps/{dataset}'): 
-        #     os.makedirs(f'./exps/{dataset}')
-        # np.save('./exps/' + dataset + '/sepfile_gcn_loss', np.array(loss_list))
-        # np.save('./exps/' + dataset + '/sepfile_gcn_val_acc', np.array(val_acc_list))
+        
+        
+        loss_list.append(loss.item())
+        val_acc_list.append(acc)
+        test_acc_list.append(test_acc)
+
+    print("Test Acc {:.4f}".format(max(test_acc_list)))
+    if not os.path.exists(f'./exps/{args.dataset}'): 
+        os.makedirs(f'./exps/{args.dataset}')
+    np.save(f'./exps/{args.dataset}/revgat_loss_nodrop', np.array(loss_list))
+    np.save(f'./exps/{args.dataset}/revgat_val_acc_nodrop', np.array(val_acc_list))
+    np.save(f'./exps/{args.dataset}/revgat_test_acc_nodrop', np.array(test_acc_list))
 
 
 if __name__ == "__main__":
@@ -86,7 +90,7 @@ if __name__ == "__main__":
         
     parser = argparse.ArgumentParser()
     # dataset
-    parser.add_argument('--dataset', type=str, default='pubmed',
+    parser.add_argument('--dataset', type=str, default='ogbn-arxiv',
                         help='dataset name (default: ogbn-proteins)')
     parser.add_argument('--cluster_number', type=int, default=10,
                         help='the number of sub-graphs for training')
@@ -98,21 +102,21 @@ if __name__ == "__main__":
                         help='the file path of extracted node features saved.')
     # training & eval settings
     parser.add_argument('--use_gpu', action='store_true')
-    parser.add_argument('--device', type=int, default=0,
+    parser.add_argument('--device', type=int, default=2,
                         help='which gpu to use if any (default: 0)')
     parser.add_argument('--epochs', type=int, default=2000,
                         help='number of epochs to train (default: 2000)')
     parser.add_argument('--num_evals', type=int, default=1,
                         help='The number of evaluation times')
-    parser.add_argument('--lr', type=float, default=0.001,
+    parser.add_argument('--lr', type=float, default=0.002,
                         help='learning rate set for optimizer.')
-    parser.add_argument('--dropout', type=float, default=0.2)
+    parser.add_argument('--dropout', type=float, default=0.75)
     # model
     parser.add_argument('--backbone', type=str, default='rev',
                         help='gcn backbone [deepergcn, weighttied, deq, rev]')
     parser.add_argument('--group', type=int, default=2,
                         help='num of groups for rev gnns')
-    parser.add_argument('--num_layers', type=int, default=448,
+    parser.add_argument('--num_layers', type=int, default=6,
                         help='the number of layers of the networks')
     parser.add_argument('--num_steps', type=int, default=3,
                         help='the number of steps of weight tied layers')
@@ -122,7 +126,7 @@ if __name__ == "__main__":
                         help='the dimension of embeddings of nodes and edges')
     parser.add_argument('--out_size', type=int, default=3,
                         help='the dimension of embeddings of nodes and edges')
-    parser.add_argument('--hidden_channels', type=int, default=224,
+    parser.add_argument('--hidden_channels', type=int, default=256,
                         help='the dimension of embeddings of nodes and edges')
     parser.add_argument('--block', default='plain', type=str,
                         help='graph backbone block type {res+, res, dense, plain}')
@@ -169,32 +173,39 @@ if __name__ == "__main__":
         help="data type(float, bfloat16)",
     )
     args = parser.parse_args()
+    torch.cuda.set_device(args.device)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # load and preprocess dataset
-    transform = (
-        AddSelfLoop()
-    )  # by default, it will first remove self-loops to prevent duplication
-    if args.dataset == "cora":
-        data = CoraGraphDataset(transform=transform)
-    elif args.dataset == "citeseer":
-        data = CiteseerGraphDataset(transform=transform)
-    elif args.dataset == "pubmed":
-        data = PubmedGraphDataset(transform=transform)
-    else:
-        raise ValueError("Unknown dataset: {}".format(args.dataset))
-    
-    g = data[0]
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    g = g.int().to(device)
-    features = g.ndata["feat"]
-    labels = g.ndata["label"]
-    masks = g.ndata["train_mask"], g.ndata["val_mask"], g.ndata["test_mask"]
+    g, split_idx, features, labels, num_classes = get_dataset(args.dataset)
+    g = dgl.to_bidirected(g)
+    g = g.remove_self_loop().add_self_loop()
+    g.create_formats_()
+    g = g.to(device)
+    features = features.to(device)
+    labels = labels.to(device)
+    for idx in split_idx.values():
+        idx.to(device)
 
     # create GCN model
     args.in_size = features.shape[1]
-    args.out_size = data.num_classes
+    args.out_size = num_classes
 
-    model = RevGCN(args).to(device)
+    model = RevGAT(
+                    args.in_size,
+                    args.out_size,
+                    n_hidden=args.hidden_channels,
+                    n_layers=args.num_layers,
+                    n_heads=3,
+                    activation=F.relu,
+                    dropout=args.dropout,
+                    input_drop=0.25,
+                    attn_drop=0.0,
+                    edge_drop=0.3,
+                    use_attn_dst=False,
+                    use_symmetric_norm=True,
+                    number_of_edges=g.num_edges(),
+                    ).to(device)
     # model = DeeperGCN(args).to(device)
 
     # for name, param in model.named_parameters():
@@ -208,9 +219,9 @@ if __name__ == "__main__":
 
     # model training
     print("Training...")
-    train(g, features, labels, masks, model, device)
+    train(g, features, labels, split_idx, model, device)
 
     # test the model
     print("Testing...")
-    acc = evaluate(g, features, labels, masks[2], model, device)
+    acc = evaluate(g, features, labels, split_idx['test'], model, device)
     print("Test accuracy {:.4f}".format(acc))

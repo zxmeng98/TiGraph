@@ -371,16 +371,16 @@ def _shard_dict_of_args_graph(
                         
                         # Map chunk_g node index to original graph node index
                         if is_subgraph(v):
-                            ori_node_idxes = v.ndata[dgl.NID][chunk_g.ndata[dgl.NID]] 
+                            ori_nodes = v.ndata['_ID'][chunk_g.ndata['_ID']] 
                         else:
-                            ori_node_idxes = chunk_g.ndata[dgl.NID]
+                            ori_nodes = chunk_g.ndata['_ID']
                             
                         # Pop all features, only save edge info
                         chunk_g.ndata.clear()
                         chunk_g.edata.clear()
                         
                         chunk_graphs.append(chunk_g)
-                        chunkg_ori_node_idxes.append(ori_node_idxes)
+                        chunkg_ori_node_idxes.append(ori_nodes)
                     chunk_graphs = tuple(chunk_graphs)
                     sharded_arg_flat.append(chunk_graphs)
 
