@@ -2,7 +2,7 @@ import argparse
 
 import dgl
 import dgl.nn as dglnn
-
+import time 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -37,23 +37,30 @@ def train(g, features, labels, split_idx, model, device):
     # define train/val samples, loss function and optimizer
     train_idx, valid_idx = split_idx['train'], split_idx['valid']
     loss_fcn = nn.CrossEntropyLoss()
-    # optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
-    optimizer = torch.optim.RMSprop(model.parameters(), lr=args.lr, weight_decay=0)
+    if args.model == 'revgnn':
+        optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    elif args.model == 'revgat':
+        optimizer = torch.optim.RMSprop(model.parameters(), lr=args.lr, weight_decay=0)
 
 
     # features = features.chunk(4)[0]
 
-    loss_list, val_acc_list, test_acc_list = [], [], []
+    loss_list, val_acc_list, test_acc_list, epoch_time_list = [], [], [], []
     # training loop
-    for epoch in range(2000):
+    for epoch in range(args.epochs):
+        t0 = time.time()
         model.train()
         logits = model(g, features)
         loss = loss_fcn(logits[train_idx], labels[train_idx])
         # loss = loss_fcn(logits, labels_one_hot)
         optimizer.zero_grad()
         loss.backward()
-        # torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+        if args.model == 'revgnn':
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         optimizer.step()
+        t1 = time.time()
+        epoch_time_list.append(t1 - t0)
+        
         acc = evaluate(g, features, labels, valid_idx, model, device)
         test_acc = evaluate(g, features, labels, split_idx['test'], model, device)
         # print(
@@ -62,8 +69,8 @@ def train(g, features, labels, split_idx, model, device):
         #     )
         # )
         print(
-            "Epoch {:05d} | Loss {:.4f} | Val Acc {:.2f}% | Test Acc {:.2f}".format(
-                epoch, loss.item(), acc, test_acc
+            "Epoch {:05d} | Loss {:.4f} | Val Acc {:.2f}% | Test Acc {:.2f}% | Epoch Time {:.2f}s".format(
+                epoch, loss.item(), acc, test_acc, t1 - t0
             )
         )
         
@@ -75,9 +82,9 @@ def train(g, features, labels, split_idx, model, device):
     print("Test Acc {:.4f}".format(max(test_acc_list)))
     if not os.path.exists(f'./exps/{args.dataset}'): 
         os.makedirs(f'./exps/{args.dataset}')
-    np.save(f'./exps/{args.dataset}/revgat_loss_nodrop', np.array(loss_list))
-    np.save(f'./exps/{args.dataset}/revgat_val_acc_nodrop', np.array(val_acc_list))
-    np.save(f'./exps/{args.dataset}/revgat_test_acc_nodrop', np.array(test_acc_list))
+    np.save(f'./exps/{args.dataset}/{args.model}_loss_{args.num_layers}layers', np.array(loss_list))
+    np.save(f'./exps/{args.dataset}/{args.model}_val_acc_{args.num_layers}layers', np.array(val_acc_list))
+    np.save(f'./exps/{args.dataset}/{args.model}_test_acc_{args.num_layers}layers', np.array(test_acc_list))
 
 
 if __name__ == "__main__":
@@ -100,6 +107,7 @@ if __name__ == "__main__":
                         help='the aggregation operator to obtain nodes\' initial features [mean, max, add]')
     parser.add_argument('--nf_path', type=str, default='init_node_features_add.pt',
                         help='the file path of extracted node features saved.')
+    
     # training & eval settings
     parser.add_argument('--use_gpu', action='store_true')
     parser.add_argument('--device', type=int, default=2,
@@ -111,12 +119,16 @@ if __name__ == "__main__":
     parser.add_argument('--lr', type=float, default=0.002,
                         help='learning rate set for optimizer.')
     parser.add_argument('--dropout', type=float, default=0.75)
+    parser.add_argument('--bs', type=int, default=169340,
+                       help='Number of microbatches.')
     # model
+    parser.add_argument('--model', type=str, default='revgnn',
+                        help='gcn backbone [revgnn, resgnn, revgat]')
     parser.add_argument('--backbone', type=str, default='rev',
                         help='gcn backbone [deepergcn, weighttied, deq, rev]')
     parser.add_argument('--group', type=int, default=2,
                         help='num of groups for rev gnns')
-    parser.add_argument('--num_layers', type=int, default=6,
+    parser.add_argument('--num_layers', type=int, default=5,
                         help='the number of layers of the networks')
     parser.add_argument('--num_steps', type=int, default=3,
                         help='the number of steps of weight tied layers')
@@ -178,9 +190,12 @@ if __name__ == "__main__":
 
     # load and preprocess dataset
     g, split_idx, features, labels, num_classes = get_dataset(args.dataset)
-    g = dgl.to_bidirected(g)
-    g = g.remove_self_loop().add_self_loop()
-    g.create_formats_()
+    g, split_idx, features, labels = adjust_dataset(args, g, split_idx, features, labels)
+    if args.model == 'revgat':
+        g = dgl.to_bidirected(g)
+        g = g.remove_self_loop().add_self_loop()
+        g.create_formats_()
+
     g = g.to(device)
     features = features.to(device)
     labels = labels.to(device)
@@ -191,22 +206,24 @@ if __name__ == "__main__":
     args.in_size = features.shape[1]
     args.out_size = num_classes
 
-    model = RevGAT(
-                    args.in_size,
-                    args.out_size,
-                    n_hidden=args.hidden_channels,
-                    n_layers=args.num_layers,
-                    n_heads=3,
-                    activation=F.relu,
-                    dropout=args.dropout,
-                    input_drop=0.25,
-                    attn_drop=0.0,
-                    edge_drop=0.3,
-                    use_attn_dst=False,
-                    use_symmetric_norm=True,
-                    number_of_edges=g.num_edges(),
-                    ).to(device)
-    # model = DeeperGCN(args).to(device)
+    if args.model == 'revgat':
+        model = RevGAT(
+                        args.in_size,
+                        args.out_size,
+                        n_hidden=args.hidden_channels,
+                        n_layers=args.num_layers,
+                        n_heads=3,
+                        activation=F.relu,
+                        dropout=args.dropout,
+                        input_drop=0.25,
+                        attn_drop=0.0,
+                        edge_drop=0.3,
+                        use_attn_dst=False,
+                        use_symmetric_norm=True,
+                        number_of_edges=g.num_edges(),
+                        ).to(device)
+    elif args.model == 'revgnn':
+        model = RevGCN(args).to(device)
 
     # for name, param in model.named_parameters():
     #     print(name, param)

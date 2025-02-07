@@ -1,8 +1,7 @@
 import argparse
-
 import dgl
 import dgl.nn as dglnn
-
+import time
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -182,7 +181,7 @@ if __name__ == "__main__":
     parser.add_argument('--dropout', type=float, default=0.75)
     parser.add_argument('--bs', type=int, default=169340,
                        help='Number of microbatches.')
-    parser.add_argument('--mb_size', type=int, default=84670,
+    parser.add_argument('--mb_size', type=int, default=42335, # 42335, 84670
                        help='Number of microbatches.')
 
     # Pipeline pearallel 
@@ -348,11 +347,14 @@ if __name__ == "__main__":
     # exit()
 
     # Training loop
-    loss_list, val_acc_list, test_acc_list = [], [], [] 
+
+    loss_list, val_acc_list, test_acc_list, epoch_time_list = [], [], [], [] 
     for epoch in range(args.epochs):
+       
         optimizer.zero_grad()
         stage.submod.train()
 
+        t0 = time.time()
         for i in range(num_batches):
             g_i, features_i, labels_i = packed_batch[i]
             g_i, features_i, labels_i = g_i.to(device), features_i.to(device), labels_i.to(device)
@@ -368,11 +370,11 @@ if __name__ == "__main__":
             else:
                 schedule.step(g_i, split_idx=split_idx['train'])
             optimizer.step()
-        
+        t1 = time.time()
         if rank == num_stages - 1:
             print(
-                    "Epoch {:05d} | Loss {:.4f}".format(
-                        epoch, loss
+                    "Epoch {:05d} | Loss {:.4f} | Epoch Time {:.2f}s".format(
+                        epoch, loss, t1 - t0
                     )
                 )
 
@@ -383,14 +385,15 @@ if __name__ == "__main__":
                 loss_list.append(loss)
                 val_acc_list.append(results[0])
                 test_acc_list.append(results[1])
+                epoch_time_list.append(t1 - t0)
         
     if rank == num_stages - 1:
         print("Test accuracy {:.4f}".format(max(test_acc_list)))
 
-        if not os.path.exists(f'./exps/{args.dataset}'): 
-            os.makedirs(f'./exps/{args.dataset}')
-        np.save(f'./exps/{args.dataset}/{args.model}_pp_loss_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(loss_list))
-        np.save(f'./exps/{args.dataset}/{args.model}_pp_val_acc_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(val_acc_list))
-        np.save(f'./exps/{args.dataset}/{args.model}_pp_test_acc_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(test_acc_list))
+        # if not os.path.exists(f'./exps/{args.dataset}'): 
+        #     os.makedirs(f'./exps/{args.dataset}')
+        # np.save(f'./exps/{args.dataset}/{args.model}_pp_loss_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(loss_list))
+        # np.save(f'./exps/{args.dataset}/{args.model}_pp_val_acc_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(val_acc_list))
+        # np.save(f'./exps/{args.dataset}/{args.model}_pp_test_acc_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(test_acc_list))
 
     dist.destroy_process_group()

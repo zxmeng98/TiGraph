@@ -1,3 +1,4 @@
+# Inductive train: training only sees graph structure including train nodes. Aim to train models on nodes of a training graph, and then generalize models to structure-unobserved nodes.
 import argparse
 
 import dgl

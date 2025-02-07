@@ -1,8 +1,9 @@
+# Transductive train: training sees whole graph structure, given a few labeled nodes, to classify the rest of the nodes.
 import argparse
 
 import dgl
 import dgl.nn as dglnn
-
+import time
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -151,7 +152,6 @@ def evaluate(args, packed_batch, batch_idxes, split_idx, stage, schedule):
 
         valid_acc = valid_correct.item() * 100.0 / len(valid_indices)
         test_acc = test_correct.item() * 100.0 / len(test_indices)
-        print("Valid acc: {:.2f}%. Test acc: {:.2f}%".format(valid_acc, test_acc))
         return (valid_acc, test_acc)
         
     
@@ -168,12 +168,12 @@ if __name__ == "__main__":
     parser.add_argument('--seed', type=int, default=123)
     parser.add_argument('--epochs', type=int, default=2000,
                         help='number of epochs to train (default: 2000)')
-    parser.add_argument('--lr', type=float, default=0.002,
+    parser.add_argument('--lr', type=float, default=0.001,
                         help='learning rate set for optimizer.')
-    parser.add_argument('--dropout', type=float, default=0.75)
+    parser.add_argument('--dropout', type=float, default=0.2)
     parser.add_argument('--bs', type=int, default=169340,
                        help='Number of microbatches.')
-    parser.add_argument('--mb_size', type=int, default=84670,
+    parser.add_argument('--mb_size', type=int, default=84670, # 42335, 84670
                        help='Number of microbatches.')
 
     # Pipeline pearallel 
@@ -198,7 +198,7 @@ if __name__ == "__main__":
                         help='gcn backbone [deepergcn, weighttied, deq, rev]')
     parser.add_argument('--group', type=int, default=2,
                         help='num of groups for rev gnns')
-    parser.add_argument('--num_layers', type=int, default=112,
+    parser.add_argument('--num_layers', type=int, default=448,
                         help='the number of layers of the networks')
     parser.add_argument('--mlp_layers', type=int, default=2,
                         help='the number of layers of mlp in conv')
@@ -206,7 +206,7 @@ if __name__ == "__main__":
                         help='the dimension of embeddings of nodes and edges')
     parser.add_argument('--out_size', type=int, default=3,
                         help='the dimension of embeddings of nodes and edges')
-    parser.add_argument('--hidden_channels', type=int, default=256,
+    parser.add_argument('--hidden_channels', type=int, default=224,
                         help='the dimension of embeddings of nodes and edges')
     parser.add_argument('--gcn_aggr', type=str, default='max',
                         help='the aggregator of GENConv [mean, max, add, softmax, softmax_sg, power]')
@@ -311,10 +311,11 @@ if __name__ == "__main__":
         print("Training...")
 
     # Training loop
-    loss_list, val_acc_list, test_acc_list = [], [], [] 
+    loss_list, val_acc_list, test_acc_list, epoch_time_list = [], [], [], [] 
     for epoch in range(args.epochs):
         optimizer.zero_grad()
         stage.submod.train()
+        t0 = time.time()
         for i in range(num_batches):
             g_i, features_i, labels_i = packed_batch[i]
             g_i, features_i, labels_i = g_i.to(device), features_i.to(device), labels_i.to(device)
@@ -326,18 +327,17 @@ if __name__ == "__main__":
                 for i in range(len(losses)):
                     losses[i] = losses[i].item()
                 loss = np.mean(losses)
-                loss_list.append(loss)
 
             else:
                 schedule.step(g_i, split_idx=split_idx['train'])
 
             torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
             optimizer.step()
-        
+        t1 = time.time()
         if rank == num_stages - 1:
             print(
-                    "Epoch {:05d} | Loss {:.4f} ".format(
-                        epoch, loss
+                    "Epoch {:05d} | Loss {:.4f} | Epoch Time {:.2f}s".format(
+                        epoch, loss, t1 - t0
                     )
                 )
 
@@ -345,6 +345,7 @@ if __name__ == "__main__":
         if epoch % 5 == 0:
             results = evaluate(args, packed_batch, batch_nodes, split_idx, stage, schedule)
             if rank == num_stages - 1:
+                print("Epoch {:05d} | Valid acc: {:.2f}% | Test acc: {:.2f}%".format(epoch, results[0], results[1]))
                 loss_list.append(loss)
                 val_acc_list.append(results[0])
                 test_acc_list.append(results[1])

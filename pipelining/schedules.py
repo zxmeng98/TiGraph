@@ -401,6 +401,14 @@ class ScheduleGPipe(PipelineScheduleSingle):
             )
 
             self._maybe_compute_loss(self._stage, output, target_mbs, i, split_idx, chunked_sg_ori_node_idxes[i])
+            
+        if self._stage.stage_index == 0 and i == self._n_microbatches - 1:
+            import sys
+            sys.path.append('/home/mzhang/work/od_execution')
+            from client import send_signal
+            
+        
+        
 
         # Wait for all forward sends to finish
         # This should not have performance impact because by the time the first
@@ -877,8 +885,7 @@ class ScheduleInterleaved1F1B(PipelineScheduleMulti):
             return min(warmup_ops, self._n_microbatches * self.n_local_stages)
 
         warmup_ops = get_rank_warmup_ops(rank)
-        microbatch_ops = self.n_local_stages * self._n_microbatches
-        # fwd_bwd_ops should encompass the remaining forwards
+        microbatch_ops = self.n_local_stages * self._n_microbatches 
         fwd_bwd_ops = microbatch_ops - warmup_ops
         # cooldown_ops should encompass the remaining backwards
         cooldown_ops = microbatch_ops - fwd_bwd_ops

@@ -101,6 +101,7 @@ class RevGCN(torch.nn.Module):
 
         m = torch.zeros_like(h).bernoulli_(1 - self.dropout)
         mask = m.requires_grad_(False) / (1 - self.dropout)
+        # print(mask)
 
         for layer in range(len(self.gcns)):
             h = self.gcns[layer](h, edge_index, mask)
