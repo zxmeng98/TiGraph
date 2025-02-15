@@ -1,6 +1,7 @@
 # mypy: allow-untyped-defs
 # Copyright (c) Meta Platforms, Inc. and affiliates
 import logging
+import time
 import operator
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
@@ -526,7 +527,7 @@ class _PipelineStageBase(ABC):
             composite_kwargs = {}
 
         # self._validate_fwd_input(args, kwargs)      
-
+        
         # Compute forward
         try:
             output = self.forward_maybe_with_nosync(*composite_args, **composite_kwargs)

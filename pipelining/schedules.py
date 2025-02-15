@@ -2,6 +2,8 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates
 
 import logging
+import time
+from datetime import datetime
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from enum import Enum
@@ -13,6 +15,7 @@ from torch.profiler import record_function
 
 from .microbatch import merge_chunks, split_args_kwargs_into_chunks, TensorChunkSpec
 from .stage import _PipelineStageBase
+from .initialize import get_small_workload_pid
 
 
 __all__ = [
@@ -251,7 +254,7 @@ def _batch_p2p(p2p_ops: List[dist.P2POp], desc: Optional[str] = None):
         return None
     desc_str = f"{desc}, " if desc else ""
     logger.debug(f"batch_p2p {desc_str}{p2p_ops}")  # noqa: G004
-    return dist.batch_isend_irecv(p2p_ops).pop() # 返回的最后一个request object，只需要最后一个request？
+    return dist.batch_isend_irecv(p2p_ops).pop() # 这里才会真正触发发送！返回的最后一个request object，只需要最后一个request？
 
 
 def _sorted_batch_p2p(
@@ -376,39 +379,48 @@ class ScheduleGPipe(PipelineScheduleSingle):
         Args:
             microbatches: list of microbatch args.
         """
+        
         # arg_mbs: [num chunks, num args]
         arg_mbs, kwarg_mbs = self._check_inputs(arg_mbs, kwarg_mbs, target_mbs, losses)
         
         # Delay send waits
         fwd_sends_to_wait: List[dist.Work] = []
 
+        small_workload_pid = get_small_workload_pid()
+        # if self._stage.stage_index == 0:
+        #     import sys
+        #     sys.path.append('/home/mzhang/work/od_execution')
+        #     from client import send_signal
+        #     send_signal(pid, "pause")
+
         # Run microbatches
         for i in range(self._n_microbatches):
             with record_function(f"Forward {i}"):
-                ops = self._stage.get_fwd_recv_ops(i) # 这里第1个stage的ops是空的：[]
-                works = _sorted_batch_p2p(ops, desc="fwd_recv") 
+                ops = self._stage.get_fwd_recv_ops(i) # 这里第stage0的ops是空的：[]
+                works = _sorted_batch_p2p(ops, desc="fwd_recv") # 触发接收
+                # t0 = time.time()
                 for work in works.values():
-                    work.wait() # .wait() 会阻塞当前线程，直到接收操作完成，然后才会执行后面的代码。通过不同stage的ops，实现chunk之间计算pipeline。这样在前向传播之中，就按照这个序列，像水波纹一样扩散。
+                    work.wait() # .wait() 会阻塞当前线程，直到接收操作完成，然后才会执行后面的代码。通过不同stage的ops，实现chunk之间计算pipeline
 
-                output = self._stage.forward_one_chunk(i, arg_mbs[i], kwarg_mbs[i])  # type: ignore[index]
+                output = self._stage.forward_one_chunk(i, arg_mbs[i], kwarg_mbs[i])  # type: ignore[index] 
+                
+                torch.cuda.synchronize()
+                if self._stage.stage_index == 0 and i == self._n_microbatches - 1:
+                    import sys
+                    sys.path.append('/home/mzhang/work/od_execution')
+                    from client import send_signal
+                    send_signal(small_workload_pid, "resume")
+                torch.cuda.synchronize()
 
                 ops = self._stage.get_fwd_send_ops(i)
-                works = _sorted_batch_p2p(ops, desc="fwd_send")
+                works = _sorted_batch_p2p(ops, desc="fwd_send") # 触发发送
                 fwd_sends_to_wait.extend(works.values())
 
             logger.debug(
                 f"[{self._stage.stage_index}] Forwarded microbatch {i}"  # noqa: G004
             )
 
-            self._maybe_compute_loss(self._stage, output, target_mbs, i, split_idx, chunked_sg_ori_node_idxes[i])
-            
-        if self._stage.stage_index == 0 and i == self._n_microbatches - 1:
-            import sys
-            sys.path.append('/home/mzhang/work/od_execution')
-            from client import send_signal
-            
-        
-        
+            self._maybe_compute_loss(self._stage, output, target_mbs, i, split_idx, chunked_sg_ori_node_idxes[i]) 
 
         # Wait for all forward sends to finish
         # This should not have performance impact because by the time the first
@@ -428,7 +440,15 @@ class ScheduleGPipe(PipelineScheduleSingle):
                 ops = self._stage.get_bwd_recv_ops(i)
                 works = _sorted_batch_p2p(ops, desc="bwd_recv")
                 for work in works.values():
-                    work.wait()
+                    work.wait()         
+                
+                torch.cuda.synchronize()
+                if self._stage.stage_index == 0 and i == 0:
+                    import sys
+                    sys.path.append('/home/mzhang/work/od_execution')
+                    from client import send_signal
+                    send_signal(small_workload_pid, "pause")
+                torch.cuda.synchronize()
 
                 loss = self._maybe_get_loss(self._stage, i)
                 self._stage.backward_one_chunk(i, loss=loss)
@@ -440,7 +460,7 @@ class ScheduleGPipe(PipelineScheduleSingle):
             logger.debug(
                 f"[{self._stage.stage_index}] Backwarded microbatch {i}"  # noqa: G004
             )
-
+        
         # Return losses if there is a container passed in
         self._update_losses(self._stage, losses)
 
