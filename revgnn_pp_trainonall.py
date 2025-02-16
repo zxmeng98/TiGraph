@@ -350,20 +350,21 @@ if __name__ == "__main__":
             torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
             optimizer.step()
         t1 = time.time()
-        if rank == num_stages - 1:
-            print(
-                    "Epoch {:05d} | Loss {:.4f} | Epoch Time {:.2f}s".format(
-                        epoch, loss, t1 - t0
-                    )
-                )
-            # prof.step()
-            
-        # else:
+        # if rank == num_stages - 1:
         #     print(
-        #             "Rank {:05d} | Epoch Time {:.2f}s".format(
-        #                 rank, t1 - t0
+        #             "Epoch {:05d} | Loss {:.4f} | Epoch Time {:.2f}s".format(
+        #                 epoch, loss, t1 - t0
         #             )
         #         )
+            # prof.step()
+            
+        if rank == 0:
+            # time.sleep(4)
+            print(
+                    "Epoch {:05d} | Epoch Time {:.2f}s".format(
+                        epoch, t1 - t0
+                    )
+                )
 
         # Validation
         # if epoch % 5 == 0:

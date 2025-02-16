@@ -404,13 +404,13 @@ class ScheduleGPipe(PipelineScheduleSingle):
 
                 output = self._stage.forward_one_chunk(i, arg_mbs[i], kwarg_mbs[i])  # type: ignore[index] 
                 
-                torch.cuda.synchronize()
                 if self._stage.stage_index == 0 and i == self._n_microbatches - 1:
+                    torch.cuda.synchronize()
                     import sys
                     sys.path.append('/home/mzhang/work/od_execution')
                     from client import send_signal
+                    print(f"Resume.")
                     send_signal(small_workload_pid, "resume")
-                torch.cuda.synchronize()
 
                 ops = self._stage.get_fwd_send_ops(i)
                 works = _sorted_batch_p2p(ops, desc="fwd_send") # 触发发送
@@ -442,13 +442,13 @@ class ScheduleGPipe(PipelineScheduleSingle):
                 for work in works.values():
                     work.wait()         
                 
-                torch.cuda.synchronize()
                 if self._stage.stage_index == 0 and i == 0:
+                    torch.cuda.synchronize()
                     import sys
                     sys.path.append('/home/mzhang/work/od_execution')
                     from client import send_signal
+                    print(f"Pause.")
                     send_signal(small_workload_pid, "pause")
-                torch.cuda.synchronize()
 
                 loss = self._maybe_get_loss(self._stage, i)
                 self._stage.backward_one_chunk(i, loss=loss)
