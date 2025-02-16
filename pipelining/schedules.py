@@ -16,6 +16,7 @@ from torch.profiler import record_function
 from .microbatch import merge_chunks, split_args_kwargs_into_chunks, TensorChunkSpec
 from .stage import _PipelineStageBase
 from .initialize import get_small_workload_pid
+from od_execution.client import send_signal
 
 
 __all__ = [
@@ -406,9 +407,6 @@ class ScheduleGPipe(PipelineScheduleSingle):
                 
                 if self._stage.stage_index == 0 and i == self._n_microbatches - 1:
                     torch.cuda.synchronize()
-                    import sys
-                    sys.path.append('/home/mzhang/work/od_execution')
-                    from client import send_signal
                     print(f"Resume.")
                     send_signal(small_workload_pid, "resume")
 
@@ -444,9 +442,6 @@ class ScheduleGPipe(PipelineScheduleSingle):
                 
                 if self._stage.stage_index == 0 and i == 0:
                     torch.cuda.synchronize()
-                    import sys
-                    sys.path.append('/home/mzhang/work/od_execution')
-                    from client import send_signal
                     print(f"Pause.")
                     send_signal(small_workload_pid, "pause")
 

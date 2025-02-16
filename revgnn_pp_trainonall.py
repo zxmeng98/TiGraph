@@ -21,6 +21,8 @@ from pipelining._utils import partition_uniform
 from ogb.nodeproppred import DglNodePropPredDataset
 from utils.dataset import intersection
 
+from od_execution.client import send_signal
+
 
 global rank, device, pp_group, stage_index, num_stages
 def init_distributed():
@@ -300,8 +302,7 @@ if __name__ == "__main__":
         model = model.to(dtype=torch.bfloat16)
 
     if rank == 0:
-        sys.path.append('/home/mzhang/work/od_execution')
-        from client import send_signal
+
         send_signal(small_workload_pid, "pause")
 
     # Model training
