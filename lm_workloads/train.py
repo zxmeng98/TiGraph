@@ -1,9 +1,8 @@
 import torch
 import sys
-sys.path.append('/home/mzhang/work/od_execution')
-from od_execution import od_execution_wrapper
-from client import send_signal
-from timer import Timer
+from od_execution.od_execution import od_execution_wrapper
+from od_execution.client import send_signal
+from od_execution.timer import Timer
 import argparse
 import torch.nn as nn
 import torch.nn.functional as F

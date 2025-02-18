@@ -2,6 +2,7 @@ from .ophooks import *
 import torch
 import signal
 import sys
+import torch.nn as nn
 all = ["od_execution_wrapper"]
 
 signal_pause = signal.SIGUSR1
@@ -20,8 +21,9 @@ def register_signal_handler():
     signal.signal(signal_pause, pause_handler)
     signal.signal(signal_resume, resume_handler)
 
-class Engine():
+class Engine(nn.Module):
     def __init__(self, model, ophook_list):
+        super().__init__()
         self._ophook_list = ophook_list
         self._model = model
         register_signal_handler()
