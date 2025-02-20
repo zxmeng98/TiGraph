@@ -48,6 +48,24 @@ def compute_metrics(p):
     return {"accuracy": accuracy}
 
 
+pp_profile = torch.profiler.profile(
+    activities=[
+        torch.profiler.ProfilerActivity.CPU,
+        torch.profiler.ProfilerActivity.CUDA,
+    ],
+    schedule=torch.profiler.schedule(
+        skip_first=40, wait=0, warmup=0, active=20, repeat=1
+    ),
+    on_trace_ready=torch.profiler.tensorboard_trace_handler(
+        f"./tensorboard_trace/lm_worloads/"
+    ),
+    # f"./tensorboard_trace/revgnn_pp{num_stages}_stage{stage_index}_iter/"
+    with_stack=True,
+    with_modules=True,
+    profile_memory=True,
+)
+        
+
 class PrintEpochTimeCallback(TrainerCallback):
     """自定义回调：在每个 epoch 开始和结束时记录并打印耗时。"""
 
@@ -55,6 +73,9 @@ class PrintEpochTimeCallback(TrainerCallback):
         super().__init__()
         self.step_start_time = None
 
+    def on_train_begin(self, args, state, control, **kwargs):
+        pp_profile.start()  # 开始 Profiler
+        
     def on_step_begin(self, args, state, control, **kwargs):
         # 每次 iteration 开始时记录当前时间
         self.step_start_time = time.time()
@@ -62,7 +83,19 @@ class PrintEpochTimeCallback(TrainerCallback):
     def on_step_end(self, args, state, control, **kwargs):
         # 计算本次 iteration 的时长并打印
         step_time = time.time() - self.step_start_time
-        print(f"Iteration {state.global_step} finished in {step_time:.4f} seconds.")
+        pp_profile.step()  # 每步更新 Profiler 记录
+        
+        if state.log_history:
+            loss = state.log_history[-1]["loss"] if "loss" in state.log_history[-1] else None
+            print(f"Iter {state.global_step}/{state.max_steps}: Loss = {loss:.4f}, Iter Time = {step_time:.4f} s.")
+        else:
+            loss = None
+        # print(f"Iter {state.global_step}/{state.max_steps}: Iter Time = {step_time:.4f} s.")
+        
+        
+    def on_train_end(self, args, state, control, **kwargs):
+        pp_profile.stop()  # 停止 Profiler
+        print("Profiling Complete! View results in TensorBoard.")
 
 
 class LMTrainer():
@@ -159,9 +192,10 @@ class LMTrainer():
             dataloader_num_workers=1,
             fp16=True,
             dataloader_drop_last=True, # drop last batch if not full
+            disable_tqdm=True,
             # logging_dir="./logs",
             # logging_strategy="steps",
-            # logging_steps=1,
+            logging_steps=1,
         )
         # self.trainer = Trainer(
         #     model=self.model,

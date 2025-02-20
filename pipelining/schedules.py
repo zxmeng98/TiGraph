@@ -405,7 +405,7 @@ class ScheduleGPipe(PipelineScheduleSingle):
 
                 output = self._stage.forward_one_chunk(i, arg_mbs[i], kwarg_mbs[i])  # type: ignore[index] 
                 
-                if self._stage.stage_index == 0 and i == self._n_microbatches - 1:
+                if self._stage.stage_index == 0 and i == self._n_microbatches - 1 and small_workload_pid is not None:
                     torch.cuda.synchronize()
                     print(f"Resume.")
                     send_signal(small_workload_pid, "resume")
@@ -440,7 +440,7 @@ class ScheduleGPipe(PipelineScheduleSingle):
                 for work in works.values():
                     work.wait()         
                 
-                if self._stage.stage_index == 0 and i == 0:
+                if self._stage.stage_index == 0 and i == 0 and small_workload_pid is not None:
                     torch.cuda.synchronize()
                     print(f"Pause.")
                     send_signal(small_workload_pid, "pause")

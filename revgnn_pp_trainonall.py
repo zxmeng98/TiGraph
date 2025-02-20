@@ -301,8 +301,8 @@ if __name__ == "__main__":
         features = features.to(dtype=torch.bfloat16)
         model = model.to(dtype=torch.bfloat16)
 
-    if rank == 0:
-
+    # After pp workload start up, pause the small workload till the bubble
+    if rank == 0 and small_workload_pid is not None:
         send_signal(small_workload_pid, "pause")
 
     # Model training
@@ -312,23 +312,23 @@ if __name__ == "__main__":
     # Training loop
     loss_list, val_acc_list, test_acc_list, epoch_time_list = [], [], [], [] 
 
-    # pp_profile = torch.profiler.profile
-    # with pp_profile(
-    #     activities=[
-    #         torch.profiler.ProfilerActivity.CPU,
-    #         torch.profiler.ProfilerActivity.CUDA,
-    #     ],
-    #     schedule=torch.profiler.schedule(
-    #         skip_first=1, wait=0, warmup=0, active=2, repeat=1
-    #     ),
-    #     on_trace_ready=torch.profiler.tensorboard_trace_handler(
-    #         f"./tensorboard_trace/"
-    #     ),
-    #     # f"./tensorboard_trace/revgnn_pp{num_stages}_stage{stage_index}_iter/"
-    #     with_stack=True,
-    #     with_modules=True,
-    #     profile_memory=True,
-    # ) as prof:
+    pp_profile = torch.profiler.profile(
+        activities=[
+            torch.profiler.ProfilerActivity.CPU,
+            torch.profiler.ProfilerActivity.CUDA,
+        ],
+        schedule=torch.profiler.schedule(
+            skip_first=1, wait=1, warmup=1, active=3, repeat=1
+        ),
+        on_trace_ready=torch.profiler.tensorboard_trace_handler(
+            f"./tensorboard_trace/"
+        ),
+        # f"./tensorboard_trace/revgnn_pp{num_stages}_stage{stage_index}_iter/"
+        with_stack=True,
+        with_modules=True,
+        profile_memory=True,
+    )
+    # pp_profile.start()
     for epoch in range(args.epochs):
         optimizer.zero_grad()
         stage.submod.train()
@@ -350,6 +350,8 @@ if __name__ == "__main__":
 
             torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
             optimizer.step()
+            # pp_profile.step()
+            
         t1 = time.time()
         # if rank == num_stages - 1:
         #     print(
@@ -357,15 +359,15 @@ if __name__ == "__main__":
         #                 epoch, loss, t1 - t0
         #             )
         #         )
-            # prof.step()
-            
         if rank == 0:
-            # time.sleep(4)
             print(
                     "Epoch {:05d} | Epoch Time {:.2f}s".format(
                         epoch, t1 - t0
                     )
                 )
+            
+    # pp_profile.stop()
+            
 
         # Validation
         # if epoch % 5 == 0:

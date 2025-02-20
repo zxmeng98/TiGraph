@@ -69,6 +69,6 @@ def init_small_workload_pid(small_workload_pid):
 
 def get_small_workload_pid():
     """Return small workload pid."""
-    assert _SMALL_WORKLOAD_PID is not None, \
-        'small workload pid is not initialized'
+    # assert _SMALL_WORKLOAD_PID is not None, \
+    #     'small workload pid is not initialized'
     return _SMALL_WORKLOAD_PID
