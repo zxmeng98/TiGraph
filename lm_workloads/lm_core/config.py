@@ -15,7 +15,7 @@ def set_cfg(cfg):
     # Whether fix the running seed to remove randomness
     cfg.seed = None
     # Number of runs with random init
-    cfg.runs = 4
+    cfg.runs = 1
     cfg.gnn = CN()
     cfg.lm = CN()
 
@@ -54,8 +54,8 @@ def set_cfg(cfg):
     # ------------------------------------------------------------------------ #
     cfg.lm.model = CN()
     # LM model name
-    cfg.lm.model.name = 'microsoft/deberta-base'
-    cfg.lm.model.feat_shrink = ""
+    cfg.lm.model.name = 'microsoft/deberta-base' # microsoft/deberta-large, 
+    cfg.lm.model.feat_shrink = 128
 
     # ------------------------------------------------------------------------ #
     # LM Training options
@@ -64,13 +64,13 @@ def set_cfg(cfg):
     #  Number of samples computed once per batch per device
     cfg.lm.train.batch_size = 9
     # Number of training steps for which the gradients should be accumulated
-    cfg.lm.train.grad_acc_steps = 1
+    cfg.lm.train.grad_acc_steps = 60
     # Base learning rate
     cfg.lm.train.lr = 2e-5
     # Maximal number of epochs
-    cfg.lm.train.epochs = 1
+    cfg.lm.train.epochs = 3
     # The number of warmup steps
-    cfg.lm.train.warmup_epochs = 0.6
+    cfg.lm.train.warmup_epochs = 0
     # Number of update steps between two evaluations
     cfg.lm.train.eval_patience = 50000
     # The weight decay to apply (if not zero) to all layers except all bias and LayerNorm weights

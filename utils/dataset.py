@@ -1,20 +1,27 @@
-import numpy as np
-import torch
-import dgl
-from torch.nn import functional as F
-from torch.utils.data import DataLoader
-from functools import partial
-import scipy.sparse as sp
-import scipy
-from torch_geometric.datasets import Amazon, CitationFull, Coauthor
-from dgl.data import CiteseerGraphDataset, CoraGraphDataset, PubmedGraphDataset
-import torch_geometric.transforms as T
-from torch_geometric.utils import coalesce
 import os
-import pickle as pkl
-from ogb.nodeproppred import DglNodePropPredDataset, NodePropPredDataset
 import random
+import time
+import pickle as pkl
+
+import numpy as np
+import scipy
+import scipy.sparse as sp
+
+import torch
+import torch.nn.functional as F
+from torch.utils.data import DataLoader
+
+import dgl
 from dgl import AddSelfLoop
+from dgl.data import CiteseerGraphDataset, CoraGraphDataset, PubmedGraphDataset
+from torch_geometric.datasets import Amazon, CitationFull, Coauthor
+from torch_geometric.utils import coalesce
+import torch_geometric.transforms as T
+from ogb.nodeproppred import DglNodePropPredDataset, NodePropPredDataset
+
+from pipelining.initialize import (
+    get_pipeline_parallel_rank,
+)
 
 
 def adj_normalize(mx):
@@ -273,33 +280,126 @@ def intersection(lst1, lst2):
     return list(set(lst1) & set(lst2))
 
 
-def adjust_dataset(args, g, split_idx, features, labels):
-    rest_nums = features.shape[0] % args.bs
-    # rest_nums = 2
 
-    if rest_nums == 0: 
-        return g, split_idx, features, labels
-    else:
-        nodes_to_remove = torch.Tensor(range(features.shape[0] - rest_nums, features.shape[0])).long()
-        g.remove_nodes(nodes_to_remove) 
-        labels = labels[:features.shape[0] - rest_nums]
-        
-        train_idx, valid_idx, test_idx = split_idx["train"], split_idx["valid"], split_idx["test"]
-        
-        keep_in_train = ~torch.isin(train_idx, nodes_to_remove)
-        train_idx = train_idx[keep_in_train]
+class DataProcess():
+    def __init__(self, args, g, split_idx, features, labels):
+        self.args = args
+        self.dataset_name = args.dataset
+        self.g = g
+        self.split_idx = split_idx
+        self.features = features
+        self.labels = labels
+        self.gnn_model_name = args.gnn_model
+        self.lm_model_name = args.lm_model
 
-        keep_in_valid = ~torch.isin(valid_idx, nodes_to_remove)
-        valid_idx = valid_idx[keep_in_valid]
+        self.g, self.split_idx, self.features, self.labels = self.remove_nodes_cant_batch(g, split_idx, features, labels)
+        self.num_nodes = self.features.shape[0]
+        self.num_batches = self.num_nodes // args.bs 
+        # all_nodes = torch.randperm(features.shape[0])
+        all_nodes = torch.arange(self.num_nodes)
+        self.g.ndata['random_idx'] = all_nodes
+        self.batch_nodes = torch.tensor_split(all_nodes, self.num_batches)
 
-        keep_in_test = ~torch.isin(test_idx, nodes_to_remove)
-        test_idx = test_idx[keep_in_test]
-        split_idx = {'train': train_idx.to(torch.int32),
-            'valid': valid_idx.to(torch.int32),
-            'test': test_idx.to(torch.int32)}
+
+    def remove_nodes_cant_batch(self, g, split_idx, features, labels):
+        """
+        Remove the rest nodes that are not enough to form a batch
+        """
+        rest_nums = features.shape[0] % self.args.bs
+        # rest_nums = 2
+
+        if rest_nums == 0: 
+            return g, split_idx, features, labels
+        else:
+            nodes_to_remove = torch.Tensor(range(features.shape[0] - rest_nums, features.shape[0])).long()
+            g.remove_nodes(nodes_to_remove) 
+            labels = labels[:features.shape[0] - rest_nums]
+            
+            train_idx, valid_idx, test_idx = split_idx["train"], split_idx["valid"], split_idx["test"]
+            
+            keep_in_train = ~torch.isin(train_idx, nodes_to_remove)
+            train_idx = train_idx[keep_in_train]
+
+            keep_in_valid = ~torch.isin(valid_idx, nodes_to_remove)
+            valid_idx = valid_idx[keep_in_valid]
+
+            keep_in_test = ~torch.isin(test_idx, nodes_to_remove)
+            test_idx = test_idx[keep_in_test]
+            split_idx = {'train': train_idx.to(torch.int32),
+                'valid': valid_idx.to(torch.int32),
+                'test': test_idx.to(torch.int32)}
+            
+            data_x = g.ndata["feat"]
+            return g, split_idx, data_x, labels
+
+
+    def pack_batch(self, features):
+        """
+        Pack batch graph trained in each iter beforehand
+        """
+        packed_batch = []
+        if self.num_batches > 1:
+            for i in range(self.num_batches):
+                idx_i = self.batch_nodes[i]
+                g_i = dgl.node_subgraph(self.g, idx_i)
+                features_i = features[idx_i]
+                labels_i = self.labels[idx_i]
+                packed_batch.append((g_i, features_i, labels_i))
+        elif self.num_batches == 1:
+            features_i = features[self.batch_nodes[0]]
+            labels_i = self.labels[self.batch_nodes[0]]
+            packed_batch.append((self.g, features_i, labels_i))
+        return packed_batch
+
+
+    def check_load_from_lm(self, feature_type, last_written_rows):
+        if feature_type == 'TA':     
+            # LM_emb_path = f"prt_lm/{self.dataset_name}/{self.lm_model_name}.emb"
+            LM_emb_path = f"./lm_workloads/prt_lm/ogbn-arxiv2/microsoft/deberta-base-seed0.emb"
+            if os.path.exists(LM_emb_path):
+                features = torch.from_numpy(np.array(
+                        np.memmap(LM_emb_path, mode='r',
+                                dtype=np.float16,
+                                shape=(self.num_nodes, 128)))
+                ).to(torch.float32)
+                load_lm_emb, last_written_rows = self.has_written_quarter(features, self.num_nodes//20, last_written_rows)
+                if load_lm_emb:
+                    if get_pipeline_parallel_rank() == 0:
+                        print("Loading trained LM features (title and abstract) ...")
+                        print(f"LM_emb_path: {LM_emb_path}")
+                    features = self.override_null_with_gold(features)
+                    packed_data = self.pack_batch(features)
+                    return packed_data, last_written_rows
+                else:
+                    return None, last_written_rows
+
+            else:
+                print(f"LM embeddings not ready. Still use gold features.")
+                return None, last_written_rows
         
-        data_x = g.ndata["feat"]
-        return g, split_idx, data_x, labels
+    def override_null_with_gold(self, lm_emb):
+        """
+        Override the null embeddings in zeros with gold features
+        """
+        zero_rows = torch.where(torch.all(lm_emb == 0, dim=1))[0]
+        if len(zero_rows) > 0:
+            if get_pipeline_parallel_rank() == 0:
+                print(f"Null embeddings found, override with gold embeddings.")
+            lm_emb[zero_rows] = self.features[zero_rows]
+            
+        return lm_emb
+
+
+    def has_written_quarter(self, emb, load_interval, last_written_rows):
+        """
+        Check whether the LM has written a quarter of embeddings
+        """
+        written_rows = torch.count_nonzero(emb[:, 0]).item()  # 假设数据第一列总是非零的
+        if written_rows - last_written_rows >= load_interval:
+            return True, written_rows
+        return False, last_written_rows
+
+    
     
 if __name__ == "__main__":
     g, split_idx, data_x, data_y, num_classes = get_dataset('pubmed')

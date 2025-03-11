@@ -12,15 +12,13 @@ import torch.distributed
 _PIPELINE_PARALLEL_GROUP = None
 _PIPELINE_PARALLEL_WORLD_SIZE = None
 _PIPELINE_PARALLEL_RANK = None
-_PIPELINE_PARALLEL_STAGE_INDEX = None
-_PIPELINE_PARALLEL_NUM_STAGES = None
+_DEVICE = None
 
 _SMALL_WORKLOAD_PID = None
 
 
 def init_distributed():
     """Initialize torch.distributed and core model parallel."""
-    global rank, device, pp_group, stage_index, num_stages
     device_count = torch.cuda.device_count()
     assert device_count != 0, 'expected GPU number > 0.'
     if torch.distributed.is_initialized():
@@ -49,15 +47,13 @@ def init_distributed():
     global _PIPELINE_PARALLEL_GROUP
     global _PIPELINE_PARALLEL_WORLD_SIZE
     global _PIPELINE_PARALLEL_RANK
-    global _PIPELINE_PARALLEL_STAGE_INDEX
-    global _PIPELINE_PARALLEL_NUM_STAGES
+    global _DEVICE
 
     device = f'cuda:{torch.cuda.current_device()}' 
     _PIPELINE_PARALLEL_GROUP = torch.distributed.new_group()
     _PIPELINE_PARALLEL_WORLD_SIZE = world_size
     _PIPELINE_PARALLEL_RANK = rank
-    _PIPELINE_PARALLEL_STAGE_INDEX = _PIPELINE_PARALLEL_RANK
-    _PIPELINE_PARALLEL_NUM_STAGES = _PIPELINE_PARALLEL_WORLD_SIZE
+    _DEVICE = device
 
 
 def init_small_workload_pid(small_workload_pid):
@@ -72,3 +68,31 @@ def get_small_workload_pid():
     # assert _SMALL_WORKLOAD_PID is not None, \
     #     'small workload pid is not initialized'
     return _SMALL_WORKLOAD_PID
+
+
+def get_pipeline_parallel_group():
+    """Get the pipeline parallel group the caller rank belongs to."""
+    assert _PIPELINE_PARALLEL_GROUP is not None, \
+        'pipeline parallel group is not initialized'
+    return _PIPELINE_PARALLEL_GROUP
+
+
+def get_pipeline_parallel_world_size():
+    """Return world size for the pipeline parallel group."""
+    if _PIPELINE_PARALLEL_WORLD_SIZE is not None:
+        return _PIPELINE_PARALLEL_WORLD_SIZE
+    return torch.distributed.get_world_size(group=_PIPELINE_PARALLEL_GROUP)
+
+
+def get_pipeline_parallel_rank():
+    """Return my rank for the pipeline parallel group."""
+    if _PIPELINE_PARALLEL_RANK is not None:
+        return _PIPELINE_PARALLEL_RANK
+    return torch.distributed.get_rank(group=_PIPELINE_PARALLEL_GROUP)
+
+
+def get_device():
+    """Return my rank for the pipeline parallel group."""
+    assert _DEVICE is not None, \
+    'Device is not initialized'
+    return _DEVICE

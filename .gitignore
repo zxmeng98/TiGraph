@@ -1,7 +1,9 @@
 **__pycache__
 /datasets
+/exps
 /tensorboard_trace
 /lm_workloads/output
+/lm_workloads/prt_lm
 /lm_workloads/slabgpu02_3479090.1739516650935180252.pt.trace.json
 /lm_workloads/slabgpu02_3500207.1739520316930672242.pt.trace.json
 /lm_workloads/slabgpu02_3580057.1739534591766001357.pt.trace.json

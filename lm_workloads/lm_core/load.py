@@ -52,7 +52,7 @@ def load_data(dataset, use_dgl=False, use_text=False, use_gpt=False, seed=0):
     # for finetuning LM
     if use_gpt:
         data, text = get_raw_text(use_text=False, seed=seed)
-        folder_path = 'gpt_responses/{}'.format(dataset)
+        folder_path = '/home/mzhang/work/TAPE/gpt_responses/{}'.format(dataset)
         print(f"using gpt: {folder_path}")
         n = data.y.shape[0]
         text = []

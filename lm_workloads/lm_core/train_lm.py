@@ -1,6 +1,7 @@
 
 import pandas as pd
 import torch
+import torch.distributed as dist
 import numpy as np
 import time
 import threading
@@ -16,29 +17,19 @@ from od_execution.od_execution import od_execution_wrapper
 from od_execution.client import send_signal
 from lm_workloads.lm_core.mytrainer import MyTrainer
 
-
-def pause_notifier():
-    import time
-    time.sleep(15)
-    import os
-    print("send pause")
-    pid = os.getpid()
-    send_signal(pid, "pause")
-
-def resume_notifier():
-    import time
-    time.sleep(24)
-    import os
-    print("send resume")
-    pid = os.getpid()
-    send_signal(pid, "resume")
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
 
 
-def set_notifiers():
-    t1 = threading.Thread(target=pause_notifier)
-    t2 = threading.Thread(target=resume_notifier)
-    t1.start()
-    t2.start()
+global rank, world_size
+def init_dp():
+    if torch.cuda.device_count() > 1: 
+        if not dist.is_initialized():  # 确保只初始化一次
+            dist.init_process_group(backend="nccl")  # 如果是 CPU 训练，可以改为 "gloo"
+    global rank, world_size
+    rank = dist.get_rank() if dist.is_initialized() else 0
+    world_size = torch.distributed.get_world_size() if dist.is_initialized() else 0
+
 
 def compute_metrics(p):
     from sklearn.metrics import accuracy_score
@@ -54,7 +45,7 @@ pp_profile = torch.profiler.profile(
         torch.profiler.ProfilerActivity.CUDA,
     ],
     schedule=torch.profiler.schedule(
-        skip_first=40, wait=0, warmup=0, active=20, repeat=1
+        skip_first=3, wait=1, warmup=1, active=3, repeat=1
     ),
     on_trace_ready=torch.profiler.tensorboard_trace_handler(
         f"./tensorboard_trace/lm_worloads/"
@@ -69,33 +60,51 @@ pp_profile = torch.profiler.profile(
 class PrintEpochTimeCallback(TrainerCallback):
     """自定义回调：在每个 epoch 开始和结束时记录并打印耗时。"""
 
-    def __init__(self):
+    def __init__(self, model, ckpt_dir, num_nodes, feat_shrink):
         super().__init__()
         self.step_start_time = None
+        self.model = model
+        self.ckpt_dir = ckpt_dir
+        self.num_nodes = num_nodes
+        self.feat_shrink = feat_shrink
 
-    def on_train_begin(self, args, state, control, **kwargs):
-        pp_profile.start()  # 开始 Profiler
+    # def on_train_begin(self, args, state, control, **kwargs):
+    #     pp_profile.start()  
+
+    def get_rank(self):
+        return dist.get_rank() if dist.is_initialized() else 0
         
     def on_step_begin(self, args, state, control, **kwargs):
-        # 每次 iteration 开始时记录当前时间
         self.step_start_time = time.time()
 
     def on_step_end(self, args, state, control, **kwargs):
-        # 计算本次 iteration 的时长并打印
         step_time = time.time() - self.step_start_time
-        pp_profile.step()  # 每步更新 Profiler 记录
+        # pp_profile.step()  
         
+        # if self.get_rank() == 0:
         if state.log_history:
             loss = state.log_history[-1]["loss"] if "loss" in state.log_history[-1] else None
-            print(f"Iter {state.global_step}/{state.max_steps}: Loss = {loss:.4f}, Iter Time = {step_time:.4f} s.")
+            if loss is not None:
+                print(f"Rank {self.get_rank()}, Iter {state.global_step}/{state.max_steps}: Loss = {loss:.4f}, Iter Time = {step_time:.4f} s.")
         else:
             loss = None
-        # print(f"Iter {state.global_step}/{state.max_steps}: Iter Time = {step_time:.4f} s.")
+            # print(f"Iter {state.global_step}/{state.max_steps}: Iter Time = {step_time:.4f} s.")
         
-        
-    def on_train_end(self, args, state, control, **kwargs):
-        pp_profile.stop()  # 停止 Profiler
-        print("Profiling Complete! View results in TensorBoard.")
+    def on_epoch_end(self, args, state, control, **kwargs):
+        if self.get_rank() == 0:
+            print(f"Epoch {state.epoch} end. Refresh emb file...")
+
+            emb = np.memmap(init_path(f"{self.ckpt_dir}.emb"),
+                    dtype=np.float16,
+                    mode='w+',
+                    shape=(self.num_nodes, int(self.feat_shrink) if self.feat_shrink else 768))
+            self.model.emb = emb
+            print(f"Refresh emb file: {self.ckpt_dir}")
+
+
+    # def on_train_end(self, args, state, control, **kwargs):
+    #     pp_profile.stop()  # 停止 Profiler
+    #     print("Profiling Complete! View results in TensorBoard.")
 
 
 class LMTrainer():
@@ -119,7 +128,7 @@ class LMTrainer():
 
         self.use_gpt_str = "2" if cfg.lm.train.use_gpt else ""
         self.output_dir = f'lm_workloads/output/{self.dataset_name}{self.use_gpt_str}/{self.model_name}-seed{self.seed}'
-        self.ckpt_dir = f'prt_lm/{self.dataset_name}{self.use_gpt_str}/{self.model_name}-seed{self.seed}'
+        self.ckpt_dir = f'lm_workloads/prt_lm/{self.dataset_name}{self.use_gpt_str}/{self.model_name}-seed{self.seed}'
 
         # Preprocess data
         data, num_classes, text = load_data(
@@ -132,7 +141,6 @@ class LMTrainer():
         tokenizer = AutoTokenizer.from_pretrained(self.model_name, use_fast=True)
         X = tokenizer(text, padding=True, truncation=True, max_length=512) # tokenizer in 74.3060 seconds.
         t1 = time.time()
-        print(f"tokenizer in {t1-t0:.4f} seconds.")
 
         dataset = Dataset(X, data.y.tolist())
         self.inf_dataset = dataset
@@ -143,12 +151,27 @@ class LMTrainer():
             dataset, self.data.val_mask.nonzero().squeeze().tolist())
         self.test_dataset = torch.utils.data.Subset(
             dataset, self.data.test_mask.nonzero().squeeze().tolist())
+        self.eval_dataset = torch.utils.data.ConcatDataset([self.val_dataset, self.test_dataset])
+        if rank == 0:
+            print(f"Tokenizer in {t1-t0:.4f} seconds.")
+            print(f"Train nodes: {len(self.train_dataset)}, Val nodes: {len(self.val_dataset)}, Test nodes: {len(self.test_dataset)}")
 
         # Define pretrained tokenizer and model
+        emb = np.memmap(init_path(f"{self.ckpt_dir}.emb"),
+                        dtype=np.float16,
+                        mode='w+',
+                        shape=(self.num_nodes, int(self.feat_shrink) if self.feat_shrink else 768))
+        pred = np.memmap(init_path(f"{self.ckpt_dir}.pred"),
+                         dtype=np.float16,
+                         mode='w+',
+                         shape=(self.num_nodes, self.n_labels))
+        
         bert_model = AutoModel.from_pretrained(self.model_name)
         self.model = BertClassifier(bert_model,
                                     n_labels=self.n_labels,
-                                    feat_shrink=self.feat_shrink)
+                                    feat_shrink=self.feat_shrink,
+                                    emb=emb,
+                                    pred=pred)
         # prev_ckpt = f'prt_lm/{self.dataset_name}/{self.model_name}.ckpt'
         # if self.use_gpt_str and os.path.exists(prev_ckpt):
         #     print("Initialize using previous ckpt...")
@@ -169,8 +192,12 @@ class LMTrainer():
         # Define training parameters
         eq_batch_size = self.batch_size * 4
         train_steps = self.num_nodes // eq_batch_size + 1
-        eval_steps = self.eval_patience // eq_batch_size
+        # eval_steps = self.eval_patience // eq_batch_size
+        eval_steps = len(self.train_dataset) // 3
         warmup_steps = int(self.warmup_epochs * train_steps) 
+
+        # if torch.cuda.device_count() > 1:
+        #     self.grad_acc_steps = {0: 25, 1: 17, 2: 2, 3: 1}.get(rank, 1)
 
         # Define Trainer
         args = TrainingArguments(
@@ -204,25 +231,21 @@ class LMTrainer():
         #     eval_dataset=self.val_dataset,
         #     compute_metrics=compute_metrics,
         #     # callbacks=[PrintEpochTimeCallback()],
-        #     # callbacks=[EarlyStoppingCallback(early_stopping_patience=3)],
+        #     callbacks=[PrintEpochTimeCallback(self.model, self.ckpt_dir, self.num_nodes, self.feat_shrink)],
         # )
         self.trainer = MyTrainer(
             model=self.model,
             args=args,
             train_dataset=self.train_dataset,
-            eval_dataset=self.val_dataset,
+            eval_dataset=self.eval_dataset,
             compute_metrics=compute_metrics,
-            callbacks=[PrintEpochTimeCallback()],
+            callbacks=[PrintEpochTimeCallback(self.model, self.ckpt_dir, self.num_nodes, self.feat_shrink)],
             # callbacks=[EarlyStoppingCallback(early_stopping_patience=3)],
         )
-
 
         # Train pre-trained model
         # train:valid:test = 90941:29799:48603
         # steps: len(train_dataset) // batch_size * epochs = 90941 // 9 = 10104
-
-        # 从启动到这里大概2min左右
-        # set_notifiers()
         self.trainer.train() 
         # torch.save(self.model.state_dict(), init_path(f"{self.ckpt_dir}.ckpt"))
         # print(f'LM saved to {self.ckpt_dir}.ckpt')
@@ -233,7 +256,7 @@ class LMTrainer():
         emb = np.memmap(init_path(f"{self.ckpt_dir}.emb"),
                         dtype=np.float16,
                         mode='w+',
-                        shape=(self.num_nodes, self.feat_shrink if self.feat_shrink else 768))
+                        shape=(self.num_nodes, int(self.feat_shrink) if self.feat_shrink else 768))
         pred = np.memmap(init_path(f"{self.ckpt_dir}.pred"),
                          dtype=np.float16,
                          mode='w+',
@@ -283,6 +306,8 @@ def run(cfg):
     all_acc = []
     for seed in seeds:
         cfg.seed = seed
+        init_dp()
+        print(f"rank: {rank}, PID: {os.getpid()}")
         trainer = LMTrainer(cfg)
         trainer.train()
         acc = trainer.eval_and_save()
@@ -295,6 +320,5 @@ def run(cfg):
 
 
 if __name__ == '__main__':
-    print(f"PID: {os.getpid()}")
     cfg = update_cfg(cfg)
     run(cfg)
