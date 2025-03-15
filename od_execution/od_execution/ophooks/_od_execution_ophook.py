@@ -44,9 +44,9 @@ class ExecutionOpHook(BaseOpHook):
         print(f'post_iter')
 
     def pause(self):
-        print(f"{os.getpid()} ExecutionOpHook: pause")
+        # print(f"{os.getpid()} ExecutionOpHook: pause")
         self.state = 0
     
     def resume(self):
-        print(f"{os.getpid()} ExecutionOpHook: resume")
+        # print(f"{os.getpid()} ExecutionOpHook: resume")
         self.state = 1

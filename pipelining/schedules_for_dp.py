@@ -405,14 +405,14 @@ class ScheduleGPipe(PipelineScheduleSingle):
 
                 if self._stage.stage_index != 0 and i == 0 and small_workload_pid is not None:
                     torch.cuda.synchronize()
-                    print(f"Pause {small_workload_pid} before stage-{self._stage.stage_index} fw.")
+                    # print(f"Pause {small_workload_pid} before stage-{self._stage.stage_index} fw.")
                     send_signal(small_workload_pid, "pause")
 
                 output = self._stage.forward_one_chunk(i, arg_mbs[i], kwarg_mbs[i])  # type: ignore[index] 
                 
                 if self._stage.stage_index != self._stage.num_stages-1 and i == self._n_microbatches - 1 and small_workload_pid is not None:
                     torch.cuda.synchronize()
-                    print(f"Resume {small_workload_pid} after stage-{self._stage.stage_index} fw.")
+                    # print(f"Resume {small_workload_pid} after stage-{self._stage.stage_index} fw.")
                     send_signal(small_workload_pid, "resume")
 
                 ops = self._stage.get_fwd_send_ops(i)
@@ -447,7 +447,7 @@ class ScheduleGPipe(PipelineScheduleSingle):
                 
                 if self._stage.stage_index != self._stage.num_stages-1 and i == 0 and small_workload_pid is not None:
                     torch.cuda.synchronize()
-                    print(f"Pause {small_workload_pid} before stage-{self._stage.stage_index} bw.")
+                    # print(f"Pause {small_workload_pid} before stage-{self._stage.stage_index} bw.")
                     send_signal(small_workload_pid, "pause")
 
                 loss = self._maybe_get_loss(self._stage, i)
@@ -455,7 +455,7 @@ class ScheduleGPipe(PipelineScheduleSingle):
 
                 if self._stage.stage_index != 0 and i == self._n_microbatches - 1 and small_workload_pid is not None:  
                     torch.cuda.synchronize()
-                    print(f"Resume {small_workload_pid} after stage-{self._stage.stage_index} bw.")
+                    # print(f"Resume {small_workload_pid} after stage-{self._stage.stage_index} bw.")
                     send_signal(small_workload_pid, "resume")
 
                 ops = self._stage.get_bwd_send_ops(i)

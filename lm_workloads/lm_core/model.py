@@ -36,11 +36,13 @@ class BertClassifier(PreTrainedModel):
         outputs = self.bert_encoder(input_ids=input_ids,
                                     attention_mask=attention_mask,
                                     return_dict=return_dict,
-                                    output_hidden_states=True)
+                                    output_hidden_states=True,
+                                    # exit_layer=4,
+                                    )
         # Save prediction and embeddings to disk (memmap)
         batch_nodes = node_id.cpu().numpy() # batch_nodes are not in order
         emb_save = outputs['hidden_states'][-1]
-        cls_token_emb_save = emb_save.permute(1, 0, 2)[0]
+        cls_token_emb_save = emb_save.permute(1, 0, 2)[0].detach()
         # outputs[0]=last hidden state
         emb = self.dropout(emb_save)
         # Use CLS Emb as sentence emb.

@@ -71,5 +71,5 @@ def od_execution_wrapper(model):
     register_ophooks_recursively(model, ophook_list)
     engine = Engine(model, ophook_list)
     global_engine = engine
-    return engine._model # NOTE!!! 这里还是要返回model，而不是engine实例，不然在LM Trainer中accelerator.accumulate(model) context会失效，每个step仍然会sync gradient。
+    return engine # NOTE!!! 这里还是要返回model，而不是engine实例，不然在LM Trainer中accelerator.accumulate(model) context会失效，每个step仍然会sync gradient。
     # 发现关键：accelerator.py L951：def no_sync(self, model)。如果model不是DDP类，context会失效。

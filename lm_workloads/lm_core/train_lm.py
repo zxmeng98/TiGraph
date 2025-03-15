@@ -45,15 +45,16 @@ pp_profile = torch.profiler.profile(
         torch.profiler.ProfilerActivity.CUDA,
     ],
     schedule=torch.profiler.schedule(
-        skip_first=3, wait=1, warmup=1, active=3, repeat=1
+        skip_first=5, wait=5, warmup=5, active=5, repeat=1
     ),
     on_trace_ready=torch.profiler.tensorboard_trace_handler(
         f"./tensorboard_trace/lm_worloads/"
     ),
     # f"./tensorboard_trace/revgnn_pp{num_stages}_stage{stage_index}_iter/"
-    with_stack=True,
+    # with_stack=True,
+    record_shapes=True,
     with_modules=True,
-    profile_memory=True,
+    # profile_memory=True,
 )
         
 
@@ -68,8 +69,8 @@ class PrintEpochTimeCallback(TrainerCallback):
         self.num_nodes = num_nodes
         self.feat_shrink = feat_shrink
 
-    # def on_train_begin(self, args, state, control, **kwargs):
-    #     pp_profile.start()  
+    def on_train_begin(self, args, state, control, **kwargs):
+        pp_profile.start()  
 
     def get_rank(self):
         return dist.get_rank() if dist.is_initialized() else 0
@@ -81,25 +82,27 @@ class PrintEpochTimeCallback(TrainerCallback):
         step_time = time.time() - self.step_start_time
         # pp_profile.step()  
         
-        # if self.get_rank() == 0:
-        if state.log_history:
-            loss = state.log_history[-1]["loss"] if "loss" in state.log_history[-1] else None
-            if loss is not None:
-                print(f"Rank {self.get_rank()}, Iter {state.global_step}/{state.max_steps}: Loss = {loss:.4f}, Iter Time = {step_time:.4f} s.")
-        else:
-            loss = None
+        if self.get_rank() == 0:
+            if state.log_history:
+                loss = state.log_history[-1]["loss"] if "loss" in state.log_history[-1] else None
+                if loss is not None:
+                    print(f"Rank {self.get_rank()}, Iter {state.global_step}/{state.max_steps}: Loss = {loss:.4f}, Iter Time = {step_time:.4f} s.")
+            else:
+                loss = None
             # print(f"Iter {state.global_step}/{state.max_steps}: Iter Time = {step_time:.4f} s.")
         
     def on_epoch_end(self, args, state, control, **kwargs):
-        if self.get_rank() == 0:
-            print(f"Epoch {state.epoch} end. Refresh emb file...")
+        if state.epoch + 1 < state.num_train_epochs:
+            if self.get_rank() == 0:
+                print(f"Epoch {state.epoch} end. Refresh emb file...")
 
             emb = np.memmap(init_path(f"{self.ckpt_dir}.emb"),
                     dtype=np.float16,
                     mode='w+',
                     shape=(self.num_nodes, int(self.feat_shrink) if self.feat_shrink else 768))
             self.model.emb = emb
-            print(f"Refresh emb file: {self.ckpt_dir}")
+            if self.get_rank() == 0:
+                print(f"Refresh emb file: {self.ckpt_dir}")
 
 
     # def on_train_end(self, args, state, control, **kwargs):
@@ -223,6 +226,7 @@ class LMTrainer():
             # logging_dir="./logs",
             # logging_strategy="steps",
             logging_steps=1,
+            report_to="none",
         )
         # self.trainer = Trainer(
         #     model=self.model,
@@ -310,8 +314,8 @@ def run(cfg):
         print(f"rank: {rank}, PID: {os.getpid()}")
         trainer = LMTrainer(cfg)
         trainer.train()
-        acc = trainer.eval_and_save()
-        all_acc.append(acc)
+        # acc = trainer.eval_and_save()
+        # all_acc.append(acc)
 
     if len(all_acc) > 1:
         df = pd.DataFrame(all_acc)

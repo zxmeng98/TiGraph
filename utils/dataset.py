@@ -362,7 +362,7 @@ class DataProcess():
                                 dtype=np.float16,
                                 shape=(self.num_nodes, 128)))
                 ).to(torch.float32)
-                load_lm_emb, last_written_rows = self.has_written_quarter(features, self.num_nodes//20, last_written_rows)
+                load_lm_emb, last_written_rows = self.has_written_quarter(features, 1000, last_written_rows)
                 if load_lm_emb:
                     if get_pipeline_parallel_rank() == 0:
                         print("Loading trained LM features (title and abstract) ...")

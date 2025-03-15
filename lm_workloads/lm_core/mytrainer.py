@@ -6,6 +6,7 @@ import sys
 import math
 import os
 from torch import nn
+from torch._utils import _flatten_dense_tensors, _unflatten_dense_tensors
 import torch.distributed as dist
 from transformers import AutoTokenizer, AutoModel, TrainingArguments, Trainer, IntervalStrategy, TrainerCallback
 from transformers.integrations.deepspeed import deepspeed_init, deepspeed_load_checkpoint, is_deepspeed_available
@@ -469,7 +470,8 @@ class MyTrainer(Trainer):
             self._evaluate(trial, ignore_keys_for_eval, skip_scheduler=True)
             
         # Wrap model in od_execution for pause and resume
-        model = od_execution_wrapper(model)
+        od_engine = od_execution_wrapper(model)
+        model = od_engine._model
         
         total_batched_samples = 0
         for epoch in range(epochs_trained, num_train_epochs):
@@ -538,7 +540,8 @@ class MyTrainer(Trainer):
                 if step % args.gradient_accumulation_steps == 0:
                     self.control = self.callback_handler.on_step_begin(args, self.state, self.control)
 
-                with self.accelerator.accumulate(model): 
+                # with self.accelerator.accumulate(model):
+                with self.accelerator.no_sync(model): 
                     tr_loss_step = self.training_step(model, inputs)
 
                 if (
@@ -570,7 +573,84 @@ class MyTrainer(Trainer):
                     # the `or` condition of `is_last_step_and_steps_less_than_grad_acc` is not covered
                     # in accelerate. So, explicitly enable sync gradients to True in that case.
                     if is_last_step_and_steps_less_than_grad_acc:
-                        self.accelerator.gradient_state._set_sync_gradients(True)
+                        self.accelerator.gradient_state._set_sync_gradients(True) 
+
+                    # Manually sync gradient，注意要先all-reduce再clip 
+                    if dist.is_initialized():
+                        grad_list = []
+                        for param in model.parameters():
+                            if not param.requires_grad:
+                                continue
+                            
+                            if param.grad is None:
+                                param.grad = torch.zeros(param.size(), dtype=param.dtype, device=param.device)
+                            grad_data = param.grad.data
+                            grad_list.append(grad_data)
+
+                        coalesced = _flatten_dense_tensors(grad_list)
+                        coalesced /= dist.get_world_size()                                      
+                        dist.all_reduce(coalesced, op=dist.ReduceOp.SUM, group=dist.group.WORLD)
+                        for buf, synced in zip(grad_list, _unflatten_dense_tensors(
+                        coalesced, grad_list)):
+                            buf.copy_(synced)
+
+                        # last_param = list(model.parameters())[-1]
+                        # print(f"AFTER SYNC: rank {dist.get_rank()} last param gradient: {last_param.grad}")
+
+                        # for name, param in model.named_parameters():
+                        #     if param.requires_grad and param.grad is not None:
+                        #         param.grad.div_(dist.get_world_size())
+                        #         dist.all_reduce(param.grad, op=dist.ReduceOp.SUM, group=dist.group.WORLD, async_op=True)
+
+                    # if dist.is_initialized():
+                    #     # Define bucket size (in elements)
+                    #     bucket_size = 15 * 1024 * 1024  # 25MB per bucket
+                        
+                    #     # Collect all gradients
+                    #     param_list = []
+                    #     for param in model.parameters():
+                    #         if not param.requires_grad:
+                    #             continue
+                            
+                    #         if param.grad is None:
+                    #             param.grad = torch.zeros(param.size(), dtype=param.dtype, device=param.device)
+                    #         param_list.append(param)
+                        
+                    #     # Sort parameters by size for better bucket packing
+                    #     param_list = sorted(param_list, key=lambda p: p.grad.data.numel(), reverse=True)
+                        
+                    #     # Group parameters into buckets
+                    #     buckets = {}
+                    #     bucket_id = 0
+                    #     current_bucket_size = 0
+                        
+                    #     for param in param_list:
+                    #         param_size = param.grad.data.numel()
+                            
+                    #         if current_bucket_size + param_size > bucket_size and current_bucket_size > 0:
+                    #             # Start a new bucket
+                    #             bucket_id += 1
+                    #             current_bucket_size = 0
+                                
+                    #         if bucket_id not in buckets:
+                    #             buckets[bucket_id] = []
+                            
+                    #         buckets[bucket_id].append(param.grad.data)
+                    #         current_bucket_size += param_size
+                        
+                    #     # Synchronize each bucket
+                    #     print(len(buckets))
+                    #     for bucket_id, grad_list in buckets.items():
+                    #         coalesced = _flatten_dense_tensors(grad_list)
+                    #         coalesced /= dist.get_world_size()
+                            
+                    #         # Synchronize gradients
+                    #         dist.all_reduce(coalesced, op=dist.ReduceOp.SUM, group=dist.group.WORLD, async_op=True)
+                            
+                    #         # Copy back to original tensors
+                    #         for buf, synced in zip(grad_list, _unflatten_dense_tensors(coalesced, grad_list)):
+                    #             buf.copy_(synced)
+
 
                     # Gradient clipping
                     if args.max_grad_norm is not None and args.max_grad_norm > 0:
@@ -593,8 +673,11 @@ class MyTrainer(Trainer):
                             if hasattr(grad_norm, "item"):
                                 grad_norm = grad_norm.item()
                         else:
-                            grad_norm = _grad_norm
-
+                            grad_norm = _grad_norm       
+                             
+                    # print(od_engine._ophook_list[0].state)
+                    # while not od_engine._ophook_list[0].state:
+                    #     time.sleep(0.001)
                     self.optimizer.step()
 
                     self.control = self.callback_handler.on_optimizer_step(args, self.state, self.control)

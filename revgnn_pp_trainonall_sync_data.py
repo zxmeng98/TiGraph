@@ -295,17 +295,17 @@ if __name__ == "__main__":
             torch.profiler.ProfilerActivity.CUDA,
         ],
         schedule=torch.profiler.schedule(
-            skip_first=1, wait=1, warmup=1, active=3, repeat=1
+            skip_first=3, wait=1, warmup=1, active=5, repeat=1
         ),
         on_trace_ready=torch.profiler.tensorboard_trace_handler(
-            f"./tensorboard_trace/"
+            f"./tensorboard_trace/GNN-TP-LM-DP/LM-no-allreduce/"
         ),
         # f"./tensorboard_trace/revgnn_pp{num_stages}_stage{stage_index}_iter/"
-        with_stack=True,
+        # with_stack=True,
         with_modules=True,
-        profile_memory=True,
+        # profile_memory=True,
     )
-    # pp_profile.start()
+    pp_profile.start()
 
     delta_sync = 10
     last_written_rows = 0
