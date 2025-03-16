@@ -101,6 +101,27 @@ if is_accelerate_available():
         save_fsdp_model,
         save_fsdp_optimizer,
     )
+from transformers.trainer_pt_utils import (
+    DistributedTensorGatherer,
+    EvalLoopContainer,
+    IterableDatasetShard,
+    LabelSmoother,
+    LayerWiseDummyOptimizer,
+    LengthGroupedSampler,
+    SequentialDistributedSampler,
+    distributed_broadcast_scalars,
+    distributed_concat,
+    find_batch_size,
+    get_model_param_count,
+    get_module_class_from_name,
+    get_parameter_names,
+    nested_concat,
+    nested_detach,
+    nested_numpify,
+    nested_xla_mesh_reduce,
+    reissue_pt_warnings,
+    remove_dummy_checkpoint,
+)
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, Union
 from od_execution.od_execution import od_execution_wrapper
 if is_apex_available():
@@ -109,6 +130,9 @@ from transformers.models.auto.modeling_auto import (
     MODEL_FOR_CAUSAL_LM_MAPPING_NAMES,
     MODEL_MAPPING_NAMES,
 )
+from torch.utils.data import DataLoader, Dataset, IterableDataset, RandomSampler, SequentialSampler
+if is_datasets_available():
+    import datasets
 
 
 def has_length(dataset):
@@ -150,8 +174,48 @@ FSDP_MODEL_NAME = "pytorch_model_fsdp"
 
 
 class MyTrainer(Trainer):
+    def __init__(self, data=None, *args, **kwargs):
+        """
+        Initialize a MyTrainer with graph data support.
+        
+        Args:
+            data: Graph data object containing node features and structure
+            *args: Positional arguments to pass to the Trainer constructor
+            **kwargs: Keyword arguments to pass to the Trainer constructor
+        """
+        super().__init__(*args, **kwargs)
+        self.data = data
 
-    def training_step(self, model: nn.Module, inputs: Dict[str, Union[torch.Tensor, Any]]) -> torch.Tensor:
+        
+    def _get_train_sampler(self):
+        """Override this method to use a sequential sampler instead of random sampler"""
+        if self.train_dataset is None or not has_length(self.train_dataset):
+            return None
+
+        # If group_by_length is enabled, still handle it the same way
+        if self.args.group_by_length:
+            # Original Trainer code for length grouping
+            if is_datasets_available() and isinstance(self.train_dataset, datasets.Dataset):
+                lengths = (
+                    self.train_dataset[self.args.length_column_name]
+                    if self.args.length_column_name in self.train_dataset.column_names
+                    else None
+                )
+            else:
+                lengths = None
+            model_input_name = self.tokenizer.model_input_names[0] if self.tokenizer is not None else None
+            return LengthGroupedSampler(
+                self.args.train_batch_size * self.args.gradient_accumulation_steps,
+                dataset=self.train_dataset,
+                lengths=lengths,
+                model_input_name=model_input_name,
+            )
+
+        # Use SequentialSampler instead of RandomSampler
+        return SequentialSampler(self.train_dataset)
+
+
+    def training_step(self, model: nn.Module, inputs: Dict[str, Union[torch.Tensor, Any]], train_by_degree=True) -> torch.Tensor:
         """
         Perform a training step on a batch of inputs.
 
@@ -175,6 +239,70 @@ class MyTrainer(Trainer):
         # if is_sagemaker_mp_enabled():
         #     loss_mb = smp_forward_backward(model, inputs, self.args.gradient_accumulation_steps)
         #     return loss_mb.reduce_mean().detach().to(self.args.device)
+
+        # Get the indices of the current batch
+        batch_indices = inputs.get('node_id', None)
+        
+        # # If we have batch indices and degree groups are available
+        # if batch_indices is not None and hasattr(self.data, 'degree_groups'):
+        #    # Get number of groups
+        #     num_groups = len(self.data.degree_groups)
+
+        #     # Create sets for each group
+        #     group_sets = [set(group.tolist()) for group in self.data.degree_groups]
+                    
+        #     # Count nodes in each group
+        #     group_counts = [0] * num_groups
+        #     for idx in batch_indices:
+        #         for group_idx, group_set in enumerate(group_sets):
+        #             if idx in group_set:
+        #                 group_counts[group_idx] += 1
+        #                 break  # Each node belongs to exactly one group
+                        
+        #     # Find which group has the majority of nodes
+        #     majority_group = group_counts.index(max(group_counts))
+                    
+        #     # Determine exit layer based on the majority group
+        #     # Group 0 is highest degree - use full model
+        #     # Other groups have progressively earlier exits
+        #     if majority_group == 0:
+        #         # Highest degree group - use full model
+        #         inputs['exit_layer'] = None
+        #     else:
+        #         # Calculate exit layer based on group index
+        #         # For example: 12 layers total, 4 groups → exits at layers None, 8, 4, 2
+        #         max_layers = 12  # Total layers in the model
+        #         # Linear interpolation - earlier exits for lower degree groups
+        #         exit_layer = max(1, int(max_layers * (1 - majority_group / num_groups)))
+        #         inputs['exit_layer'] = exit_layer
+
+        if train_by_degree:
+            # Get current batch position within the epoch
+            if not hasattr(self, '_current_batch_idx'):
+                self._current_batch_idx = 0
+            else:
+                self._current_batch_idx += 1
+                
+            # Reset counter at the beginning of each epoch
+            if self._current_batch_idx >= len(self.get_train_dataloader()):
+                self._current_batch_idx = 0
+            
+            # Calculate which group this batch belongs to based on position
+            total_batches = len(self.get_train_dataloader())
+            if hasattr(self.data, 'degree_groups'):
+                num_groups = len(self.data.degree_groups)  # Or get dynamically if variable: len(self.data.degree_groups) if hasattr(self.data, 'degree_groups') else 3
+            
+            # Determine which group this batch belongs to (0 = highest degree, num_groups-1 = lowest degree)
+            batch_group = min(num_groups - 1, int(self._current_batch_idx * num_groups / total_batches))
+            # Set exit_layer based on group
+            if batch_group == 0:
+                # Highest degree group - use full model
+                inputs['exit_layer'] = None
+            else:
+                # Calculate exit layer based on group index
+                max_layers = 12  # Total layers in model
+                exit_layer = max(1, int(max_layers * (1 - batch_group / num_groups)))
+                inputs['exit_layer'] = exit_layer
 
         with self.compute_loss_context_manager():
             loss = self.compute_loss(model, inputs)
@@ -601,55 +729,6 @@ class MyTrainer(Trainer):
                         #     if param.requires_grad and param.grad is not None:
                         #         param.grad.div_(dist.get_world_size())
                         #         dist.all_reduce(param.grad, op=dist.ReduceOp.SUM, group=dist.group.WORLD, async_op=True)
-
-                    # if dist.is_initialized():
-                    #     # Define bucket size (in elements)
-                    #     bucket_size = 15 * 1024 * 1024  # 25MB per bucket
-                        
-                    #     # Collect all gradients
-                    #     param_list = []
-                    #     for param in model.parameters():
-                    #         if not param.requires_grad:
-                    #             continue
-                            
-                    #         if param.grad is None:
-                    #             param.grad = torch.zeros(param.size(), dtype=param.dtype, device=param.device)
-                    #         param_list.append(param)
-                        
-                    #     # Sort parameters by size for better bucket packing
-                    #     param_list = sorted(param_list, key=lambda p: p.grad.data.numel(), reverse=True)
-                        
-                    #     # Group parameters into buckets
-                    #     buckets = {}
-                    #     bucket_id = 0
-                    #     current_bucket_size = 0
-                        
-                    #     for param in param_list:
-                    #         param_size = param.grad.data.numel()
-                            
-                    #         if current_bucket_size + param_size > bucket_size and current_bucket_size > 0:
-                    #             # Start a new bucket
-                    #             bucket_id += 1
-                    #             current_bucket_size = 0
-                                
-                    #         if bucket_id not in buckets:
-                    #             buckets[bucket_id] = []
-                            
-                    #         buckets[bucket_id].append(param.grad.data)
-                    #         current_bucket_size += param_size
-                        
-                    #     # Synchronize each bucket
-                    #     print(len(buckets))
-                    #     for bucket_id, grad_list in buckets.items():
-                    #         coalesced = _flatten_dense_tensors(grad_list)
-                    #         coalesced /= dist.get_world_size()
-                            
-                    #         # Synchronize gradients
-                    #         dist.all_reduce(coalesced, op=dist.ReduceOp.SUM, group=dist.group.WORLD, async_op=True)
-                            
-                    #         # Copy back to original tensors
-                    #         for buf, synced in zip(grad_list, _unflatten_dense_tensors(coalesced, grad_list)):
-                    #             buf.copy_(synced)
 
 
                     # Gradient clipping

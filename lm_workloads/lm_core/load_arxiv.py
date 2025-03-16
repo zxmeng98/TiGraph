@@ -2,9 +2,10 @@ from ogb.nodeproppred import PygNodePropPredDataset
 import torch_geometric.transforms as T
 import torch
 import pandas as pd
+from torch_geometric.utils import degree
 
 
-def get_raw_text_arxiv(use_text=False, seed=0):
+def get_raw_text_arxiv(use_text=False, seed=0, group_by_degree=True):
     data_dir = '/home/mzhang/work/TAPE/dataset/'
     dataset = PygNodePropPredDataset(
         name='ogbn-arxiv', transform=T.ToSparseTensor(), root = data_dir)
@@ -22,6 +23,36 @@ def get_raw_text_arxiv(use_text=False, seed=0):
     data.test_mask = test_mask
 
     data.edge_index = data.adj_t.to_symmetric()
+
+    # Group nodes by degree
+    if group_by_degree:
+        # Calculate node degrees using the adjacency tensor
+        row, col, _ = data.adj_t.coo()
+        node_degrees = torch.bincount(row, minlength=data.num_nodes)
+        
+        # Sort nodes by degree in descending order
+        sorted_indices = torch.argsort(node_degrees, descending=True)
+        
+        # Split into three groups of approximately equal size
+        num_groups = 3
+        group_size = data.num_nodes // num_groups
+        remaining = data.num_nodes % num_groups
+        
+        # Adjust group sizes to handle remainder
+        group_sizes = [group_size + (1 if i < remaining else 0) for i in range(num_groups)]
+        
+        # Create the groups
+        start_idx = 0
+        degree_groups = []
+        for size in group_sizes:
+            end_idx = start_idx + size
+            group = sorted_indices[start_idx:end_idx]
+            degree_groups.append(group)
+            start_idx = end_idx
+            
+        # Add degree groups to data object
+        data.degree_groups = degree_groups
+
     if not use_text:
         return data, None
 

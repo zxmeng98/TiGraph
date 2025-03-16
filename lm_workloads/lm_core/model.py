@@ -31,13 +31,15 @@ class BertClassifier(PreTrainedModel):
                 labels=None,
                 return_dict=None,
                 preds=None,
-                node_id=None):
+                node_id=None,
+                exit_layer=None,
+                ):
 
         outputs = self.bert_encoder(input_ids=input_ids,
                                     attention_mask=attention_mask,
                                     return_dict=return_dict,
                                     output_hidden_states=True,
-                                    # exit_layer=4,
+                                    exit_layer=exit_layer,
                                     )
         # Save prediction and embeddings to disk (memmap)
         batch_nodes = node_id.cpu().numpy() # batch_nodes are not in order

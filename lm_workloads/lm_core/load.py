@@ -80,3 +80,20 @@ def load_data(dataset, use_dgl=False, use_text=False, use_gpt=False, seed=0):
         data, text = get_raw_text(use_text=True, seed=seed)
 
     return data, num_classes, text
+
+
+def sorted_nodes_by_degree(data, train_indices):
+    # Calculate node degrees if not already calculated
+    if not hasattr(data, 'node_degrees'):
+        # Use the edge_index to calculate degrees
+        row, col, _ = data.adj_t.coo()
+        data.node_degrees = torch.bincount(row, minlength=data.num_nodes)
+
+    # Get degrees of training nodes
+    train_node_degrees = data.node_degrees[train_indices]
+
+    # Sort training indices by degree in descending order
+    sorted_idx = torch.argsort(train_node_degrees, descending=True)
+    sorted_train_indices = [train_indices[i] for i in sorted_idx.tolist()]
+
+    return sorted_train_indices

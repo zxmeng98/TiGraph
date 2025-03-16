@@ -9,3 +9,6 @@ torchrun --nnodes 1 --nproc_per_node 2 revgat_pp_trainonall.py --dataset ogbn-ar
 TOKENIZERS_PARALLELISM=True torchrun --nnodes=1 --nproc_per_node=4 -m lm_workloads.lm_core.train_lm dataset ogbn-arxiv lm.train.use_gpt True
 
 torchrun --nnodes 1 --nproc_per_node 4 --master_port 2923 revgnn_pp_trainonall_sync_data.py --dataset ogbn-arxiv --num_layers 112 --pid 1536862 1536863 1536864 1536865
+
+
+
