@@ -17,7 +17,7 @@ from utils.dataset import get_dataset
 import torch.distributed as dist
 from ogb.nodeproppred import DglNodePropPredDataset
 from pipelining import pipeline, SplitPoint, PipelineStage
-from pipelining.schedules_interleave_dp import ScheduleGPipe
+from pipelining.schedules_interleave_dp_reorder import ScheduleGPipe
 from pipelining._utils import partition_uniform
 from pipelining.initialize import (
     init_distributed, 
@@ -305,6 +305,36 @@ if __name__ == "__main__":
     optimizer = torch.optim.Adam(stage.submod.parameters(), lr=args.lr)
     schedule = ScheduleGPipe(stage, n_microbatches=num_microbatches, loss_fn=loss_fcn)
 
+    # SPlit in advance
+    for i in range(data_processed.num_batches):
+        g_i, features_i, labels_i = packed_batch[i]
+        if rank == 0:
+            inputs = (g_i, features_i)
+        else:
+            inputs = (g_i, )
+        args_split, kwargs_split, chunked_sg_ori_node_idxes = schedule._split_inputs(inputs)
+
+        from utils.dataset import reformat_graph
+        for i, args_chunk in enumerate(args_split):
+            chunk_g = args_chunk[0]
+
+            src, dst = chunk_g.edges()  # 分别获取起点和终点的 tensor
+            edge_index = torch.stack([src, dst], dim=0)  
+            sorted_edge_index, sorted_indices = reformat_graph(edge_index, k=4)
+            new_src = sorted_edge_index[0]
+            new_dst = sorted_edge_index[1]
+            new_chunk_g = dgl.graph((new_src, new_dst), num_nodes=chunk_g.num_nodes()).to(device)
+            processed_args = [new_chunk_g]
+            if len(args_chunk) > 1:
+                for arg in args_chunk[1:]:
+                    if isinstance(arg, torch.Tensor):
+                        processed_args.append(arg.to(device))
+                    else:
+                        processed_args.append(arg)
+            
+            args_split[i] = tuple(processed_args)
+
+
     # Convert model and graph to bfloat16 if needed
     if args.dt == "bfloat16":
         g = dgl.to_bfloat16(g)
@@ -328,7 +358,7 @@ if __name__ == "__main__":
             torch.profiler.ProfilerActivity.CUDA,
         ],
         schedule=torch.profiler.schedule(
-            skip_first=3, wait=1, warmup=1, active=5, repeat=1
+            skip_first=5, wait=1, warmup=1, active=3, repeat=1
         ),
         on_trace_ready=torch.profiler.tensorboard_trace_handler(
             f"./tensorboard_trace/GNN-PP-LM-DP/gnn-pp-reorder/"
@@ -354,16 +384,16 @@ if __name__ == "__main__":
             g_i, features_i, labels_i = packed_batch[i]
             g_i, features_i, labels_i = g_i.to(device), features_i.to(device), labels_i.to(device)
             if rank == 0:
-                schedule.step(g_i, features_i, split_idx=split_idx['train'])
+                schedule.step(args_split, kwargs_split, chunked_sg_ori_node_idxes, split_idx=split_idx['train'])
             elif rank == num_stages - 1:
                 losses = []
-                output = schedule.step(g_i, target=labels_i, losses=losses, split_idx=split_idx['train']) 
+                output = schedule.step(args_split, kwargs_split, chunked_sg_ori_node_idxes, target=labels_i, losses=losses, split_idx=split_idx['train']) 
                 for i in range(len(losses)):
                     losses[i] = losses[i].item()
                 loss = np.mean(losses)
 
             else:
-                schedule.step(g_i, split_idx=split_idx['train'])
+                schedule.step(args_split, kwargs_split, chunked_sg_ori_node_idxes, split_idx=split_idx['train'])
 
             torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
             optimizer.step()

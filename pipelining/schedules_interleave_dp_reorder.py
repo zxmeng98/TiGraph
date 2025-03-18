@@ -230,6 +230,7 @@ class _PipelineSchedule(ABC):
                 self._args_chunk_spec,
                 self._kwargs_chunk_spec,
             )
+
             return args_split, kwargs_split, chunkg_ori_node_idxes
         else:
             # Empty inputs (e.g. when called on middle stages)
@@ -323,7 +324,7 @@ class PipelineScheduleSingle(_PipelineSchedule):
         if self._has_backward:
             stage._prepare_backward_infra(n_microbatches)
 
-    def step(self, *args, target=None, losses: Optional[List] = None, split_idx: torch.Tensor = None, **kwargs):
+    def step(self, args_split, kwargs_split, chunked_sg_ori_node_idxes, target=None, losses: Optional[List] = None, split_idx: torch.Tensor = None, **kwargs):
         """
         Run one iteration of the pipeline schedule with *whole-batch* input.
         Will chunk the input into microbatches automatically, and go through the
@@ -340,7 +341,7 @@ class PipelineScheduleSingle(_PipelineSchedule):
 
         # Split inputs into microbatches
         # args_split: [mb0: tuple(sg0, chunk_x0), ...]
-        args_split, kwargs_split, chunked_sg_ori_node_idxes = self._split_inputs(args, kwargs)
+        # args_split, kwargs_split, chunked_sg_ori_node_idxes = self._split_inputs(args, kwargs)
 
         # Split target into microbatches
         if target is not None:

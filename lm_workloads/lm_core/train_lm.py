@@ -68,28 +68,23 @@ class PrintEpochTimeCallback(TrainerCallback):
         self.ckpt_dir = ckpt_dir
         self.num_nodes = num_nodes
         self.feat_shrink = feat_shrink
-        self.profiler_started = False  # 跟踪profiler状态
 
     def on_train_begin(self, args, state, control, **kwargs):
         pass
 
     def get_rank(self):
         return dist.get_rank() if dist.is_initialized() else 0
-    
-    # def on_epoch_begin(self, args, state, control, **kwargs):
-    #     if state.epoch >= 0 and not self.profiler_started:
-    #         pp_profile.start()
-    #         self.profiler_started = True
+
+    # def on_train_begin(self, args, state, control, **kwargs):
+    #     pp_profile.start()  
         
     def on_step_begin(self, args, state, control, **kwargs):
         self.step_start_time = time.time()
 
     def on_step_end(self, args, state, control, **kwargs):
         step_time = time.time() - self.step_start_time # NOTE: 开了梯度累积这里统计的时间后面的epoch可能不对，因为step_begin是根据step%accum_steps==0来的，但是step_end是根据total_batched_samples % args.gradient_accumulation_steps==0，一个epoch结束后step会从0开始，但是total_batched_samples一直是累加的，后面这俩不同步了，间隔为accum_step就被打乱了。
-        if self.profiler_started:
-            pp_profile.step()
-        torch.cuda.synchronize()
-        
+        # pp_profile.step()  
+
         if self.get_rank() == 0:
             if state.log_history:
                 loss = state.log_history[-1]["loss"] if "loss" in state.log_history[-1] else None

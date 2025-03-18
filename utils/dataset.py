@@ -1,4 +1,5 @@
 import os
+import sys
 import random
 import time
 import pickle as pkl
@@ -18,6 +19,7 @@ from torch_geometric.datasets import Amazon, CitationFull, Coauthor
 from torch_geometric.utils import coalesce
 import torch_geometric.transforms as T
 from ogb.nodeproppred import DglNodePropPredDataset, NodePropPredDataset
+import contextlib
 
 from pipelining.initialize import (
     get_pipeline_parallel_rank,
@@ -399,7 +401,151 @@ class DataProcess():
             return True, written_rows
         return False, last_written_rows
 
+
+@contextlib.contextmanager
+def suppress_stdout():
+    with open(os.devnull, 'w') as devnull:
+        old_stdout = sys.stdout
+        sys.stdout = devnull
+        try:  
+            yield
+        finally:
+            sys.stdout = old_stdout
+
+
+def create_pairs(N, M, off_N, off_M):
+    """Create a list of pairs (a, b) where a ranges from 1 to N and b ranges from 1 to M."""
+    return [(a, b) for a in range(off_N, off_N + N) for b in range(off_M, off_M + M)]
+
+
+def generate_new_edges_optimized(edge_index, k, partition_ids, p, blocksize, new_id_mapping):
+    # edge_counts = np.zeros((k, k), dtype=np.int64)
+    new_edges = []
+    src, dst = edge_index
+    edge_partiton = (partition_ids.numpy()[src.numpy()], partition_ids.numpy()[dst.numpy()])
+    edge_index_np = (src.numpy(), dst.numpy())
+    # Combining the first and second rows of a for sorting
+    combined_a = list(zip(edge_partiton[0], edge_partiton[1]))
+    # Sorting combined_a and also sorting b based on the sorting of combined_a
+    sorted_combined_a, sorted_b = zip(*sorted(zip(combined_a, zip(*edge_index_np))))
+    # Unzipping the sorted lists
+    sorted_a1, sorted_a2 = zip(*sorted_combined_a)
+    sorted_b1, sorted_b2 = zip(*sorted_b)
+
+    edge_count_list = np.zeros(k*k, dtype=np.int64)
+    change_count = 0
+    for i in range(len(sorted_a1)-1):
+        if (sorted_a1[i] == sorted_a1[i+1]) and (sorted_a2[i] == sorted_a2[i+1]):
+            edge_count_list[change_count] += 1
+        else:
+            edge_count_list[change_count] += 1
+            change_count += 1
+    edge_count_list[change_count] += 1
+    cumulative_sum = [sum(edge_count_list[:i]) for i in range(len(edge_count_list) + 1)]
+
+    # # Converting the sorted tuples back to lists
+    # sorted_a_new = (list(sorted_a1), list(sorted_a2))
+    # sorted_b_new = (list(sorted_b1), list(sorted_b2))
     
+    # for src, dst in zip(*edge_index):
+    #     src_part = partition_ids[src]
+    #     dst_part = partition_ids[dst]
+    #     edge_counts[src_part, dst_part] += 1
+
+    node_counts = np.zeros(k, dtype=int)
+    total_node_offset = np.zeros(k, dtype=int)
+    for pid in partition_ids:
+        node_counts[pid] += 1
+
+    for i in range(k-1):
+        total_node_offset[i+1] = total_node_offset[i] + node_counts[i]
+    # print(total_node_offset)
+    # node_counts = np.array([np.sum(partition_ids == i) for i in range(k)])
+    # print(node_counts)
+    keep_cnt = 0
+    for i in range(k):
+        for j in range(k):
+            sparsity = edge_count_list[i*k+j] / (node_counts[i] * node_counts[j])
+            # if i == j:
+            # print(f"chunk sparsity: {sparsity:.8f}, {sparsity/8.7988461e-05}")
+
+            if sparsity > p:
+                raw_edge_src = sorted_b1[cumulative_sum[i*k+j]:cumulative_sum[i*k+j+1]]
+                raw_edge_dst = sorted_b2[cumulative_sum[i*k+j]:cumulative_sum[i*k+j+1]]
+                # print(len(raw_edge_src))
+                for jj in range(len(raw_edge_src)):
+                    new_edges.append((new_id_mapping[raw_edge_src[jj]], new_id_mapping[raw_edge_dst[jj]]))
+                # for src, dst in zip(*edge_index):
+                #     if partition_ids[src] == i and partition_ids[dst] == j:
+                #         new_edges.append((new_id_mapping[src], new_id_mapping[dst]))
+                #         # new_edges.append((src, dst))
+            else:
+                # mask = torch.zeros(node_counts[i], node_counts[j])
+                num_elements_per_block = blocksize * blocksize
+
+                total_elements = node_counts[i] * node_counts[j]
+                num_nonzero_blocks = int(sparsity * total_elements / num_elements_per_block) + 1
+                np.random.seed(keep_cnt)
+                if (node_counts[i] >= blocksize) and (node_counts[j] >= blocksize):
+                    for ii in range(num_nonzero_blocks):
+                        block_row = (np.random.randint(0, node_counts[i] // blocksize)) #% (node_counts[i] // blocksize)
+                        # print(ii, block_row)
+                        block_col = (np.random.randint(0, node_counts[j] // blocksize)) #% (node_counts[j] // blocksize)
+                        # print(ii, keep_cnt, block_row, block_col)
+                        keep_cnt += 1
+                        random_edge = create_pairs(blocksize, blocksize, (block_row * blocksize + total_node_offset[i]), (block_col * blocksize + total_node_offset[j]))
+                        new_edges.extend(random_edge)
+
+
+    # print(keep_cnt)
+    # print("Edge raw {} new {}".format(len(edge_index[0]), len(new_edges)))
+    # print(new_edges)
+    return torch.tensor(new_edges).t()
+
+
+
+def reformat_graph(edge_index, k=4, block_size=16, beta_coeffi='1'):
+
+    src, dst = edge_index
+    g = dgl.graph((src, dst))
+    # logging.getLogger('dgl').setLevel(logging.WARNING)
+    t0 = time.time()
+    with suppress_stdout():
+        partition_ids = dgl.metis_partition_assignment(g, k)
+    # exit(0)
+    t1 = time.time()
+    new_id_mapping = np.empty(g.num_nodes(), dtype=np.int64)
+    # print(x.shape)
+    current_id = 0
+    for part_id in range(k):
+        nodes_in_part = np.where(partition_ids == part_id)[0]
+        new_id_mapping[nodes_in_part] = np.arange(current_id, current_id + len(nodes_in_part))
+        current_id += len(nodes_in_part)
+        
+    t2 = time.time()
+
+    p_ori = len(edge_index[0]) / (g.num_nodes() * g.num_nodes()) # 1-sparsity
+    if beta_coeffi == '1':
+        p = 1
+    else:
+        p = beta_coeffi * p_ori
+    p = 0
     
+    new_edge_index = generate_new_edges_optimized(edge_index, k, partition_ids, p, blocksize=block_size, new_id_mapping=new_id_mapping)
+    # new_edge_index = (new_id_mapping[src.numpy()], new_id_mapping[dst.numpy()])
+    # new_edge_index = (new_id_mapping[block_src.numpy()], new_id_mapping[block_dst.numpy()])
+    t3 = time.time()
+    new_id_mapping_tensor = torch.from_numpy(new_id_mapping)
+
+    sorted_indices = torch.argsort(new_id_mapping_tensor)
+
+    sorted_indices_edge = torch.argsort(new_edge_index[0])
+
+    sorted_edge_index = new_edge_index[:, sorted_indices_edge]
+    t4 = time.time()
+    # print("Time in reorder {} {} {}".format(t1-t0, t2-t1, t3-t2))
+    return sorted_edge_index, sorted_indices
+
+
 if __name__ == "__main__":
     g, split_idx, data_x, data_y, num_classes = get_dataset('pubmed')
