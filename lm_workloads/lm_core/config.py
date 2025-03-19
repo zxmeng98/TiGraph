@@ -55,7 +55,8 @@ def set_cfg(cfg):
     cfg.lm.model = CN()
     # LM model name
     cfg.lm.model.name = 'microsoft/deberta-base' # microsoft/deberta-large, 
-    cfg.lm.model.feat_shrink = 128
+    cfg.lm.model.feat_shrink = ''
+    cfg.lm.model.gnn_input_dim = 128
 
     # ------------------------------------------------------------------------ #
     # LM Training options

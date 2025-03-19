@@ -5,7 +5,7 @@ import pandas as pd
 from torch_geometric.utils import degree
 
 
-def get_raw_text_arxiv(use_text=False, seed=0, group_by_degree=True):
+def get_raw_text_arxiv(use_text=False, seed=0, group_by_degree=3):
     data_dir = '/home/mzhang/work/TAPE/dataset/'
     dataset = PygNodePropPredDataset(
         name='ogbn-arxiv', transform=T.ToSparseTensor(), root = data_dir)
@@ -25,7 +25,7 @@ def get_raw_text_arxiv(use_text=False, seed=0, group_by_degree=True):
     data.edge_index = data.adj_t.to_symmetric()
 
     # Group nodes by degree
-    if group_by_degree:
+    if group_by_degree is not None:
         # Calculate node degrees using the adjacency tensor
         row, col, _ = data.adj_t.coo()
         node_degrees = torch.bincount(row, minlength=data.num_nodes)
@@ -34,7 +34,7 @@ def get_raw_text_arxiv(use_text=False, seed=0, group_by_degree=True):
         sorted_indices = torch.argsort(node_degrees, descending=True)
         
         # Split into three groups of approximately equal size
-        num_groups = 3
+        num_groups = group_by_degree
         group_size = data.num_nodes // num_groups
         remaining = data.num_nodes % num_groups
         

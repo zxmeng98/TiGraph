@@ -345,7 +345,8 @@ class PipelineScheduleSingle(_PipelineSchedule):
 
         # Split target into microbatches
         if target is not None:
-            targets_split = list(torch.tensor_split(target, self._n_microbatches))
+            # targets_split = list(torch.tensor_split(target, self._n_microbatches))
+            targets_split = target
         else:
             targets_split = None
 

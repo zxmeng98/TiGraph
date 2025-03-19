@@ -27,7 +27,7 @@ from pipelining.initialize import (
     get_pipeline_parallel_group,
     get_pipeline_parallel_world_size,
     )
-from utils.dataset import intersection, DataProcess, reformat_graph
+from utils.dataset import intersection, DataProcess, reformat_graph, split_mb_in_advance
 from od_execution.client import send_signal
 
 
@@ -81,18 +81,24 @@ def manual_model_split(args, model, example_input_microbatch) -> PipelineStage:
     return stage
 
 
-def evaluate(args, packed_batch, batch_idxes, split_idx, stage, schedule):
+def evaluate(args, preprocessed_batches, batch_idxes, split_idx, stage, schedule):
     valid_output, test_output = [], []
     valid_labels, test_labels = [], []
     stage.submod.eval()
     for i in range(len(batch_idxes)):
-        g_i, features_i, labels_i = packed_batch[i]
-        g_i, features_i, labels_i = g_i.to(device), features_i.to(device), labels_i.to(device)
-        batch_idx = batch_idxes[i].tolist()
+        batch_data = preprocessed_batches[i]
+        args_split = batch_data['args_split']
+        kwargs_split = batch_data['kwargs_split']
+        chunked_sg_ori_node_idxes = batch_data['chunked_sg_ori_node_idxes']
+        labels_split = batch_data['reordered_targets']
+        # batch_idx = batch_idxes[i].tolist()
+        batch_idx = torch.cat(chunked_sg_ori_node_idxes).tolist()
+        labels_i = torch.cat(labels_split)
+
         if rank == 0:
-            schedule.step(g_i, features_i, split_idx=split_idx['valid'])
+            schedule.step(args_split, kwargs_split, chunked_sg_ori_node_idxes, split_idx=split_idx['valid'])
         elif rank == num_stages - 1:
-            output = schedule.step(g_i, target=labels_i, split_idx=split_idx['valid'])   
+            output = schedule.step(args_split, kwargs_split, chunked_sg_ori_node_idxes, target=labels_split, split_idx=split_idx['valid'])   
             mapper = {node: idx for idx, node in enumerate(batch_idx)}
             inter_valid_node = intersection(batch_idx, split_idx['valid'].tolist())
             inter_test_node = intersection(batch_idx, split_idx['test'].tolist())
@@ -104,7 +110,7 @@ def evaluate(args, packed_batch, batch_idxes, split_idx, stage, schedule):
             valid_labels.append(labels_i[local_valid_idx])
             test_labels.append(labels_i[local_test_idx])
         else:
-            schedule.step(g_i, split_idx=split_idx['valid'])
+            schedule.step(args_split, kwargs_split, chunked_sg_ori_node_idxes, split_idx=split_idx['valid'])
     
     if rank == num_stages - 1:
         # Need to make sure labels and outputs match. 
@@ -225,7 +231,7 @@ if __name__ == "__main__":
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(args.seed)
     
-    # Initialize small worload PID
+    # Initialize small workload PID
     if args.pid is not None:
         if len(args.pid) >= num_stages:
             pid = args.pid[rank]
@@ -246,28 +252,6 @@ if __name__ == "__main__":
 
     # Load and preprocess dataset
     g, split_idx, features, labels, num_classes = get_dataset(args.dataset)
-
-    # src, dst = g.edges()  # 分别获取起点和终点的 tensor
-    # edge_index = torch.stack([src, dst], dim=0)  # 组合成 [2, num_edges] 的 edge_index 格式
-    # sorted_edge_index, sorted_indices = reformat_graph(edge_index, k=16)
-
-    # # Reorder the graph using the sorted indices
-    # new_src = sorted_edge_index[0]
-    # new_dst = sorted_edge_index[1]
-    # g = dgl.graph((new_src, new_dst), num_nodes=g.num_nodes())
-    # # Reorder node features and labels
-    # features = features[sorted_indices]
-    # g.ndata["feat"] = features
-    # labels = labels[sorted_indices]
-
-    # # Create a mapping from old node IDs to new node IDs
-    # sorted_indices_map = torch.empty(sorted_indices.size(0), dtype=torch.long)
-    # sorted_indices_map[sorted_indices] = torch.arange(sorted_indices.size(0))
-
-    # # Update split indices to reference the correct nodes after reordering
-    # for key in split_idx:
-    #     split_idx[key] = sorted_indices_map[split_idx[key]]
-
 
     data_processed = DataProcess(args, g, split_idx, features, labels)
     args.in_size = data_processed.features.shape[1]
@@ -305,41 +289,15 @@ if __name__ == "__main__":
     optimizer = torch.optim.Adam(stage.submod.parameters(), lr=args.lr)
     schedule = ScheduleGPipe(stage, n_microbatches=num_microbatches, loss_fn=loss_fcn)
 
-    # SPlit in advance
-    for i in range(data_processed.num_batches):
-        g_i, features_i, labels_i = packed_batch[i]
-        if rank == 0:
-            inputs = (g_i, features_i)
-        else:
-            inputs = (g_i, )
-        args_split, kwargs_split, chunked_sg_ori_node_idxes = schedule._split_inputs(inputs)
-
-        from utils.dataset import reformat_graph
-        for i, args_chunk in enumerate(args_split):
-            chunk_g = args_chunk[0]
-
-            src, dst = chunk_g.edges()  # 分别获取起点和终点的 tensor
-            edge_index = torch.stack([src, dst], dim=0)  
-            sorted_edge_index, sorted_indices = reformat_graph(edge_index, k=4)
-            new_src = sorted_edge_index[0]
-            new_dst = sorted_edge_index[1]
-            new_chunk_g = dgl.graph((new_src, new_dst), num_nodes=chunk_g.num_nodes()).to(device)
-            processed_args = [new_chunk_g]
-            if len(args_chunk) > 1:
-                for arg in args_chunk[1:]:
-                    if isinstance(arg, torch.Tensor):
-                        processed_args.append(arg.to(device))
-                    else:
-                        processed_args.append(arg)
-            
-            args_split[i] = tuple(processed_args)
-
+    # Split in advance
+    preprocessed_batches = split_mb_in_advance(data_processed.num_batches, schedule, packed_batch, device, k=4)
+    
 
     # Convert model and graph to bfloat16 if needed
     if args.dt == "bfloat16":
         g = dgl.to_bfloat16(g)
         features = features.to(dtype=torch.bfloat16)
-        model = model.to(dtype=torch.bfloat16)
+        model = model.to(dtype=torch.bfloat16)      
 
     # After pp workload start up, pause the small workload till the bubble
     if rank == 0 and small_workload_pid is not None:
@@ -348,6 +306,13 @@ if __name__ == "__main__":
     # Model training
     if rank == 0:
         print("Training...")
+
+    timestamp0 = time.time()
+    local_time = time.localtime(timestamp0)
+    time_str = time.strftime('%Y-%m-%d %H:%M:%S', local_time)
+    ms = int((timestamp0 - int(timestamp0)) * 1000)
+    formatted_time = f"{time_str}.{ms:03d}"
+    print(f"{args.gnn_model} start time: {formatted_time}")
         
     # Training loop
     loss_list, val_acc_list, test_acc_list, epoch_time_list = [], [], [], [] 
@@ -368,9 +333,9 @@ if __name__ == "__main__":
         with_modules=True,
         # profile_memory=True,
     )
-    pp_profile.start()
+    # pp_profile.start()
 
-    delta_sync = 20
+    delta_sync = 100000
     last_written_rows = 0
     for epoch in range(args.epochs):
         if (epoch+1) % delta_sync == 0:
@@ -381,49 +346,65 @@ if __name__ == "__main__":
         stage.submod.train()
         t0 = time.time()
         for i in range(data_processed.num_batches):
-            g_i, features_i, labels_i = packed_batch[i]
-            g_i, features_i, labels_i = g_i.to(device), features_i.to(device), labels_i.to(device)
+            # Get preprocessed data for this batch
+            batch_data = preprocessed_batches[i]
+            args_split = batch_data['args_split']
+            kwargs_split = batch_data['kwargs_split']
+            chunked_sg_ori_node_idxes = batch_data['chunked_sg_ori_node_idxes']
+            labels_split = batch_data['reordered_targets']
+        
             if rank == 0:
                 schedule.step(args_split, kwargs_split, chunked_sg_ori_node_idxes, split_idx=split_idx['train'])
             elif rank == num_stages - 1:
                 losses = []
-                output = schedule.step(args_split, kwargs_split, chunked_sg_ori_node_idxes, target=labels_i, losses=losses, split_idx=split_idx['train']) 
+                output = schedule.step(args_split, kwargs_split, chunked_sg_ori_node_idxes, target=labels_split, losses=losses, split_idx=split_idx['train']) 
                 for i in range(len(losses)):
                     losses[i] = losses[i].item()
                 loss = np.mean(losses)
 
             else:
                 schedule.step(args_split, kwargs_split, chunked_sg_ori_node_idxes, split_idx=split_idx['train'])
+            
 
             torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
             optimizer.step()
-            pp_profile.step()
+            # pp_profile.step()
             
         t1 = time.time()
-        if rank == num_stages - 1:
-            print(
-                    "Epoch {:05d} | Loss {:.4f} | Epoch Time {:.2f}s".format(
-                        epoch, loss, t1 - t0
+        epoch_time_list.append(t1 - t0)
+        if epoch > 4:
+            if rank == num_stages - 1:
+                print(
+                        "Epoch {:05d} | Loss {:.4f} | Avg Epoch Time {:.2f}s".format(
+                            epoch, loss, np.mean(epoch_time_list[5:])
+                        )
                     )
-                )
-        # if rank == 0:
-        #     print(
-        #             "Epoch {:05d} | Epoch Time {:.2f}s".format(
-        #                 epoch, t1 - t0
-        #             )
-        #         )
+        else:
+            if rank == num_stages - 1:
+                print(
+                        "Epoch {:05d} | Loss {:.4f} | Epoch Time {:.2f}s".format(
+                            epoch, loss, t1 - t0
+                        )
+                    )
             
-    # pp_profile.stop()
+        # pp_profile.stop()
             
 
-        # # Validation
-        # if epoch % 5 == 0:
-        #     results = evaluate(args, packed_batch, data_processed.batch_nodes, split_idx, stage, schedule)
-        #     if rank == num_stages - 1:
-        #         print("Epoch {:05d} | Valid acc: {:.2f}% | Test acc: {:.2f}%".format(epoch, results[0], results[1]))
-        #         loss_list.append(loss)
-        #         val_acc_list.append(results[0])
-        #         test_acc_list.append(results[1])
+        # Validation
+        if epoch % 5 == 0:
+            results = evaluate(args, preprocessed_batches, data_processed.batch_nodes, split_idx, stage, schedule)
+            if rank == num_stages - 1:
+                print("Epoch {:05d} | Valid acc: {:.2f}% | Test acc: {:.2f}%".format(epoch, results[0], results[1]))
+                loss_list.append(loss)
+                val_acc_list.append(results[0])
+                test_acc_list.append(results[1])
+
+    timestamp1 = time.time()
+    local_time = time.localtime(timestamp1)
+    time_str = time.strftime('%Y-%m-%d %H:%M:%S', local_time)
+    ms = int((timestamp1 - int(timestamp1)) * 1000)
+    formatted_time = f"{time_str}.{ms:03d}"
+    print(f"{args.gnn_model} finish time: {formatted_time}, wall-time: {timestamp1-timestamp0:.3f}s")
         
 
     if rank == num_stages - 1:

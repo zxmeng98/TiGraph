@@ -8,12 +8,13 @@ from lm_workloads.lm_core.utils import init_random_state
 
 
 class BertClassifier(PreTrainedModel):
-    def __init__(self, model, n_labels, dropout=0.0, seed=0, cla_bias=True, feat_shrink='', emb=None, pred=None):
+    def __init__(self, model, n_labels, dropout=0.0, seed=0, cla_bias=True, feat_shrink='', gnn_input_dim=128, emb=None, pred=None):
         super().__init__(model.config)
         self.bert_encoder = model
         self.emb, self.pred = emb, pred
         self.dropout = nn.Dropout(dropout)
         self.feat_shrink = feat_shrink
+        self.gnn_input_dim = gnn_input_dim
         hidden_dim = model.config.hidden_size
         self.loss_func = nn.CrossEntropyLoss(
             label_smoothing=0.3, reduction='mean')
@@ -22,6 +23,8 @@ class BertClassifier(PreTrainedModel):
             self.feat_shrink_layer = nn.Linear(
                 model.config.hidden_size, int(feat_shrink), bias=cla_bias)
             hidden_dim = int(feat_shrink)
+        self.feat_to_gnn_input_layer = nn.Linear(
+            model.config.hidden_size, int(self.gnn_input_dim), bias=cla_bias)
         self.classifier = nn.Linear(hidden_dim, n_labels, bias=cla_bias)
         init_random_state(seed)   
 
@@ -51,7 +54,7 @@ class BertClassifier(PreTrainedModel):
         cls_token_emb = emb.permute(1, 0, 2)[0]
         if self.feat_shrink:
             cls_token_emb = self.feat_shrink_layer(cls_token_emb)
-            cls_token_emb_save = self.feat_shrink_layer(cls_token_emb_save)
+        cls_token_emb_save = self.feat_to_gnn_input_layer(cls_token_emb_save)
         self.emb[batch_nodes] = cls_token_emb_save.detach().cpu().numpy().astype(np.float16)
         logits = self.classifier(cls_token_emb)
 
@@ -92,6 +95,9 @@ class BertClaInfModel(PreTrainedModel):
         cls_token_emb = emb.permute(1, 0, 2)[0]
         if self.feat_shrink:
             cls_token_emb = self.bert_classifier.feat_shrink_layer(
+                cls_token_emb)
+        else:
+            cls_token_emb = self.bert_classifier.feat_to_gnn_input_layer(
                 cls_token_emb)
         logits = self.bert_classifier.classifier(cls_token_emb)
 

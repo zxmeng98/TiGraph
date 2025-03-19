@@ -68,6 +68,8 @@ class PrintEpochTimeCallback(TrainerCallback):
         self.ckpt_dir = ckpt_dir
         self.num_nodes = num_nodes
         self.feat_shrink = feat_shrink
+        self.iter_time_list = [] 
+        self.gnn_input_dim = model.gnn_input_dim 
 
     def on_train_begin(self, args, state, control, **kwargs):
         pass
@@ -82,14 +84,22 @@ class PrintEpochTimeCallback(TrainerCallback):
         self.step_start_time = time.time()
 
     def on_step_end(self, args, state, control, **kwargs):
+        torch.cuda.synchronize() 
         step_time = time.time() - self.step_start_time # NOTE: 开了梯度累积这里统计的时间后面的epoch可能不对，因为step_begin是根据step%accum_steps==0来的，但是step_end是根据total_batched_samples % args.gradient_accumulation_steps==0，一个epoch结束后step会从0开始，但是total_batched_samples一直是累加的，后面这俩不同步了，间隔为accum_step就被打乱了。
+        slowdown_threshold = 1.5  # seconds - adjust based on your normal iteration time
+    
+        if step_time > slowdown_threshold:
+            self.iter_time_list.append(step_time) 
         # pp_profile.step()  
 
         if self.get_rank() == 0:
             if state.log_history:
                 loss = state.log_history[-1]["loss"] if "loss" in state.log_history[-1] else None
                 if loss is not None:
-                    print(f"Rank {self.get_rank()}, Iter {state.global_step}/{state.max_steps}: Loss = {loss:.4f}, Iter Time = {step_time:.4f} s.")
+                    print_str = f"Rank {self.get_rank()}, Iter {state.global_step}/{state.max_steps}: Loss = {loss:.4f}, Iter Time = {step_time:.4f} s."
+                    if len(self.iter_time_list) > 0:
+                        print_str += f" Avg Interleaved Time: {np.mean(self.iter_time_list):.4f} s."
+                    print(print_str)
             else:
                 loss = None
             # print(f"Iter {state.global_step}/{state.max_steps}: Iter Time = {step_time:.4f} s.")
@@ -102,7 +112,7 @@ class PrintEpochTimeCallback(TrainerCallback):
             emb = np.memmap(init_path(f"{self.ckpt_dir}.emb"),
                     dtype=np.float16,
                     mode='w+',
-                    shape=(self.num_nodes, int(self.feat_shrink) if self.feat_shrink else 768))
+                    shape=(self.num_nodes, int(self.gnn_input_dim)))
             self.model.emb = emb
             if self.get_rank() == 0:
                 print(f"Refresh emb file: {self.ckpt_dir}")
@@ -120,6 +130,7 @@ class LMTrainer():
 
         self.model_name = cfg.lm.model.name
         self.feat_shrink = cfg.lm.model.feat_shrink
+        self.gnn_input_dim = cfg.lm.model.gnn_input_dim
 
         self.weight_decay = cfg.lm.train.weight_decay
         self.dropout = cfg.lm.train.dropout
@@ -167,7 +178,7 @@ class LMTrainer():
         emb = np.memmap(init_path(f"{self.ckpt_dir}.emb"),
                         dtype=np.float16,
                         mode='w+',
-                        shape=(self.num_nodes, int(self.feat_shrink) if self.feat_shrink else 768))
+                        shape=(self.num_nodes, int(self.gnn_input_dim)))
         pred = np.memmap(init_path(f"{self.ckpt_dir}.pred"),
                          dtype=np.float16,
                          mode='w+',
@@ -177,6 +188,7 @@ class LMTrainer():
         self.model = BertClassifier(bert_model,
                                     n_labels=self.n_labels,
                                     feat_shrink=self.feat_shrink,
+                                    gnn_input_dim=self.gnn_input_dim,
                                     emb=emb,
                                     pred=pred)
         # prev_ckpt = f'prt_lm/{self.dataset_name}/{self.model_name}.ckpt'
@@ -265,7 +277,7 @@ class LMTrainer():
         emb = np.memmap(init_path(f"{self.ckpt_dir}.emb"),
                         dtype=np.float16,
                         mode='w+',
-                        shape=(self.num_nodes, int(self.feat_shrink) if self.feat_shrink else 768))
+                        shape=(self.num_nodes, int(self.gnn_input_dim)))
         pred = np.memmap(init_path(f"{self.ckpt_dir}.pred"),
                          dtype=np.float16,
                          mode='w+',
@@ -318,14 +330,29 @@ def run(cfg):
         init_dp()
         print(f"rank: {rank}, PID: {os.getpid()}")
         trainer = LMTrainer(cfg)
+
+        timestamp = time.time()
+        local_time = time.localtime(timestamp)
+        time_str = time.strftime('%Y-%m-%d %H:%M:%S', local_time)
+        ms = int((timestamp - int(timestamp)) * 1000)
+        formatted_time = f"{time_str}.{ms:03d}"
+        print(f"LM start time: {formatted_time}")
+
         trainer.train()
-        # acc = trainer.eval_and_save()
-        # all_acc.append(acc)
+        acc = trainer.eval_and_save()
+        all_acc.append(acc)
 
     if len(all_acc) > 1:
         df = pd.DataFrame(all_acc)
         for k, v in df.items():
             print(f"{k}: {v.mean():.4f} ± {v.std():.4f}")
+
+    timestamp = time.time()
+    local_time = time.localtime(timestamp)
+    time_str = time.strftime('%Y-%m-%d %H:%M:%S', local_time)
+    ms = int((timestamp - int(timestamp)) * 1000)
+    formatted_time = f"{time_str}.{ms:03d}"
+    print(f"LM finish time: {formatted_time}")
 
 
 if __name__ == '__main__':

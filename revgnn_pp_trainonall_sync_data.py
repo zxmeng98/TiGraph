@@ -367,7 +367,7 @@ if __name__ == "__main__":
 
             torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
             optimizer.step()
-            pp_profile.step()
+            # pp_profile.step()
             
         t1 = time.time()
         if rank == num_stages - 1:

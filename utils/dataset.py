@@ -11,6 +11,7 @@ import scipy.sparse as sp
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
+import torch.distributed as dist
 
 import dgl
 from dgl import AddSelfLoop
@@ -503,11 +504,8 @@ def generate_new_edges_optimized(edge_index, k, partition_ids, p, blocksize, new
     return torch.tensor(new_edges).t()
 
 
+def reformat_graph(g, edge_index, k=4, block_size=16, beta_coeffi='1'):
 
-def reformat_graph(edge_index, k=4, block_size=16, beta_coeffi='1'):
-
-    src, dst = edge_index
-    g = dgl.graph((src, dst))
     # logging.getLogger('dgl').setLevel(logging.WARNING)
     t0 = time.time()
     with suppress_stdout():
@@ -545,6 +543,52 @@ def reformat_graph(edge_index, k=4, block_size=16, beta_coeffi='1'):
     t4 = time.time()
     # print("Time in reorder {} {} {}".format(t1-t0, t2-t1, t3-t2))
     return sorted_edge_index, sorted_indices
+
+
+def split_mb_in_advance(num_batches, schedule, packed_batch, device, k, reorder_graph=True):
+    preprocessed_batches = []
+    for i in range(num_batches):
+        g_i, features_i, labels_i = packed_batch[i]
+        if dist.get_rank() == 0:
+            inputs = (g_i, features_i)
+        else:
+            inputs = (g_i, )
+        args_split, kwargs_split, chunked_sg_ori_node_idxes = schedule._split_inputs(inputs)
+        targets_split = list(torch.tensor_split(labels_i, schedule._n_microbatches))
+        reordered_targets = []
+
+        if reorder_graph:
+            for i, args_chunk in enumerate(args_split):
+                chunk_g = args_chunk[0]
+                src, dst = chunk_g.edges()  # 分别获取起点和终点的 tensor
+                edge_index = torch.stack([src, dst], dim=0)  
+                sorted_edge_index, sorted_indices = reformat_graph(chunk_g, edge_index, k)
+                new_src = sorted_edge_index[0]
+                new_dst = sorted_edge_index[1]
+                new_chunk_g = dgl.graph((new_src, new_dst), num_nodes=chunk_g.num_nodes()).to(device)
+                processed_args = [new_chunk_g]
+                if len(args_chunk) > 1:
+                    for arg in args_chunk[1:]:
+                        if isinstance(arg, torch.Tensor):
+                            processed_args.append(arg[sorted_indices].to(device))
+                        else:
+                            processed_args.append(arg)
+                
+                args_split[i] = tuple(processed_args)
+                chunked_sg_ori_node_idxes[i] = chunked_sg_ori_node_idxes[i][sorted_indices].to(device)
+                reordered_targets.append(targets_split[i][sorted_indices].to(device))
+        else:
+            reordered_targets = targets_split
+
+        # Save the processed batch
+        preprocessed_batches.append({
+        'args_split': args_split,
+        'kwargs_split': kwargs_split,
+        'chunked_sg_ori_node_idxes': chunked_sg_ori_node_idxes,
+        'reordered_targets': reordered_targets,
+        })
+    return preprocessed_batches
+
 
 
 if __name__ == "__main__":
