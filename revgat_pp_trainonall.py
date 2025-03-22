@@ -377,7 +377,6 @@ if __name__ == "__main__":
         t0 = time.time()
         for i in range(num_batches):
             g_i, features_i, labels_i = packed_batch[i]
-            print(features_i.shape, args.in_size)
             g_i, features_i, labels_i = g_i.to(device), features_i.to(device), labels_i.to(device)
             if rank == 0:
                 schedule.step(g_i, features_i, split_idx=split_idx['train'])
