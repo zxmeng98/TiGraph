@@ -1,0 +1,2414 @@
+W0321 01:34:10.881000 140585632084608 torch/distributed/run.py:779] 
+W0321 01:34:10.881000 140585632084608 torch/distributed/run.py:779] *****************************************
+W0321 01:34:10.881000 140585632084608 torch/distributed/run.py:779] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+W0321 01:34:10.881000 140585632084608 torch/distributed/run.py:779] *****************************************
+> initializing torch distributed ...
+ogbn-arxiv load successfully
+Total nodes: 169340, Train nodes: 90941, Val nodes: 29799, Test nodes: 48600
+Num of train batches: 1, num of train microbatches: 4, microbatch size: 42335
+stage=0 layers=0 - 7
+stage=2 layers=16 - 22
+stage=3 layers=23 - 29
+stage=1 layers=8 - 15
+Training...
+Epoch 00000 | Loss 8.5668 | Epoch Time 3.90s
+Valid acc 7.63% | Test acc 5.86%
+Epoch 00001 | Loss 9.7735 | Epoch Time 2.29s
+Epoch 00002 | Loss 6.3732 | Epoch Time 2.35s
+Epoch 00003 | Loss 4.4301 | Epoch Time 2.35s
+Epoch 00004 | Loss 3.6075 | Epoch Time 2.34s
+Epoch 00005 | Loss 3.4136 | Epoch Time 2.36s
+Valid acc 27.33% | Test acc 24.79%
+Epoch 00006 | Loss 3.2835 | Epoch Time 2.28s
+Epoch 00007 | Loss 3.3149 | Epoch Time 2.34s
+Epoch 00008 | Loss 3.0010 | Epoch Time 2.36s
+Epoch 00009 | Loss 2.9270 | Epoch Time 2.36s
+Epoch 00010 | Loss 2.8309 | Epoch Time 2.34s
+Valid acc 27.69% | Test acc 27.85%
+Epoch 00011 | Loss 2.8298 | Epoch Time 2.31s
+Epoch 00012 | Loss 2.8132 | Epoch Time 2.35s
+Epoch 00013 | Loss 2.8179 | Epoch Time 2.37s
+Epoch 00014 | Loss 2.7377 | Epoch Time 2.36s
+Epoch 00015 | Loss 2.7294 | Epoch Time 2.36s
+Valid acc 38.85% | Test acc 36.61%
+Epoch 00016 | Loss 2.6686 | Epoch Time 2.32s
+Epoch 00017 | Loss 2.6365 | Epoch Time 2.35s
+Epoch 00018 | Loss 2.5943 | Epoch Time 2.38s
+Epoch 00019 | Loss 2.5776 | Epoch Time 2.37s
+Epoch 00020 | Loss 2.5210 | Epoch Time 2.37s
+Valid acc 45.71% | Test acc 45.70%
+Epoch 00021 | Loss 2.5156 | Epoch Time 2.33s
+Epoch 00022 | Loss 2.5285 | Epoch Time 2.37s
+Epoch 00023 | Loss 2.4932 | Epoch Time 2.39s
+Epoch 00024 | Loss 2.4738 | Epoch Time 2.37s
+Epoch 00025 | Loss 2.4274 | Epoch Time 2.37s
+Valid acc 46.32% | Test acc 45.28%
+Epoch 00026 | Loss 2.4064 | Epoch Time 2.31s
+Epoch 00027 | Loss 2.3816 | Epoch Time 2.39s
+Epoch 00028 | Loss 2.3954 | Epoch Time 2.37s
+Epoch 00029 | Loss 2.3544 | Epoch Time 2.38s
+Epoch 00030 | Loss 2.3798 | Epoch Time 2.39s
+Valid acc 46.93% | Test acc 44.64%
+Epoch 00031 | Loss 2.3449 | Epoch Time 2.31s
+Epoch 00032 | Loss 2.3510 | Epoch Time 2.38s
+Epoch 00033 | Loss 2.3065 | Epoch Time 2.38s
+Epoch 00034 | Loss 2.3078 | Epoch Time 2.38s
+Epoch 00035 | Loss 2.2718 | Epoch Time 2.40s
+Valid acc 50.68% | Test acc 50.80%
+Epoch 00036 | Loss 2.3253 | Epoch Time 2.32s
+Epoch 00037 | Loss 2.2797 | Epoch Time 2.38s
+Epoch 00038 | Loss 2.2874 | Epoch Time 2.38s
+Epoch 00039 | Loss 2.2500 | Epoch Time 2.40s
+Epoch 00040 | Loss 2.2319 | Epoch Time 2.38s
+Valid acc 49.17% | Test acc 47.12%
+Epoch 00041 | Loss 2.2130 | Epoch Time 2.32s
+Epoch 00042 | Loss 2.2142 | Epoch Time 2.38s
+Epoch 00043 | Loss 2.2242 | Epoch Time 2.38s
+Epoch 00044 | Loss 2.2086 | Epoch Time 2.39s
+Epoch 00045 | Loss 2.1709 | Epoch Time 2.39s
+Valid acc 50.81% | Test acc 49.38%
+Epoch 00046 | Loss 2.1845 | Epoch Time 2.33s
+Epoch 00047 | Loss 2.2030 | Epoch Time 2.39s
+Epoch 00048 | Loss 2.1591 | Epoch Time 2.39s
+Epoch 00049 | Loss 2.1619 | Epoch Time 2.40s
+Epoch 00050 | Loss 2.1694 | Epoch Time 2.39s
+Valid acc 52.61% | Test acc 52.35%
+Epoch 00051 | Loss 2.1653 | Epoch Time 2.33s
+Epoch 00052 | Loss 2.1329 | Epoch Time 2.39s
+Epoch 00053 | Loss 2.1432 | Epoch Time 2.39s
+Epoch 00054 | Loss 2.1248 | Epoch Time 2.39s
+Epoch 00055 | Loss 2.0865 | Epoch Time 2.39s
+Valid acc 52.30% | Test acc 50.64%
+Epoch 00056 | Loss 2.0989 | Epoch Time 2.34s
+Epoch 00057 | Loss 2.1073 | Epoch Time 2.41s
+Epoch 00058 | Loss 2.0959 | Epoch Time 2.39s
+Epoch 00059 | Loss 2.1034 | Epoch Time 2.40s
+Epoch 00060 | Loss 2.0673 | Epoch Time 2.41s
+Valid acc 55.56% | Test acc 55.08%
+Epoch 00061 | Loss 2.0622 | Epoch Time 2.33s
+Epoch 00062 | Loss 2.0319 | Epoch Time 2.41s
+Epoch 00063 | Loss 2.0480 | Epoch Time 2.52s
+Epoch 00064 | Loss 2.0215 | Epoch Time 2.40s
+Epoch 00065 | Loss 2.0502 | Epoch Time 2.40s
+Valid acc 54.00% | Test acc 52.30%
+Epoch 00066 | Loss 2.0677 | Epoch Time 2.33s
+Epoch 00067 | Loss 2.0688 | Epoch Time 2.40s
+Epoch 00068 | Loss 2.0197 | Epoch Time 2.40s
+Epoch 00069 | Loss 2.0058 | Epoch Time 2.42s
+Epoch 00070 | Loss 1.9924 | Epoch Time 2.39s
+Valid acc 56.83% | Test acc 56.98%
+Epoch 00071 | Loss 1.9867 | Epoch Time 2.34s
+Epoch 00072 | Loss 1.9811 | Epoch Time 2.40s
+Epoch 00073 | Loss 1.9906 | Epoch Time 2.40s
+Epoch 00074 | Loss 1.9659 | Epoch Time 2.41s
+Epoch 00075 | Loss 1.9596 | Epoch Time 2.40s
+Valid acc 55.59% | Test acc 53.87%
+Epoch 00076 | Loss 1.9669 | Epoch Time 2.35s
+Epoch 00077 | Loss 1.9536 | Epoch Time 2.41s
+Epoch 00078 | Loss 1.9583 | Epoch Time 2.41s
+Epoch 00079 | Loss 1.9803 | Epoch Time 2.41s
+Epoch 00080 | Loss 1.9851 | Epoch Time 2.56s
+Valid acc 56.05% | Test acc 56.30%
+Epoch 00081 | Loss 1.9569 | Epoch Time 2.35s
+Epoch 00082 | Loss 1.9675 | Epoch Time 2.41s
+Epoch 00083 | Loss 1.9981 | Epoch Time 2.40s
+Epoch 00084 | Loss 1.9817 | Epoch Time 2.41s
+Epoch 00085 | Loss 1.9387 | Epoch Time 2.42s
+Valid acc 56.49% | Test acc 55.35%
+Epoch 00086 | Loss 1.9290 | Epoch Time 2.37s
+Epoch 00087 | Loss 1.9305 | Epoch Time 2.43s
+Epoch 00088 | Loss 1.9470 | Epoch Time 2.42s
+Epoch 00089 | Loss 1.9347 | Epoch Time 2.42s
+Epoch 00090 | Loss 1.9121 | Epoch Time 2.42s
+Valid acc 57.85% | Test acc 57.22%
+Epoch 00091 | Loss 1.9175 | Epoch Time 2.38s
+Epoch 00092 | Loss 1.9109 | Epoch Time 2.42s
+Epoch 00093 | Loss 1.9039 | Epoch Time 2.42s
+Epoch 00094 | Loss 1.9152 | Epoch Time 2.43s
+Epoch 00095 | Loss 1.9103 | Epoch Time 2.42s
+Valid acc 56.15% | Test acc 55.14%
+Epoch 00096 | Loss 1.9418 | Epoch Time 2.36s
+Epoch 00097 | Loss 1.9334 | Epoch Time 2.43s
+Epoch 00098 | Loss 1.8984 | Epoch Time 2.43s
+Epoch 00099 | Loss 1.8985 | Epoch Time 2.42s
+Epoch 00100 | Loss 1.8924 | Epoch Time 2.42s
+Valid acc 55.98% | Test acc 54.81%
+Epoch 00101 | Loss 1.8815 | Epoch Time 2.36s
+Epoch 00102 | Loss 1.9118 | Epoch Time 2.42s
+Epoch 00103 | Loss 1.8787 | Epoch Time 2.44s
+Epoch 00104 | Loss 1.8689 | Epoch Time 2.43s
+Epoch 00105 | Loss 1.8828 | Epoch Time 2.44s
+Valid acc 57.62% | Test acc 57.14%
+Epoch 00106 | Loss 1.8846 | Epoch Time 2.38s
+Epoch 00107 | Loss 1.9173 | Epoch Time 2.44s
+Epoch 00108 | Loss 1.9383 | Epoch Time 2.43s
+Epoch 00109 | Loss 1.8824 | Epoch Time 2.43s
+Epoch 00110 | Loss 1.8981 | Epoch Time 2.46s
+Valid acc 58.40% | Test acc 57.72%
+Epoch 00111 | Loss 1.8484 | Epoch Time 2.38s
+Epoch 00112 | Loss 1.8590 | Epoch Time 2.45s
+Epoch 00113 | Loss 1.8633 | Epoch Time 2.44s
+Epoch 00114 | Loss 1.8487 | Epoch Time 2.43s
+Epoch 00115 | Loss 1.8417 | Epoch Time 2.45s
+Valid acc 57.27% | Test acc 55.08%
+Epoch 00116 | Loss 1.8533 | Epoch Time 2.36s
+Epoch 00117 | Loss 1.8359 | Epoch Time 2.43s
+Epoch 00118 | Loss 1.8457 | Epoch Time 2.42s
+Epoch 00119 | Loss 1.8193 | Epoch Time 2.44s
+Epoch 00120 | Loss 1.8386 | Epoch Time 2.44s
+Valid acc 58.24% | Test acc 57.20%
+Epoch 00121 | Loss 1.8410 | Epoch Time 2.36s
+Epoch 00122 | Loss 1.8387 | Epoch Time 2.45s
+Epoch 00123 | Loss 1.8153 | Epoch Time 2.44s
+Epoch 00124 | Loss 1.8362 | Epoch Time 2.41s
+Epoch 00125 | Loss 1.8373 | Epoch Time 2.43s
+Valid acc 57.26% | Test acc 57.03%
+Epoch 00126 | Loss 1.8342 | Epoch Time 2.39s
+Epoch 00127 | Loss 1.8235 | Epoch Time 2.44s
+Epoch 00128 | Loss 1.7968 | Epoch Time 2.43s
+Epoch 00129 | Loss 1.8136 | Epoch Time 2.43s
+Epoch 00130 | Loss 1.8098 | Epoch Time 2.43s
+Valid acc 57.46% | Test acc 55.87%
+Epoch 00131 | Loss 1.8063 | Epoch Time 2.36s
+Epoch 00132 | Loss 1.8068 | Epoch Time 2.43s
+Epoch 00133 | Loss 1.8185 | Epoch Time 2.43s
+Epoch 00134 | Loss 1.8224 | Epoch Time 2.42s
+Epoch 00135 | Loss 1.8146 | Epoch Time 2.41s
+Valid acc 58.31% | Test acc 58.23%
+Epoch 00136 | Loss 1.8160 | Epoch Time 2.37s
+Epoch 00137 | Loss 1.8174 | Epoch Time 2.42s
+Epoch 00138 | Loss 1.8170 | Epoch Time 2.42s
+Epoch 00139 | Loss 1.8153 | Epoch Time 2.42s
+Epoch 00140 | Loss 1.7818 | Epoch Time 2.42s
+Valid acc 59.18% | Test acc 59.12%
+Epoch 00141 | Loss 1.7795 | Epoch Time 2.38s
+Epoch 00142 | Loss 1.7822 | Epoch Time 2.43s
+Epoch 00143 | Loss 1.7928 | Epoch Time 2.41s
+Epoch 00144 | Loss 1.8043 | Epoch Time 2.42s
+Epoch 00145 | Loss 1.7801 | Epoch Time 2.42s
+Valid acc 57.71% | Test acc 55.30%
+Epoch 00146 | Loss 1.7666 | Epoch Time 2.36s
+Epoch 00147 | Loss 1.7947 | Epoch Time 2.42s
+Epoch 00148 | Loss 1.7828 | Epoch Time 2.43s
+Epoch 00149 | Loss 1.7788 | Epoch Time 2.42s
+Epoch 00150 | Loss 1.7856 | Epoch Time 2.44s
+Valid acc 60.02% | Test acc 60.60%
+Epoch 00151 | Loss 1.7931 | Epoch Time 2.36s
+Epoch 00152 | Loss 1.7819 | Epoch Time 2.41s
+Epoch 00153 | Loss 1.7895 | Epoch Time 2.42s
+Epoch 00154 | Loss 1.7837 | Epoch Time 2.42s
+Epoch 00155 | Loss 1.7869 | Epoch Time 2.42s
+Valid acc 58.25% | Test acc 56.71%
+Epoch 00156 | Loss 1.7644 | Epoch Time 2.35s
+Epoch 00157 | Loss 1.7709 | Epoch Time 2.42s
+Epoch 00158 | Loss 1.7567 | Epoch Time 2.42s
+Epoch 00159 | Loss 1.7651 | Epoch Time 2.56s
+Epoch 00160 | Loss 1.7602 | Epoch Time 2.42s
+Valid acc 59.72% | Test acc 58.84%
+Epoch 00161 | Loss 1.7655 | Epoch Time 2.36s
+Epoch 00162 | Loss 1.7871 | Epoch Time 2.41s
+Epoch 00163 | Loss 1.7717 | Epoch Time 2.41s
+Epoch 00164 | Loss 1.7765 | Epoch Time 2.41s
+Epoch 00165 | Loss 1.7414 | Epoch Time 2.41s
+Valid acc 59.11% | Test acc 59.35%
+Epoch 00166 | Loss 1.7664 | Epoch Time 2.36s
+Epoch 00167 | Loss 1.7633 | Epoch Time 2.42s
+Epoch 00168 | Loss 1.7700 | Epoch Time 2.40s
+Epoch 00169 | Loss 1.7513 | Epoch Time 2.41s
+Epoch 00170 | Loss 1.7676 | Epoch Time 2.41s
+Valid acc 58.12% | Test acc 56.27%
+Epoch 00171 | Loss 1.7467 | Epoch Time 2.35s
+Epoch 00172 | Loss 1.7520 | Epoch Time 2.40s
+Epoch 00173 | Loss 1.7387 | Epoch Time 2.40s
+Epoch 00174 | Loss 1.7577 | Epoch Time 2.41s
+Epoch 00175 | Loss 1.7454 | Epoch Time 2.40s
+Valid acc 60.25% | Test acc 59.96%
+Epoch 00176 | Loss 1.7308 | Epoch Time 2.34s
+Epoch 00177 | Loss 1.7474 | Epoch Time 2.41s
+Epoch 00178 | Loss 1.7410 | Epoch Time 2.40s
+Epoch 00179 | Loss 1.7674 | Epoch Time 2.40s
+Epoch 00180 | Loss 1.7430 | Epoch Time 2.40s
+Valid acc 59.98% | Test acc 59.39%
+Epoch 00181 | Loss 1.7362 | Epoch Time 2.34s
+Epoch 00182 | Loss 1.7212 | Epoch Time 2.42s
+Epoch 00183 | Loss 1.7191 | Epoch Time 2.40s
+Epoch 00184 | Loss 1.7568 | Epoch Time 2.40s
+Epoch 00185 | Loss 1.7097 | Epoch Time 2.40s
+Valid acc 59.25% | Test acc 59.18%
+Epoch 00186 | Loss 1.7231 | Epoch Time 2.34s
+Epoch 00187 | Loss 1.7044 | Epoch Time 2.41s
+Epoch 00188 | Loss 1.7158 | Epoch Time 2.41s
+Epoch 00189 | Loss 1.7261 | Epoch Time 2.40s
+Epoch 00190 | Loss 1.7442 | Epoch Time 2.40s
+Valid acc 60.24% | Test acc 59.39%
+Epoch 00191 | Loss 1.7273 | Epoch Time 2.33s
+Epoch 00192 | Loss 1.7263 | Epoch Time 2.41s
+Epoch 00193 | Loss 1.7330 | Epoch Time 2.40s
+Epoch 00194 | Loss 1.7419 | Epoch Time 2.40s
+Epoch 00195 | Loss 1.7912 | Epoch Time 2.40s
+Valid acc 53.40% | Test acc 50.93%
+Epoch 00196 | Loss 1.7602 | Epoch Time 2.34s
+Epoch 00197 | Loss 1.7775 | Epoch Time 2.41s
+Epoch 00198 | Loss 1.7062 | Epoch Time 2.40s
+Epoch 00199 | Loss 1.7042 | Epoch Time 2.40s
+Epoch 00200 | Loss 1.7150 | Epoch Time 2.40s
+Valid acc 59.52% | Test acc 58.75%
+Epoch 00201 | Loss 1.7192 | Epoch Time 2.33s
+Epoch 00202 | Loss 1.7337 | Epoch Time 2.40s
+Epoch 00203 | Loss 1.7246 | Epoch Time 2.40s
+Epoch 00204 | Loss 1.7183 | Epoch Time 2.42s
+Epoch 00205 | Loss 1.7051 | Epoch Time 2.40s
+Valid acc 60.38% | Test acc 60.33%
+Epoch 00206 | Loss 1.7020 | Epoch Time 2.33s
+Epoch 00207 | Loss 1.7290 | Epoch Time 2.39s
+Epoch 00208 | Loss 1.6861 | Epoch Time 2.40s
+Epoch 00209 | Loss 1.7087 | Epoch Time 2.39s
+Epoch 00210 | Loss 1.6986 | Epoch Time 2.40s
+Valid acc 59.94% | Test acc 58.21%
+Epoch 00211 | Loss 1.6951 | Epoch Time 2.34s
+Epoch 00212 | Loss 1.7014 | Epoch Time 2.40s
+Epoch 00213 | Loss 1.7200 | Epoch Time 2.40s
+Epoch 00214 | Loss 1.7004 | Epoch Time 2.40s
+Epoch 00215 | Loss 1.6939 | Epoch Time 2.40s
+Valid acc 61.05% | Test acc 60.53%
+Epoch 00216 | Loss 1.6908 | Epoch Time 2.35s
+Epoch 00217 | Loss 1.6875 | Epoch Time 2.40s
+Epoch 00218 | Loss 1.6965 | Epoch Time 2.40s
+Epoch 00219 | Loss 1.6802 | Epoch Time 2.40s
+Epoch 00220 | Loss 1.6822 | Epoch Time 2.40s
+Valid acc 60.78% | Test acc 60.37%
+Epoch 00221 | Loss 1.6826 | Epoch Time 2.33s
+Epoch 00222 | Loss 1.6894 | Epoch Time 2.42s
+Epoch 00223 | Loss 1.6962 | Epoch Time 2.39s
+Epoch 00224 | Loss 1.6900 | Epoch Time 2.39s
+Epoch 00225 | Loss 1.6996 | Epoch Time 2.40s
+Valid acc 60.13% | Test acc 58.84%
+Epoch 00226 | Loss 1.7099 | Epoch Time 2.34s
+Epoch 00227 | Loss 1.7064 | Epoch Time 2.39s
+Epoch 00228 | Loss 1.6859 | Epoch Time 2.40s
+Epoch 00229 | Loss 1.7120 | Epoch Time 2.41s
+Epoch 00230 | Loss 1.6916 | Epoch Time 2.40s
+Valid acc 59.91% | Test acc 59.88%
+Epoch 00231 | Loss 1.6932 | Epoch Time 2.33s
+Epoch 00232 | Loss 1.6879 | Epoch Time 2.40s
+Epoch 00233 | Loss 1.7033 | Epoch Time 2.40s
+Epoch 00234 | Loss 1.6799 | Epoch Time 2.40s
+Epoch 00235 | Loss 1.7104 | Epoch Time 2.40s
+Valid acc 59.31% | Test acc 57.87%
+Epoch 00236 | Loss 1.6723 | Epoch Time 2.34s
+Epoch 00237 | Loss 1.6794 | Epoch Time 2.40s
+Epoch 00238 | Loss 1.6701 | Epoch Time 2.40s
+Epoch 00239 | Loss 1.6675 | Epoch Time 2.39s
+Epoch 00240 | Loss 1.6668 | Epoch Time 2.40s
+Valid acc 61.22% | Test acc 60.69%
+Epoch 00241 | Loss 1.6588 | Epoch Time 2.34s
+Epoch 00242 | Loss 1.6599 | Epoch Time 2.39s
+Epoch 00243 | Loss 1.6658 | Epoch Time 2.40s
+Epoch 00244 | Loss 1.6753 | Epoch Time 2.39s
+Epoch 00245 | Loss 1.6618 | Epoch Time 2.40s
+Valid acc 57.79% | Test acc 55.72%
+Epoch 00246 | Loss 1.6788 | Epoch Time 2.34s
+Epoch 00247 | Loss 1.6972 | Epoch Time 2.41s
+Epoch 00248 | Loss 1.6970 | Epoch Time 2.40s
+Epoch 00249 | Loss 1.6906 | Epoch Time 2.40s
+Epoch 00250 | Loss 1.6815 | Epoch Time 2.40s
+Valid acc 60.89% | Test acc 61.70%
+Epoch 00251 | Loss 1.6768 | Epoch Time 2.34s
+Epoch 00252 | Loss 1.6507 | Epoch Time 2.40s
+Epoch 00253 | Loss 1.6543 | Epoch Time 2.40s
+Epoch 00254 | Loss 1.6756 | Epoch Time 2.40s
+Epoch 00255 | Loss 1.6834 | Epoch Time 2.41s
+Valid acc 59.49% | Test acc 57.58%
+Epoch 00256 | Loss 1.6581 | Epoch Time 2.35s
+Epoch 00257 | Loss 1.6646 | Epoch Time 2.41s
+Epoch 00258 | Loss 1.6488 | Epoch Time 2.40s
+Epoch 00259 | Loss 1.6526 | Epoch Time 2.42s
+Epoch 00260 | Loss 1.6597 | Epoch Time 2.41s
+Valid acc 61.49% | Test acc 61.22%
+Epoch 00261 | Loss 1.6416 | Epoch Time 2.34s
+Epoch 00262 | Loss 1.6455 | Epoch Time 2.41s
+Epoch 00263 | Loss 1.6479 | Epoch Time 2.40s
+Epoch 00264 | Loss 1.6447 | Epoch Time 2.41s
+Epoch 00265 | Loss 1.6591 | Epoch Time 2.40s
+Valid acc 60.38% | Test acc 59.23%
+Epoch 00266 | Loss 1.6590 | Epoch Time 2.34s
+Epoch 00267 | Loss 1.6690 | Epoch Time 2.40s
+Epoch 00268 | Loss 1.6447 | Epoch Time 2.41s
+Epoch 00269 | Loss 1.6555 | Epoch Time 2.41s
+Epoch 00270 | Loss 1.6369 | Epoch Time 2.40s
+Valid acc 61.18% | Test acc 60.11%
+Epoch 00271 | Loss 1.6457 | Epoch Time 2.35s
+Epoch 00272 | Loss 1.6468 | Epoch Time 2.40s
+Epoch 00273 | Loss 1.6456 | Epoch Time 2.40s
+Epoch 00274 | Loss 1.6627 | Epoch Time 2.41s
+Epoch 00275 | Loss 1.6410 | Epoch Time 2.40s
+Valid acc 60.11% | Test acc 60.07%
+Epoch 00276 | Loss 1.6410 | Epoch Time 2.34s
+Epoch 00277 | Loss 1.6433 | Epoch Time 2.43s
+Epoch 00278 | Loss 1.6536 | Epoch Time 2.41s
+Epoch 00279 | Loss 1.6509 | Epoch Time 2.42s
+Epoch 00280 | Loss 1.6680 | Epoch Time 2.41s
+Valid acc 59.87% | Test acc 58.72%
+Epoch 00281 | Loss 1.6484 | Epoch Time 2.34s
+Epoch 00282 | Loss 1.6531 | Epoch Time 2.41s
+Epoch 00283 | Loss 1.6381 | Epoch Time 2.41s
+Epoch 00284 | Loss 1.6423 | Epoch Time 2.43s
+Epoch 00285 | Loss 1.6293 | Epoch Time 2.42s
+Valid acc 60.42% | Test acc 59.27%
+Epoch 00286 | Loss 1.6341 | Epoch Time 2.35s
+Epoch 00287 | Loss 1.6390 | Epoch Time 2.41s
+Epoch 00288 | Loss 1.6566 | Epoch Time 2.42s
+Epoch 00289 | Loss 1.6603 | Epoch Time 2.42s
+Epoch 00290 | Loss 1.6443 | Epoch Time 2.42s
+Valid acc 61.94% | Test acc 61.64%
+Epoch 00291 | Loss 1.6392 | Epoch Time 2.35s
+Epoch 00292 | Loss 1.6326 | Epoch Time 2.42s
+Epoch 00293 | Loss 1.6721 | Epoch Time 2.42s
+Epoch 00294 | Loss 1.6420 | Epoch Time 2.43s
+Epoch 00295 | Loss 1.6338 | Epoch Time 2.41s
+Valid acc 61.28% | Test acc 61.22%
+Epoch 00296 | Loss 1.6317 | Epoch Time 2.37s
+Epoch 00297 | Loss 1.6454 | Epoch Time 2.42s
+Epoch 00298 | Loss 1.6471 | Epoch Time 2.42s
+Epoch 00299 | Loss 1.6488 | Epoch Time 2.41s
+Epoch 00300 | Loss 1.6349 | Epoch Time 2.42s
+Valid acc 59.64% | Test acc 58.46%
+Epoch 00301 | Loss 1.6280 | Epoch Time 2.35s
+Epoch 00302 | Loss 1.6330 | Epoch Time 2.45s
+Epoch 00303 | Loss 1.6250 | Epoch Time 2.43s
+Epoch 00304 | Loss 1.6379 | Epoch Time 2.43s
+Epoch 00305 | Loss 1.6380 | Epoch Time 2.42s
+Valid acc 61.58% | Test acc 60.71%
+Epoch 00306 | Loss 1.6296 | Epoch Time 2.38s
+Epoch 00307 | Loss 1.6190 | Epoch Time 2.43s
+Epoch 00308 | Loss 1.6330 | Epoch Time 2.43s
+Epoch 00309 | Loss 1.6233 | Epoch Time 2.43s
+Epoch 00310 | Loss 1.6177 | Epoch Time 2.44s
+Valid acc 61.15% | Test acc 60.67%
+Epoch 00311 | Loss 1.6318 | Epoch Time 2.37s
+Epoch 00312 | Loss 1.6353 | Epoch Time 2.43s
+Epoch 00313 | Loss 1.6487 | Epoch Time 2.42s
+Epoch 00314 | Loss 1.6074 | Epoch Time 2.44s
+Epoch 00315 | Loss 1.6064 | Epoch Time 2.44s
+Valid acc 61.62% | Test acc 60.69%
+Epoch 00316 | Loss 1.6035 | Epoch Time 2.37s
+Epoch 00317 | Loss 1.6102 | Epoch Time 2.42s
+Epoch 00318 | Loss 1.6233 | Epoch Time 2.44s
+Epoch 00319 | Loss 1.6203 | Epoch Time 2.43s
+Epoch 00320 | Loss 1.6265 | Epoch Time 2.42s
+Valid acc 59.93% | Test acc 59.87%
+Epoch 00321 | Loss 1.6394 | Epoch Time 2.36s
+Epoch 00322 | Loss 1.6486 | Epoch Time 2.42s
+Epoch 00323 | Loss 1.6461 | Epoch Time 2.44s
+Epoch 00324 | Loss 1.6281 | Epoch Time 2.43s
+Epoch 00325 | Loss 1.6211 | Epoch Time 2.44s
+Valid acc 60.72% | Test acc 59.21%
+Epoch 00326 | Loss 1.6350 | Epoch Time 2.37s
+Epoch 00327 | Loss 1.5984 | Epoch Time 2.42s
+Epoch 00328 | Loss 1.6080 | Epoch Time 2.42s
+Epoch 00329 | Loss 1.6202 | Epoch Time 2.43s
+Epoch 00330 | Loss 1.6105 | Epoch Time 2.42s
+Valid acc 61.83% | Test acc 63.19%
+Epoch 00331 | Loss 1.6151 | Epoch Time 2.37s
+Epoch 00332 | Loss 1.6039 | Epoch Time 2.45s
+Epoch 00333 | Loss 1.5986 | Epoch Time 2.43s
+Epoch 00334 | Loss 1.6024 | Epoch Time 2.43s
+Epoch 00335 | Loss 1.5850 | Epoch Time 2.42s
+Valid acc 60.47% | Test acc 58.06%
+Epoch 00336 | Loss 1.6115 | Epoch Time 2.36s
+Epoch 00337 | Loss 1.5899 | Epoch Time 2.43s
+Epoch 00338 | Loss 1.6155 | Epoch Time 2.45s
+Epoch 00339 | Loss 1.6296 | Epoch Time 2.43s
+Epoch 00340 | Loss 1.6094 | Epoch Time 2.42s
+Valid acc 58.59% | Test acc 58.79%
+Epoch 00341 | Loss 1.6081 | Epoch Time 2.38s
+Epoch 00342 | Loss 1.6051 | Epoch Time 2.44s
+Epoch 00343 | Loss 1.6199 | Epoch Time 2.43s
+Epoch 00344 | Loss 1.6066 | Epoch Time 2.43s
+Epoch 00345 | Loss 1.6082 | Epoch Time 2.42s
+Valid acc 59.80% | Test acc 58.42%
+Epoch 00346 | Loss 1.6052 | Epoch Time 2.36s
+Epoch 00347 | Loss 1.6102 | Epoch Time 2.43s
+Epoch 00348 | Loss 1.6215 | Epoch Time 2.42s
+Epoch 00349 | Loss 1.6102 | Epoch Time 2.42s
+Epoch 00350 | Loss 1.6107 | Epoch Time 2.42s
+Valid acc 62.04% | Test acc 61.81%
+Epoch 00351 | Loss 1.5979 | Epoch Time 2.37s
+Epoch 00352 | Loss 1.5894 | Epoch Time 2.43s
+Epoch 00353 | Loss 1.5830 | Epoch Time 2.42s
+Epoch 00354 | Loss 1.5827 | Epoch Time 2.43s
+Epoch 00355 | Loss 1.5931 | Epoch Time 2.41s
+Valid acc 61.05% | Test acc 60.44%
+Epoch 00356 | Loss 1.6180 | Epoch Time 2.38s
+Epoch 00357 | Loss 1.5940 | Epoch Time 2.42s
+Epoch 00358 | Loss 1.5919 | Epoch Time 2.43s
+Epoch 00359 | Loss 1.6016 | Epoch Time 2.41s
+Epoch 00360 | Loss 1.6431 | Epoch Time 2.43s
+Valid acc 61.67% | Test acc 60.85%
+Epoch 00361 | Loss 1.5918 | Epoch Time 2.36s
+Epoch 00362 | Loss 1.5987 | Epoch Time 2.40s
+Epoch 00363 | Loss 1.6074 | Epoch Time 2.42s
+Epoch 00364 | Loss 1.6014 | Epoch Time 2.42s
+Epoch 00365 | Loss 1.6051 | Epoch Time 2.41s
+Valid acc 61.17% | Test acc 60.36%
+Epoch 00366 | Loss 1.5989 | Epoch Time 2.35s
+Epoch 00367 | Loss 1.6071 | Epoch Time 2.43s
+Epoch 00368 | Loss 1.5940 | Epoch Time 2.41s
+Epoch 00369 | Loss 1.5767 | Epoch Time 2.44s
+Epoch 00370 | Loss 1.5756 | Epoch Time 2.42s
+Valid acc 61.94% | Test acc 61.48%
+Epoch 00371 | Loss 1.5785 | Epoch Time 2.35s
+Epoch 00372 | Loss 1.5878 | Epoch Time 2.41s
+Epoch 00373 | Loss 1.5727 | Epoch Time 2.41s
+Epoch 00374 | Loss 1.5876 | Epoch Time 2.41s
+Epoch 00375 | Loss 1.6142 | Epoch Time 2.42s
+Valid acc 61.42% | Test acc 59.65%
+Epoch 00376 | Loss 1.5733 | Epoch Time 2.35s
+Epoch 00377 | Loss 1.5601 | Epoch Time 2.41s
+Epoch 00378 | Loss 1.5641 | Epoch Time 2.42s
+Epoch 00379 | Loss 1.5743 | Epoch Time 2.41s
+Epoch 00380 | Loss 1.5685 | Epoch Time 2.41s
+Valid acc 62.69% | Test acc 61.95%
+Epoch 00381 | Loss 1.5886 | Epoch Time 2.35s
+Epoch 00382 | Loss 1.6012 | Epoch Time 2.42s
+Epoch 00383 | Loss 1.5895 | Epoch Time 2.41s
+Epoch 00384 | Loss 1.5873 | Epoch Time 2.41s
+Epoch 00385 | Loss 1.6007 | Epoch Time 2.41s
+Valid acc 61.87% | Test acc 60.92%
+Epoch 00386 | Loss 1.5813 | Epoch Time 2.35s
+Epoch 00387 | Loss 1.5696 | Epoch Time 2.44s
+Epoch 00388 | Loss 1.5754 | Epoch Time 2.41s
+Epoch 00389 | Loss 1.5815 | Epoch Time 2.42s
+Epoch 00390 | Loss 1.5915 | Epoch Time 2.41s
+Valid acc 61.72% | Test acc 61.57%
+Epoch 00391 | Loss 1.5806 | Epoch Time 2.34s
+Epoch 00392 | Loss 1.5818 | Epoch Time 2.41s
+Epoch 00393 | Loss 1.5732 | Epoch Time 2.42s
+Epoch 00394 | Loss 1.5669 | Epoch Time 2.42s
+Epoch 00395 | Loss 1.5699 | Epoch Time 2.40s
+Valid acc 61.68% | Test acc 60.30%
+Epoch 00396 | Loss 1.5805 | Epoch Time 2.34s
+Epoch 00397 | Loss 1.5750 | Epoch Time 2.41s
+Epoch 00398 | Loss 1.5770 | Epoch Time 2.40s
+Epoch 00399 | Loss 1.5807 | Epoch Time 2.40s
+Epoch 00400 | Loss 1.5799 | Epoch Time 2.41s
+Valid acc 62.74% | Test acc 63.31%
+Epoch 00401 | Loss 1.5695 | Epoch Time 2.35s
+Epoch 00402 | Loss 1.5755 | Epoch Time 2.40s
+Epoch 00403 | Loss 1.5725 | Epoch Time 2.40s
+Epoch 00404 | Loss 1.5870 | Epoch Time 2.40s
+Epoch 00405 | Loss 1.5613 | Epoch Time 2.41s
+Valid acc 61.86% | Test acc 60.75%
+Epoch 00406 | Loss 1.5557 | Epoch Time 2.35s
+Epoch 00407 | Loss 1.5528 | Epoch Time 2.41s
+Epoch 00408 | Loss 1.5596 | Epoch Time 2.41s
+Epoch 00409 | Loss 1.5480 | Epoch Time 2.41s
+Epoch 00410 | Loss 1.5592 | Epoch Time 2.41s
+Valid acc 62.81% | Test acc 63.29%
+Epoch 00411 | Loss 1.5686 | Epoch Time 2.36s
+Epoch 00412 | Loss 1.5709 | Epoch Time 2.40s
+Epoch 00413 | Loss 1.5925 | Epoch Time 2.40s
+Epoch 00414 | Loss 1.5958 | Epoch Time 2.40s
+Epoch 00415 | Loss 1.5670 | Epoch Time 2.41s
+Valid acc 60.06% | Test acc 58.60%
+Epoch 00416 | Loss 1.5684 | Epoch Time 2.34s
+Epoch 00417 | Loss 1.5918 | Epoch Time 2.40s
+Epoch 00418 | Loss 1.5881 | Epoch Time 2.41s
+Epoch 00419 | Loss 1.5618 | Epoch Time 2.40s
+Epoch 00420 | Loss 1.5671 | Epoch Time 2.40s
+Valid acc 60.76% | Test acc 59.47%
+Epoch 00421 | Loss 1.5726 | Epoch Time 2.33s
+Epoch 00422 | Loss 1.5893 | Epoch Time 2.40s
+Epoch 00423 | Loss 1.5640 | Epoch Time 2.40s
+Epoch 00424 | Loss 1.5635 | Epoch Time 2.42s
+Epoch 00425 | Loss 1.5866 | Epoch Time 2.40s
+Valid acc 62.48% | Test acc 61.91%
+Epoch 00426 | Loss 1.5701 | Epoch Time 2.33s
+Epoch 00427 | Loss 1.5736 | Epoch Time 2.40s
+Epoch 00428 | Loss 1.5631 | Epoch Time 2.40s
+Epoch 00429 | Loss 1.5635 | Epoch Time 2.40s
+Epoch 00430 | Loss 1.5530 | Epoch Time 2.42s
+Valid acc 60.43% | Test acc 60.04%
+Epoch 00431 | Loss 1.5653 | Epoch Time 2.34s
+Epoch 00432 | Loss 1.5645 | Epoch Time 2.40s
+Epoch 00433 | Loss 1.5654 | Epoch Time 2.40s
+Epoch 00434 | Loss 1.5585 | Epoch Time 2.40s
+Epoch 00435 | Loss 1.5841 | Epoch Time 2.39s
+Valid acc 61.77% | Test acc 60.16%
+Epoch 00436 | Loss 1.5559 | Epoch Time 2.33s
+Epoch 00437 | Loss 1.5668 | Epoch Time 2.39s
+Epoch 00438 | Loss 1.5489 | Epoch Time 2.40s
+Epoch 00439 | Loss 1.5575 | Epoch Time 2.40s
+Epoch 00440 | Loss 1.5558 | Epoch Time 2.40s
+Valid acc 62.87% | Test acc 63.66%
+Epoch 00441 | Loss 1.5693 | Epoch Time 2.33s
+Epoch 00442 | Loss 1.5699 | Epoch Time 2.42s
+Epoch 00443 | Loss 1.5817 | Epoch Time 2.39s
+Epoch 00444 | Loss 1.5851 | Epoch Time 2.40s
+Epoch 00445 | Loss 1.5819 | Epoch Time 2.39s
+Valid acc 61.53% | Test acc 60.18%
+Epoch 00446 | Loss 1.5660 | Epoch Time 2.34s
+Epoch 00447 | Loss 1.5654 | Epoch Time 2.39s
+Epoch 00448 | Loss 1.5592 | Epoch Time 2.41s
+Epoch 00449 | Loss 1.5483 | Epoch Time 2.39s
+Epoch 00450 | Loss 1.5663 | Epoch Time 2.39s
+Valid acc 61.77% | Test acc 61.28%
+Epoch 00451 | Loss 1.5765 | Epoch Time 2.33s
+Epoch 00452 | Loss 1.5514 | Epoch Time 2.39s
+Epoch 00453 | Loss 1.5621 | Epoch Time 2.40s
+Epoch 00454 | Loss 1.5466 | Epoch Time 2.40s
+Epoch 00455 | Loss 1.5584 | Epoch Time 2.39s
+Valid acc 61.97% | Test acc 60.44%
+Epoch 00456 | Loss 1.5562 | Epoch Time 2.34s
+Epoch 00457 | Loss 1.5435 | Epoch Time 2.40s
+Epoch 00458 | Loss 1.5494 | Epoch Time 2.40s
+Epoch 00459 | Loss 1.5484 | Epoch Time 2.39s
+Epoch 00460 | Loss 1.5448 | Epoch Time 2.40s
+Valid acc 62.09% | Test acc 61.22%
+Epoch 00461 | Loss 1.5469 | Epoch Time 2.34s
+Epoch 00462 | Loss 1.5432 | Epoch Time 2.39s
+Epoch 00463 | Loss 1.5521 | Epoch Time 2.39s
+Epoch 00464 | Loss 1.5560 | Epoch Time 2.39s
+Epoch 00465 | Loss 1.5602 | Epoch Time 2.39s
+Valid acc 59.93% | Test acc 58.77%
+Epoch 00466 | Loss 1.5612 | Epoch Time 2.35s
+Epoch 00467 | Loss 1.5738 | Epoch Time 2.40s
+Epoch 00468 | Loss 1.5483 | Epoch Time 2.39s
+Epoch 00469 | Loss 1.5451 | Epoch Time 2.40s
+Epoch 00470 | Loss 1.5505 | Epoch Time 2.40s
+Valid acc 62.25% | Test acc 62.15%
+Epoch 00471 | Loss 1.5512 | Epoch Time 2.33s
+Epoch 00472 | Loss 1.5431 | Epoch Time 2.40s
+Epoch 00473 | Loss 1.5541 | Epoch Time 2.40s
+Epoch 00474 | Loss 1.5592 | Epoch Time 2.39s
+Epoch 00475 | Loss 1.5383 | Epoch Time 2.40s
+Valid acc 61.79% | Test acc 59.92%
+Epoch 00476 | Loss 1.5375 | Epoch Time 2.33s
+Epoch 00477 | Loss 1.5334 | Epoch Time 2.39s
+Epoch 00478 | Loss 1.5367 | Epoch Time 2.40s
+Epoch 00479 | Loss 1.5407 | Epoch Time 2.42s
+Epoch 00480 | Loss 1.5379 | Epoch Time 2.40s
+Valid acc 62.97% | Test acc 63.64%
+Epoch 00481 | Loss 1.5509 | Epoch Time 2.34s
+Epoch 00482 | Loss 1.5587 | Epoch Time 2.40s
+Epoch 00483 | Loss 1.5476 | Epoch Time 2.40s
+Epoch 00484 | Loss 1.5392 | Epoch Time 2.40s
+Epoch 00485 | Loss 1.5314 | Epoch Time 2.41s
+Valid acc 61.33% | Test acc 59.31%
+Epoch 00486 | Loss 1.5444 | Epoch Time 2.33s
+Epoch 00487 | Loss 1.5299 | Epoch Time 2.40s
+Epoch 00488 | Loss 1.5313 | Epoch Time 2.40s
+Epoch 00489 | Loss 1.5323 | Epoch Time 2.40s
+Epoch 00490 | Loss 1.5546 | Epoch Time 2.41s
+Valid acc 63.38% | Test acc 63.72%
+Epoch 00491 | Loss 1.5309 | Epoch Time 2.34s
+Epoch 00492 | Loss 1.5350 | Epoch Time 2.40s
+Epoch 00493 | Loss 1.5537 | Epoch Time 2.41s
+Epoch 00494 | Loss 1.5456 | Epoch Time 2.40s
+Epoch 00495 | Loss 1.5494 | Epoch Time 2.40s
+Valid acc 61.87% | Test acc 60.71%
+Epoch 00496 | Loss 1.5329 | Epoch Time 2.34s
+Epoch 00497 | Loss 1.5386 | Epoch Time 2.42s
+Epoch 00498 | Loss 1.5320 | Epoch Time 2.41s
+Epoch 00499 | Loss 1.5308 | Epoch Time 2.40s
+Epoch 00500 | Loss 1.5303 | Epoch Time 2.41s
+Valid acc 62.86% | Test acc 62.50%
+Epoch 00501 | Loss 1.5428 | Epoch Time 2.35s
+Epoch 00502 | Loss 1.5362 | Epoch Time 2.40s
+Epoch 00503 | Loss 1.5347 | Epoch Time 2.43s
+Epoch 00504 | Loss 1.5347 | Epoch Time 2.40s
+Epoch 00505 | Loss 1.5476 | Epoch Time 2.41s
+Valid acc 63.07% | Test acc 62.16%
+Epoch 00506 | Loss 1.5333 | Epoch Time 2.35s
+Epoch 00507 | Loss 1.5292 | Epoch Time 2.41s
+Epoch 00508 | Loss 1.5293 | Epoch Time 2.42s
+Epoch 00509 | Loss 1.5259 | Epoch Time 2.40s
+Epoch 00510 | Loss 1.5194 | Epoch Time 2.41s
+Valid acc 61.79% | Test acc 60.30%
+Epoch 00511 | Loss 1.5335 | Epoch Time 2.35s
+Epoch 00512 | Loss 1.5348 | Epoch Time 2.42s
+Epoch 00513 | Loss 1.5336 | Epoch Time 2.41s
+Epoch 00514 | Loss 1.5375 | Epoch Time 2.41s
+Epoch 00515 | Loss 1.5210 | Epoch Time 2.41s
+Valid acc 63.07% | Test acc 63.42%
+Epoch 00516 | Loss 1.5265 | Epoch Time 2.35s
+Epoch 00517 | Loss 1.5151 | Epoch Time 2.41s
+Epoch 00518 | Loss 1.5153 | Epoch Time 2.41s
+Epoch 00519 | Loss 1.5211 | Epoch Time 2.41s
+Epoch 00520 | Loss 1.5352 | Epoch Time 2.41s
+Valid acc 60.71% | Test acc 58.12%
+Epoch 00521 | Loss 1.5527 | Epoch Time 2.35s
+Epoch 00522 | Loss 1.5555 | Epoch Time 2.43s
+Epoch 00523 | Loss 1.5348 | Epoch Time 2.42s
+Epoch 00524 | Loss 1.5328 | Epoch Time 2.42s
+Epoch 00525 | Loss 1.5447 | Epoch Time 2.42s
+Valid acc 63.11% | Test acc 63.51%
+Epoch 00526 | Loss 1.5363 | Epoch Time 2.36s
+Epoch 00527 | Loss 1.5391 | Epoch Time 2.42s
+Epoch 00528 | Loss 1.5419 | Epoch Time 2.41s
+Epoch 00529 | Loss 1.5277 | Epoch Time 2.41s
+Epoch 00530 | Loss 1.5384 | Epoch Time 2.43s
+Valid acc 62.77% | Test acc 62.16%
+Epoch 00531 | Loss 1.5312 | Epoch Time 2.36s
+Epoch 00532 | Loss 1.5317 | Epoch Time 2.41s
+Epoch 00533 | Loss 1.5143 | Epoch Time 2.41s
+Epoch 00534 | Loss 1.5203 | Epoch Time 2.43s
+Epoch 00535 | Loss 1.5181 | Epoch Time 2.42s
+Valid acc 62.69% | Test acc 61.40%
+Epoch 00536 | Loss 1.5232 | Epoch Time 2.37s
+Epoch 00537 | Loss 1.5383 | Epoch Time 2.42s
+Epoch 00538 | Loss 1.5511 | Epoch Time 2.43s
+Epoch 00539 | Loss 1.5454 | Epoch Time 2.44s
+Epoch 00540 | Loss 1.5265 | Epoch Time 2.45s
+Valid acc 62.61% | Test acc 62.67%
+Epoch 00541 | Loss 1.5317 | Epoch Time 2.35s
+Epoch 00542 | Loss 1.5182 | Epoch Time 2.42s
+Epoch 00543 | Loss 1.5636 | Epoch Time 2.44s
+Epoch 00544 | Loss 1.5385 | Epoch Time 2.41s
+Epoch 00545 | Loss 1.5432 | Epoch Time 2.43s
+Valid acc 63.40% | Test acc 62.88%
+Epoch 00546 | Loss 1.5191 | Epoch Time 2.36s
+Epoch 00547 | Loss 1.5251 | Epoch Time 2.42s
+Epoch 00548 | Loss 1.5292 | Epoch Time 2.42s
+Epoch 00549 | Loss 1.5504 | Epoch Time 2.42s
+Epoch 00550 | Loss 1.5320 | Epoch Time 2.44s
+Valid acc 60.28% | Test acc 57.50%
+Epoch 00551 | Loss 1.5297 | Epoch Time 2.36s
+Epoch 00552 | Loss 1.5168 | Epoch Time 2.45s
+Epoch 00553 | Loss 1.5064 | Epoch Time 2.44s
+Epoch 00554 | Loss 1.5088 | Epoch Time 2.42s
+Epoch 00555 | Loss 1.5139 | Epoch Time 2.43s
+Valid acc 63.61% | Test acc 63.93%
+Epoch 00556 | Loss 1.5183 | Epoch Time 2.37s
+Epoch 00557 | Loss 1.5334 | Epoch Time 2.43s
+Epoch 00558 | Loss 1.5149 | Epoch Time 2.45s
+Epoch 00559 | Loss 1.5223 | Epoch Time 2.42s
+Epoch 00560 | Loss 1.5122 | Epoch Time 2.43s
+Valid acc 61.89% | Test acc 60.82%
+Epoch 00561 | Loss 1.5106 | Epoch Time 2.36s
+Epoch 00562 | Loss 1.5160 | Epoch Time 2.43s
+Epoch 00563 | Loss 1.5247 | Epoch Time 2.43s
+Epoch 00564 | Loss 1.5146 | Epoch Time 2.44s
+Epoch 00565 | Loss 1.5064 | Epoch Time 2.42s
+Valid acc 59.91% | Test acc 58.78%
+Epoch 00566 | Loss 1.5296 | Epoch Time 2.37s
+Epoch 00567 | Loss 1.5289 | Epoch Time 2.42s
+Epoch 00568 | Loss 1.5349 | Epoch Time 2.43s
+Epoch 00569 | Loss 1.5213 | Epoch Time 2.44s
+Epoch 00570 | Loss 1.5173 | Epoch Time 2.42s
+Valid acc 62.79% | Test acc 62.43%
+Epoch 00571 | Loss 1.5050 | Epoch Time 2.36s
+Epoch 00572 | Loss 1.4981 | Epoch Time 2.43s
+Epoch 00573 | Loss 1.5150 | Epoch Time 2.42s
+Epoch 00574 | Loss 1.5155 | Epoch Time 2.43s
+Epoch 00575 | Loss 1.5088 | Epoch Time 2.43s
+Valid acc 62.86% | Test acc 61.73%
+Epoch 00576 | Loss 1.5154 | Epoch Time 2.37s
+Epoch 00577 | Loss 1.5028 | Epoch Time 2.43s
+Epoch 00578 | Loss 1.5087 | Epoch Time 2.43s
+Epoch 00579 | Loss 1.5088 | Epoch Time 2.41s
+Epoch 00580 | Loss 1.5245 | Epoch Time 2.44s
+Valid acc 63.70% | Test acc 63.41%
+Epoch 00581 | Loss 1.5126 | Epoch Time 2.36s
+Epoch 00582 | Loss 1.5401 | Epoch Time 2.43s
+Epoch 00583 | Loss 1.5039 | Epoch Time 2.42s
+Epoch 00584 | Loss 1.5213 | Epoch Time 2.43s
+Epoch 00585 | Loss 1.5143 | Epoch Time 2.43s
+Valid acc 63.07% | Test acc 62.74%
+Epoch 00586 | Loss 1.5016 | Epoch Time 2.35s
+Epoch 00587 | Loss 1.4986 | Epoch Time 2.41s
+Epoch 00588 | Loss 1.5009 | Epoch Time 2.43s
+Epoch 00589 | Loss 1.5048 | Epoch Time 2.45s
+Epoch 00590 | Loss 1.4995 | Epoch Time 2.43s
+Valid acc 62.65% | Test acc 61.49%
+Epoch 00591 | Loss 1.5103 | Epoch Time 2.36s
+Epoch 00592 | Loss 1.5475 | Epoch Time 2.41s
+Epoch 00593 | Loss 1.5030 | Epoch Time 2.44s
+Epoch 00594 | Loss 1.5079 | Epoch Time 2.41s
+Epoch 00595 | Loss 1.5027 | Epoch Time 2.44s
+Valid acc 62.57% | Test acc 61.73%
+Epoch 00596 | Loss 1.4988 | Epoch Time 2.36s
+Epoch 00597 | Loss 1.5056 | Epoch Time 2.41s
+Epoch 00598 | Loss 1.5010 | Epoch Time 2.42s
+Epoch 00599 | Loss 1.5086 | Epoch Time 2.41s
+Epoch 00600 | Loss 1.5070 | Epoch Time 2.42s
+Valid acc 63.11% | Test acc 61.85%
+Epoch 00601 | Loss 1.5049 | Epoch Time 2.36s
+Epoch 00602 | Loss 1.5119 | Epoch Time 2.41s
+Epoch 00603 | Loss 1.4964 | Epoch Time 2.42s
+Epoch 00604 | Loss 1.4994 | Epoch Time 2.41s
+Epoch 00605 | Loss 1.5031 | Epoch Time 2.41s
+Valid acc 63.46% | Test acc 63.51%
+Epoch 00606 | Loss 1.4944 | Epoch Time 2.35s
+Epoch 00607 | Loss 1.5073 | Epoch Time 2.43s
+Epoch 00608 | Loss 1.5097 | Epoch Time 2.41s
+Epoch 00609 | Loss 1.5296 | Epoch Time 2.41s
+Epoch 00610 | Loss 1.5173 | Epoch Time 2.40s
+Valid acc 62.18% | Test acc 60.51%
+Epoch 00611 | Loss 1.5213 | Epoch Time 2.34s
+Epoch 00612 | Loss 1.5094 | Epoch Time 2.41s
+Epoch 00613 | Loss 1.5004 | Epoch Time 2.42s
+Epoch 00614 | Loss 1.5103 | Epoch Time 2.42s
+Epoch 00615 | Loss 1.5106 | Epoch Time 2.40s
+Valid acc 63.01% | Test acc 63.16%
+Epoch 00616 | Loss 1.5111 | Epoch Time 2.35s
+Epoch 00617 | Loss 1.4969 | Epoch Time 2.40s
+Epoch 00618 | Loss 1.5006 | Epoch Time 2.41s
+Epoch 00619 | Loss 1.4983 | Epoch Time 2.39s
+Epoch 00620 | Loss 1.4922 | Epoch Time 2.41s
+Valid acc 63.08% | Test acc 62.01%
+Epoch 00621 | Loss 1.5001 | Epoch Time 2.44s
+Epoch 00622 | Loss 1.5036 | Epoch Time 2.41s
+Epoch 00623 | Loss 1.5190 | Epoch Time 2.41s
+Epoch 00624 | Loss 1.5044 | Epoch Time 2.41s
+Epoch 00625 | Loss 1.4999 | Epoch Time 2.41s
+Valid acc 62.81% | Test acc 61.65%
+Epoch 00626 | Loss 1.5045 | Epoch Time 2.35s
+Epoch 00627 | Loss 1.4962 | Epoch Time 2.41s
+Epoch 00628 | Loss 1.4987 | Epoch Time 2.41s
+Epoch 00629 | Loss 1.4905 | Epoch Time 2.41s
+Epoch 00630 | Loss 1.4941 | Epoch Time 2.42s
+Valid acc 62.39% | Test acc 62.60%
+Epoch 00631 | Loss 1.4978 | Epoch Time 2.35s
+Epoch 00632 | Loss 1.5011 | Epoch Time 2.40s
+Epoch 00633 | Loss 1.4936 | Epoch Time 2.42s
+Epoch 00634 | Loss 1.5054 | Epoch Time 2.40s
+Epoch 00635 | Loss 1.4902 | Epoch Time 2.42s
+Valid acc 62.29% | Test acc 60.24%
+Epoch 00636 | Loss 1.4997 | Epoch Time 2.35s
+Epoch 00637 | Loss 1.5009 | Epoch Time 2.41s
+Epoch 00638 | Loss 1.4874 | Epoch Time 2.42s
+Epoch 00639 | Loss 1.4872 | Epoch Time 2.41s
+Epoch 00640 | Loss 1.5100 | Epoch Time 2.40s
+Valid acc 62.97% | Test acc 63.10%
+Epoch 00641 | Loss 1.5172 | Epoch Time 2.34s
+Epoch 00642 | Loss 1.4883 | Epoch Time 2.40s
+Epoch 00643 | Loss 1.5187 | Epoch Time 2.41s
+Epoch 00644 | Loss 1.4979 | Epoch Time 2.41s
+Epoch 00645 | Loss 1.4969 | Epoch Time 2.41s
+Valid acc 63.66% | Test acc 62.96%
+Epoch 00646 | Loss 1.5036 | Epoch Time 2.37s
+Epoch 00647 | Loss 1.4942 | Epoch Time 2.41s
+Epoch 00648 | Loss 1.4996 | Epoch Time 2.41s
+Epoch 00649 | Loss 1.4924 | Epoch Time 2.40s
+Epoch 00650 | Loss 1.4894 | Epoch Time 2.42s
+Valid acc 63.07% | Test acc 61.87%
+Epoch 00651 | Loss 1.5111 | Epoch Time 2.34s
+Epoch 00652 | Loss 1.5233 | Epoch Time 2.41s
+Epoch 00653 | Loss 1.4940 | Epoch Time 2.40s
+Epoch 00654 | Loss 1.5105 | Epoch Time 2.40s
+Epoch 00655 | Loss 1.4859 | Epoch Time 2.40s
+Valid acc 63.94% | Test acc 63.81%
+Epoch 00656 | Loss 1.4861 | Epoch Time 2.34s
+Epoch 00657 | Loss 1.4821 | Epoch Time 2.41s
+Epoch 00658 | Loss 1.4912 | Epoch Time 2.41s
+Epoch 00659 | Loss 1.4976 | Epoch Time 2.41s
+Epoch 00660 | Loss 1.4958 | Epoch Time 2.40s
+Valid acc 61.66% | Test acc 59.78%
+Epoch 00661 | Loss 1.4912 | Epoch Time 2.33s
+Epoch 00662 | Loss 1.4954 | Epoch Time 2.40s
+Epoch 00663 | Loss 1.4971 | Epoch Time 2.40s
+Epoch 00664 | Loss 1.5149 | Epoch Time 2.39s
+Epoch 00665 | Loss 1.5220 | Epoch Time 2.41s
+Valid acc 63.35% | Test acc 64.46%
+Epoch 00666 | Loss 1.5050 | Epoch Time 2.34s
+Epoch 00667 | Loss 1.4884 | Epoch Time 2.40s
+Epoch 00668 | Loss 1.4829 | Epoch Time 2.42s
+Epoch 00669 | Loss 1.4861 | Epoch Time 2.40s
+Epoch 00670 | Loss 1.4944 | Epoch Time 2.40s
+Valid acc 62.74% | Test acc 61.34%
+Epoch 00671 | Loss 1.4951 | Epoch Time 2.35s
+Epoch 00672 | Loss 1.4874 | Epoch Time 2.39s
+Epoch 00673 | Loss 1.4861 | Epoch Time 2.40s
+Epoch 00674 | Loss 1.4894 | Epoch Time 2.39s
+Epoch 00675 | Loss 1.4835 | Epoch Time 2.41s
+Valid acc 61.39% | Test acc 60.38%
+Epoch 00676 | Loss 1.4938 | Epoch Time 2.34s
+Epoch 00677 | Loss 1.4893 | Epoch Time 2.42s
+Epoch 00678 | Loss 1.5139 | Epoch Time 2.40s
+Epoch 00679 | Loss 1.4789 | Epoch Time 2.40s
+Epoch 00680 | Loss 1.4818 | Epoch Time 2.40s
+Valid acc 63.21% | Test acc 62.86%
+Epoch 00681 | Loss 1.4763 | Epoch Time 2.34s
+Epoch 00682 | Loss 1.4926 | Epoch Time 2.40s
+Epoch 00683 | Loss 1.4860 | Epoch Time 2.40s
+Epoch 00684 | Loss 1.4807 | Epoch Time 2.40s
+Epoch 00685 | Loss 1.5121 | Epoch Time 2.40s
+Valid acc 60.22% | Test acc 58.38%
+Epoch 00686 | Loss 1.5168 | Epoch Time 2.35s
+Epoch 00687 | Loss 1.5024 | Epoch Time 2.40s
+Epoch 00688 | Loss 1.4875 | Epoch Time 2.40s
+Epoch 00689 | Loss 1.4902 | Epoch Time 2.40s
+Epoch 00690 | Loss 1.4804 | Epoch Time 2.40s
+Valid acc 63.26% | Test acc 62.13%
+Epoch 00691 | Loss 1.4886 | Epoch Time 2.34s
+Epoch 00692 | Loss 1.4780 | Epoch Time 2.40s
+Epoch 00693 | Loss 1.4805 | Epoch Time 2.42s
+Epoch 00694 | Loss 1.4820 | Epoch Time 2.40s
+Epoch 00695 | Loss 1.4962 | Epoch Time 2.40s
+Valid acc 59.49% | Test acc 60.20%
+Epoch 00696 | Loss 1.5212 | Epoch Time 2.34s
+Epoch 00697 | Loss 1.4736 | Epoch Time 2.39s
+Epoch 00698 | Loss 1.4683 | Epoch Time 2.40s
+Epoch 00699 | Loss 1.4806 | Epoch Time 2.40s
+Epoch 00700 | Loss 1.4735 | Epoch Time 2.40s
+Valid acc 61.76% | Test acc 59.18%
+Epoch 00701 | Loss 1.4807 | Epoch Time 2.33s
+Epoch 00702 | Loss 1.4948 | Epoch Time 2.41s
+Epoch 00703 | Loss 1.5077 | Epoch Time 2.40s
+Epoch 00704 | Loss 1.4887 | Epoch Time 2.40s
+Epoch 00705 | Loss 1.5029 | Epoch Time 2.41s
+Valid acc 64.28% | Test acc 64.03%
+Epoch 00706 | Loss 1.4710 | Epoch Time 2.33s
+Epoch 00707 | Loss 1.4802 | Epoch Time 2.39s
+Epoch 00708 | Loss 1.4699 | Epoch Time 2.40s
+Epoch 00709 | Loss 1.4772 | Epoch Time 2.39s
+Epoch 00710 | Loss 1.4789 | Epoch Time 2.40s
+Valid acc 62.46% | Test acc 60.49%
+Epoch 00711 | Loss 1.4750 | Epoch Time 2.35s
+Epoch 00712 | Loss 1.4831 | Epoch Time 2.40s
+Epoch 00713 | Loss 1.4878 | Epoch Time 2.40s
+Epoch 00714 | Loss 1.4919 | Epoch Time 2.40s
+Epoch 00715 | Loss 1.4812 | Epoch Time 2.40s
+Valid acc 63.93% | Test acc 63.38%
+Epoch 00716 | Loss 1.4704 | Epoch Time 2.33s
+Epoch 00717 | Loss 1.4744 | Epoch Time 2.39s
+Epoch 00718 | Loss 1.4639 | Epoch Time 2.39s
+Epoch 00719 | Loss 1.4637 | Epoch Time 2.39s
+Epoch 00720 | Loss 1.4617 | Epoch Time 2.40s
+Valid acc 63.40% | Test acc 62.84%
+Epoch 00721 | Loss 1.4630 | Epoch Time 2.33s
+Epoch 00722 | Loss 1.4871 | Epoch Time 2.39s
+Epoch 00723 | Loss 1.4720 | Epoch Time 2.40s
+Epoch 00724 | Loss 1.4971 | Epoch Time 2.42s
+Epoch 00725 | Loss 1.4899 | Epoch Time 2.40s
+Valid acc 60.22% | Test acc 57.43%
+Epoch 00726 | Loss 1.5009 | Epoch Time 2.34s
+Epoch 00727 | Loss 1.4962 | Epoch Time 2.39s
+Epoch 00728 | Loss 1.5180 | Epoch Time 2.40s
+Epoch 00729 | Loss 1.4676 | Epoch Time 2.39s
+Epoch 00730 | Loss 1.4665 | Epoch Time 2.43s
+Valid acc 63.83% | Test acc 63.47%
+Epoch 00731 | Loss 1.4928 | Epoch Time 2.34s
+Epoch 00732 | Loss 1.5047 | Epoch Time 2.40s
+Epoch 00733 | Loss 1.4792 | Epoch Time 2.40s
+Epoch 00734 | Loss 1.4824 | Epoch Time 2.40s
+Epoch 00735 | Loss 1.4761 | Epoch Time 2.40s
+Valid acc 63.98% | Test acc 63.80%
+Epoch 00736 | Loss 1.4663 | Epoch Time 2.34s
+Epoch 00737 | Loss 1.4653 | Epoch Time 2.40s
+Epoch 00738 | Loss 1.4640 | Epoch Time 2.41s
+Epoch 00739 | Loss 1.4716 | Epoch Time 2.39s
+Epoch 00740 | Loss 1.4579 | Epoch Time 2.40s
+Valid acc 63.33% | Test acc 61.99%
+Epoch 00741 | Loss 1.4627 | Epoch Time 2.34s
+Epoch 00742 | Loss 1.4745 | Epoch Time 2.42s
+Epoch 00743 | Loss 1.4924 | Epoch Time 2.40s
+Epoch 00744 | Loss 1.4690 | Epoch Time 2.40s
+Epoch 00745 | Loss 1.4791 | Epoch Time 2.41s
+Valid acc 64.09% | Test acc 63.76%
+Epoch 00746 | Loss 1.4699 | Epoch Time 2.35s
+Epoch 00747 | Loss 1.4859 | Epoch Time 2.42s
+Epoch 00748 | Loss 1.4678 | Epoch Time 2.42s
+Epoch 00749 | Loss 1.4526 | Epoch Time 2.41s
+Epoch 00750 | Loss 1.4543 | Epoch Time 2.42s
+Valid acc 63.47% | Test acc 62.40%
+Epoch 00751 | Loss 1.4577 | Epoch Time 2.35s
+Epoch 00752 | Loss 1.4711 | Epoch Time 2.41s
+Epoch 00753 | Loss 1.4571 | Epoch Time 2.40s
+Epoch 00754 | Loss 1.4751 | Epoch Time 2.41s
+Epoch 00755 | Loss 1.4823 | Epoch Time 2.41s
+Valid acc 64.00% | Test acc 63.70%
+Epoch 00756 | Loss 1.4780 | Epoch Time 2.36s
+Epoch 00757 | Loss 1.5096 | Epoch Time 2.42s
+Epoch 00758 | Loss 1.4647 | Epoch Time 2.41s
+Epoch 00759 | Loss 1.4747 | Epoch Time 2.41s
+Epoch 00760 | Loss 1.4823 | Epoch Time 2.43s
+Valid acc 62.97% | Test acc 61.90%
+Epoch 00761 | Loss 1.4711 | Epoch Time 2.35s
+Epoch 00762 | Loss 1.4762 | Epoch Time 2.42s
+Epoch 00763 | Loss 1.4907 | Epoch Time 2.43s
+Epoch 00764 | Loss 1.4684 | Epoch Time 2.42s
+Epoch 00765 | Loss 1.4664 | Epoch Time 2.41s
+Valid acc 63.88% | Test acc 63.45%
+Epoch 00766 | Loss 1.4680 | Epoch Time 2.37s
+Epoch 00767 | Loss 1.4679 | Epoch Time 2.42s
+Epoch 00768 | Loss 1.4739 | Epoch Time 2.43s
+Epoch 00769 | Loss 1.4709 | Epoch Time 2.41s
+Epoch 00770 | Loss 1.4619 | Epoch Time 2.43s
+Valid acc 63.05% | Test acc 61.71%
+Epoch 00771 | Loss 1.4641 | Epoch Time 2.37s
+Epoch 00772 | Loss 1.4871 | Epoch Time 2.43s
+Epoch 00773 | Loss 1.4746 | Epoch Time 2.42s
+Epoch 00774 | Loss 1.4781 | Epoch Time 2.42s
+Epoch 00775 | Loss 1.4659 | Epoch Time 2.42s
+Valid acc 63.74% | Test acc 64.42%
+Epoch 00776 | Loss 1.4802 | Epoch Time 2.36s
+Epoch 00777 | Loss 1.4651 | Epoch Time 2.43s
+Epoch 00778 | Loss 1.4595 | Epoch Time 2.44s
+Epoch 00779 | Loss 1.4677 | Epoch Time 2.42s
+Epoch 00780 | Loss 1.4759 | Epoch Time 2.41s
+Valid acc 61.84% | Test acc 59.37%
+Epoch 00781 | Loss 1.4675 | Epoch Time 2.36s
+Epoch 00782 | Loss 1.4758 | Epoch Time 2.41s
+Epoch 00783 | Loss 1.4739 | Epoch Time 2.42s
+Epoch 00784 | Loss 1.4776 | Epoch Time 2.43s
+Epoch 00785 | Loss 1.4661 | Epoch Time 2.43s
+Valid acc 63.45% | Test acc 62.59%
+Epoch 00786 | Loss 1.4608 | Epoch Time 2.36s
+Epoch 00787 | Loss 1.4654 | Epoch Time 2.45s
+Epoch 00788 | Loss 1.4713 | Epoch Time 2.43s
+Epoch 00789 | Loss 1.4573 | Epoch Time 2.42s
+Epoch 00790 | Loss 1.4623 | Epoch Time 2.43s
+Valid acc 63.75% | Test acc 63.04%
+Epoch 00791 | Loss 1.4547 | Epoch Time 2.38s
+Epoch 00792 | Loss 1.4551 | Epoch Time 2.45s
+Epoch 00793 | Loss 1.4522 | Epoch Time 2.46s
+Epoch 00794 | Loss 1.4637 | Epoch Time 2.45s
+Epoch 00795 | Loss 1.4590 | Epoch Time 2.44s
+Valid acc 60.79% | Test acc 58.59%
+Epoch 00796 | Loss 1.4728 | Epoch Time 2.38s
+Epoch 00797 | Loss 1.4600 | Epoch Time 2.44s
+Epoch 00798 | Loss 1.4574 | Epoch Time 2.41s
+Epoch 00799 | Loss 1.4612 | Epoch Time 2.43s
+Epoch 00800 | Loss 1.4568 | Epoch Time 2.44s
+Valid acc 63.60% | Test acc 63.76%
+Epoch 00801 | Loss 1.4718 | Epoch Time 2.38s
+Epoch 00802 | Loss 1.4656 | Epoch Time 2.42s
+Epoch 00803 | Loss 1.4762 | Epoch Time 2.43s
+Epoch 00804 | Loss 1.4762 | Epoch Time 2.43s
+Epoch 00805 | Loss 1.4812 | Epoch Time 2.43s
+Valid acc 63.44% | Test acc 61.98%
+Epoch 00806 | Loss 1.4608 | Epoch Time 2.37s
+Epoch 00807 | Loss 1.4580 | Epoch Time 2.41s
+Epoch 00808 | Loss 1.4546 | Epoch Time 2.43s
+Epoch 00809 | Loss 1.4688 | Epoch Time 2.43s
+Epoch 00810 | Loss 1.4714 | Epoch Time 2.44s
+Valid acc 64.10% | Test acc 62.74%
+Epoch 00811 | Loss 1.4481 | Epoch Time 2.36s
+Epoch 00812 | Loss 1.4569 | Epoch Time 2.42s
+Epoch 00813 | Loss 1.4602 | Epoch Time 2.43s
+Epoch 00814 | Loss 1.4579 | Epoch Time 2.44s
+Epoch 00815 | Loss 1.4537 | Epoch Time 2.45s
+Valid acc 63.30% | Test acc 61.96%
+Epoch 00816 | Loss 1.4602 | Epoch Time 2.39s
+Epoch 00817 | Loss 1.4542 | Epoch Time 2.42s
+Epoch 00818 | Loss 1.4529 | Epoch Time 2.44s
+Epoch 00819 | Loss 1.4662 | Epoch Time 2.42s
+Epoch 00820 | Loss 1.4716 | Epoch Time 2.43s
+Valid acc 63.39% | Test acc 62.41%
+Epoch 00821 | Loss 1.4679 | Epoch Time 2.37s
+Epoch 00822 | Loss 1.4911 | Epoch Time 2.43s
+Epoch 00823 | Loss 1.4502 | Epoch Time 2.45s
+Epoch 00824 | Loss 1.4472 | Epoch Time 2.41s
+Epoch 00825 | Loss 1.4480 | Epoch Time 2.43s
+Valid acc 62.48% | Test acc 60.66%
+Epoch 00826 | Loss 1.4458 | Epoch Time 2.37s
+Epoch 00827 | Loss 1.4505 | Epoch Time 2.44s
+Epoch 00828 | Loss 1.4566 | Epoch Time 2.42s
+Epoch 00829 | Loss 1.4654 | Epoch Time 2.43s
+Epoch 00830 | Loss 1.4589 | Epoch Time 2.42s
+Valid acc 64.27% | Test acc 63.65%
+Epoch 00831 | Loss 1.4461 | Epoch Time 2.35s
+Epoch 00832 | Loss 1.4453 | Epoch Time 2.42s
+Epoch 00833 | Loss 1.4479 | Epoch Time 2.43s
+Epoch 00834 | Loss 1.4445 | Epoch Time 2.43s
+Epoch 00835 | Loss 1.4553 | Epoch Time 2.42s
+Valid acc 63.10% | Test acc 61.19%
+Epoch 00836 | Loss 1.4586 | Epoch Time 2.38s
+Epoch 00837 | Loss 1.4520 | Epoch Time 2.42s
+Epoch 00838 | Loss 1.4478 | Epoch Time 2.41s
+Epoch 00839 | Loss 1.4595 | Epoch Time 2.41s
+Epoch 00840 | Loss 1.4488 | Epoch Time 2.60s
+Valid acc 64.39% | Test acc 64.81%
+Epoch 00841 | Loss 1.4620 | Epoch Time 2.36s
+Epoch 00842 | Loss 1.4585 | Epoch Time 2.43s
+Epoch 00843 | Loss 1.4742 | Epoch Time 2.41s
+Epoch 00844 | Loss 1.4624 | Epoch Time 2.41s
+Epoch 00845 | Loss 1.4630 | Epoch Time 2.40s
+Valid acc 62.49% | Test acc 61.24%
+Epoch 00846 | Loss 1.4521 | Epoch Time 2.35s
+Epoch 00847 | Loss 1.4568 | Epoch Time 2.41s
+Epoch 00848 | Loss 1.4434 | Epoch Time 2.40s
+Epoch 00849 | Loss 1.4462 | Epoch Time 2.42s
+Epoch 00850 | Loss 1.4483 | Epoch Time 2.41s
+Valid acc 64.04% | Test acc 63.58%
+Epoch 00851 | Loss 1.4496 | Epoch Time 2.35s
+Epoch 00852 | Loss 1.4609 | Epoch Time 2.42s
+Epoch 00853 | Loss 1.4698 | Epoch Time 2.42s
+Epoch 00854 | Loss 1.4669 | Epoch Time 2.41s
+Epoch 00855 | Loss 1.4666 | Epoch Time 2.41s
+Valid acc 63.35% | Test acc 62.26%
+Epoch 00856 | Loss 1.4545 | Epoch Time 2.35s
+Epoch 00857 | Loss 1.4653 | Epoch Time 2.41s
+Epoch 00858 | Loss 1.4557 | Epoch Time 2.43s
+Epoch 00859 | Loss 1.4583 | Epoch Time 2.42s
+Epoch 00860 | Loss 1.4400 | Epoch Time 2.41s
+Valid acc 64.01% | Test acc 64.08%
+Epoch 00861 | Loss 1.4629 | Epoch Time 2.36s
+Epoch 00862 | Loss 1.4586 | Epoch Time 2.41s
+Epoch 00863 | Loss 1.4409 | Epoch Time 2.41s
+Epoch 00864 | Loss 1.4551 | Epoch Time 2.41s
+Epoch 00865 | Loss 1.4598 | Epoch Time 2.41s
+Valid acc 61.95% | Test acc 59.75%
+Epoch 00866 | Loss 1.4628 | Epoch Time 2.37s
+Epoch 00867 | Loss 1.4553 | Epoch Time 2.41s
+Epoch 00868 | Loss 1.4660 | Epoch Time 2.40s
+Epoch 00869 | Loss 1.4562 | Epoch Time 2.41s
+Epoch 00870 | Loss 1.4457 | Epoch Time 2.41s
+Valid acc 63.76% | Test acc 63.58%
+Epoch 00871 | Loss 1.4449 | Epoch Time 2.35s
+Epoch 00872 | Loss 1.4472 | Epoch Time 2.42s
+Epoch 00873 | Loss 1.4530 | Epoch Time 2.40s
+Epoch 00874 | Loss 1.4512 | Epoch Time 2.42s
+Epoch 00875 | Loss 1.4434 | Epoch Time 2.41s
+Valid acc 62.82% | Test acc 61.06%
+Epoch 00876 | Loss 1.4487 | Epoch Time 2.35s
+Epoch 00877 | Loss 1.4669 | Epoch Time 2.42s
+Epoch 00878 | Loss 1.4508 | Epoch Time 2.41s
+Epoch 00879 | Loss 1.4631 | Epoch Time 2.41s
+Epoch 00880 | Loss 1.4580 | Epoch Time 2.42s
+Valid acc 64.00% | Test acc 63.28%
+Epoch 00881 | Loss 1.4473 | Epoch Time 2.36s
+Epoch 00882 | Loss 1.4608 | Epoch Time 2.40s
+Epoch 00883 | Loss 1.4619 | Epoch Time 2.41s
+Epoch 00884 | Loss 1.4520 | Epoch Time 2.40s
+Epoch 00885 | Loss 1.4355 | Epoch Time 2.40s
+Valid acc 64.19% | Test acc 63.53%
+Epoch 00886 | Loss 1.4627 | Epoch Time 2.35s
+Epoch 00887 | Loss 1.4442 | Epoch Time 2.41s
+Epoch 00888 | Loss 1.4399 | Epoch Time 2.41s
+Epoch 00889 | Loss 1.4456 | Epoch Time 2.41s
+Epoch 00890 | Loss 1.4319 | Epoch Time 2.41s
+Valid acc 63.47% | Test acc 62.06%
+Epoch 00891 | Loss 1.4430 | Epoch Time 2.34s
+Epoch 00892 | Loss 1.4428 | Epoch Time 2.40s
+Epoch 00893 | Loss 1.4554 | Epoch Time 2.40s
+Epoch 00894 | Loss 1.4498 | Epoch Time 2.40s
+Epoch 00895 | Loss 1.4515 | Epoch Time 2.43s
+Valid acc 64.19% | Test acc 64.63%
+Epoch 00896 | Loss 1.4450 | Epoch Time 2.34s
+Epoch 00897 | Loss 1.4572 | Epoch Time 2.40s
+Epoch 00898 | Loss 1.4674 | Epoch Time 2.40s
+Epoch 00899 | Loss 1.4663 | Epoch Time 2.40s
+Epoch 00900 | Loss 1.4747 | Epoch Time 2.41s
+Valid acc 63.17% | Test acc 61.74%
+Epoch 00901 | Loss 1.4460 | Epoch Time 2.34s
+Epoch 00902 | Loss 1.4497 | Epoch Time 2.41s
+Epoch 00903 | Loss 1.4359 | Epoch Time 2.40s
+Epoch 00904 | Loss 1.4258 | Epoch Time 2.40s
+Epoch 00905 | Loss 1.4489 | Epoch Time 2.40s
+Valid acc 64.46% | Test acc 64.37%
+Epoch 00906 | Loss 1.4472 | Epoch Time 2.34s
+Epoch 00907 | Loss 1.4540 | Epoch Time 2.40s
+Epoch 00908 | Loss 1.4438 | Epoch Time 2.41s
+Epoch 00909 | Loss 1.4461 | Epoch Time 2.40s
+Epoch 00910 | Loss 1.4441 | Epoch Time 2.40s
+Valid acc 62.75% | Test acc 60.73%
+Epoch 00911 | Loss 1.4593 | Epoch Time 2.34s
+Epoch 00912 | Loss 1.4450 | Epoch Time 2.40s
+Epoch 00913 | Loss 1.4634 | Epoch Time 2.39s
+Epoch 00914 | Loss 1.4347 | Epoch Time 2.40s
+Epoch 00915 | Loss 1.4369 | Epoch Time 2.40s
+Valid acc 64.56% | Test acc 63.88%
+Epoch 00916 | Loss 1.4317 | Epoch Time 2.35s
+Epoch 00917 | Loss 1.4328 | Epoch Time 2.39s
+Epoch 00918 | Loss 1.4374 | Epoch Time 2.40s
+Epoch 00919 | Loss 1.4402 | Epoch Time 2.40s
+Epoch 00920 | Loss 1.4376 | Epoch Time 2.40s
+Valid acc 62.38% | Test acc 61.67%
+Epoch 00921 | Loss 1.4289 | Epoch Time 2.33s
+Epoch 00922 | Loss 1.4568 | Epoch Time 2.39s
+Epoch 00923 | Loss 1.4526 | Epoch Time 2.39s
+Epoch 00924 | Loss 1.4423 | Epoch Time 2.40s
+Epoch 00925 | Loss 1.4410 | Epoch Time 2.39s
+Valid acc 63.29% | Test acc 61.84%
+Epoch 00926 | Loss 1.4393 | Epoch Time 2.33s
+Epoch 00927 | Loss 1.4382 | Epoch Time 2.40s
+Epoch 00928 | Loss 1.4612 | Epoch Time 2.39s
+Epoch 00929 | Loss 1.4273 | Epoch Time 2.41s
+Epoch 00930 | Loss 1.4422 | Epoch Time 2.39s
+Valid acc 64.22% | Test acc 64.31%
+Epoch 00931 | Loss 1.4399 | Epoch Time 2.33s
+Epoch 00932 | Loss 1.4436 | Epoch Time 2.40s
+Epoch 00933 | Loss 1.4304 | Epoch Time 2.39s
+Epoch 00934 | Loss 1.4328 | Epoch Time 2.40s
+Epoch 00935 | Loss 1.4258 | Epoch Time 2.41s
+Valid acc 64.03% | Test acc 62.96%
+Epoch 00936 | Loss 1.4301 | Epoch Time 2.33s
+Epoch 00937 | Loss 1.4399 | Epoch Time 2.40s
+Epoch 00938 | Loss 1.4378 | Epoch Time 2.40s
+Epoch 00939 | Loss 1.4462 | Epoch Time 2.39s
+Epoch 00940 | Loss 1.4484 | Epoch Time 2.40s
+Valid acc 64.04% | Test acc 62.88%
+Epoch 00941 | Loss 1.4456 | Epoch Time 2.34s
+Epoch 00942 | Loss 1.4495 | Epoch Time 2.39s
+Epoch 00943 | Loss 1.4511 | Epoch Time 2.40s
+Epoch 00944 | Loss 1.4404 | Epoch Time 2.39s
+Epoch 00945 | Loss 1.4503 | Epoch Time 2.40s
+Valid acc 63.70% | Test acc 63.56%
+Epoch 00946 | Loss 1.4454 | Epoch Time 2.33s
+Epoch 00947 | Loss 1.4310 | Epoch Time 2.41s
+Epoch 00948 | Loss 1.4309 | Epoch Time 2.39s
+Epoch 00949 | Loss 1.4460 | Epoch Time 2.40s
+Epoch 00950 | Loss 1.4460 | Epoch Time 2.39s
+Valid acc 62.11% | Test acc 60.00%
+Epoch 00951 | Loss 1.4388 | Epoch Time 2.33s
+Epoch 00952 | Loss 1.4340 | Epoch Time 2.40s
+Epoch 00953 | Loss 1.4385 | Epoch Time 2.41s
+Epoch 00954 | Loss 1.4299 | Epoch Time 2.40s
+Epoch 00955 | Loss 1.4377 | Epoch Time 2.39s
+Valid acc 63.94% | Test acc 63.44%
+Epoch 00956 | Loss 1.4457 | Epoch Time 2.35s
+Epoch 00957 | Loss 1.4259 | Epoch Time 2.40s
+Epoch 00958 | Loss 1.4257 | Epoch Time 2.40s
+Epoch 00959 | Loss 1.4298 | Epoch Time 2.39s
+Epoch 00960 | Loss 1.4285 | Epoch Time 2.40s
+Valid acc 64.61% | Test acc 64.06%
+Epoch 00961 | Loss 1.4330 | Epoch Time 2.34s
+Epoch 00962 | Loss 1.4332 | Epoch Time 2.39s
+Epoch 00963 | Loss 1.4253 | Epoch Time 2.40s
+Epoch 00964 | Loss 1.4369 | Epoch Time 2.40s
+Epoch 00965 | Loss 1.4247 | Epoch Time 2.41s
+Valid acc 63.41% | Test acc 62.01%
+Epoch 00966 | Loss 1.4338 | Epoch Time 2.33s
+Epoch 00967 | Loss 1.4281 | Epoch Time 2.40s
+Epoch 00968 | Loss 1.4241 | Epoch Time 2.41s
+Epoch 00969 | Loss 1.4314 | Epoch Time 2.39s
+Epoch 00970 | Loss 1.4319 | Epoch Time 2.40s
+Valid acc 64.15% | Test acc 63.69%
+Epoch 00971 | Loss 1.4384 | Epoch Time 2.36s
+Epoch 00972 | Loss 1.4382 | Epoch Time 2.40s
+Epoch 00973 | Loss 1.4491 | Epoch Time 2.40s
+Epoch 00974 | Loss 1.4405 | Epoch Time 2.39s
+Epoch 00975 | Loss 1.4306 | Epoch Time 2.41s
+Valid acc 63.35% | Test acc 61.87%
+Epoch 00976 | Loss 1.4322 | Epoch Time 2.34s
+Epoch 00977 | Loss 1.4254 | Epoch Time 2.41s
+Epoch 00978 | Loss 1.4277 | Epoch Time 2.41s
+Epoch 00979 | Loss 1.4320 | Epoch Time 2.40s
+Epoch 00980 | Loss 1.4297 | Epoch Time 2.40s
+Valid acc 64.26% | Test acc 63.07%
+Epoch 00981 | Loss 1.4274 | Epoch Time 2.34s
+Epoch 00982 | Loss 1.4391 | Epoch Time 2.40s
+Epoch 00983 | Loss 1.4310 | Epoch Time 2.40s
+Epoch 00984 | Loss 1.4406 | Epoch Time 2.42s
+Epoch 00985 | Loss 1.4352 | Epoch Time 2.40s
+Valid acc 63.13% | Test acc 62.90%
+Epoch 00986 | Loss 1.4307 | Epoch Time 2.34s
+Epoch 00987 | Loss 1.4295 | Epoch Time 2.40s
+Epoch 00988 | Loss 1.4373 | Epoch Time 2.41s
+Epoch 00989 | Loss 1.4307 | Epoch Time 2.40s
+Epoch 00990 | Loss 1.4324 | Epoch Time 2.42s
+Valid acc 64.25% | Test acc 63.32%
+Epoch 00991 | Loss 1.4324 | Epoch Time 2.34s
+Epoch 00992 | Loss 1.4323 | Epoch Time 2.40s
+Epoch 00993 | Loss 1.4243 | Epoch Time 2.42s
+Epoch 00994 | Loss 1.4237 | Epoch Time 2.42s
+Epoch 00995 | Loss 1.4342 | Epoch Time 2.40s
+Valid acc 63.77% | Test acc 62.63%
+Epoch 00996 | Loss 1.4434 | Epoch Time 2.36s
+Epoch 00997 | Loss 1.4417 | Epoch Time 2.41s
+Epoch 00998 | Loss 1.4418 | Epoch Time 2.41s
+Epoch 00999 | Loss 1.4361 | Epoch Time 2.41s
+Epoch 01000 | Loss 1.4197 | Epoch Time 2.42s
+Valid acc 64.62% | Test acc 65.14%
+Epoch 01001 | Loss 1.4305 | Epoch Time 2.35s
+Epoch 01002 | Loss 1.4352 | Epoch Time 2.43s
+Epoch 01003 | Loss 1.4251 | Epoch Time 2.42s
+Epoch 01004 | Loss 1.4324 | Epoch Time 2.41s
+Epoch 01005 | Loss 1.4202 | Epoch Time 2.43s
+Valid acc 63.22% | Test acc 61.30%
+Epoch 01006 | Loss 1.4267 | Epoch Time 2.37s
+Epoch 01007 | Loss 1.4265 | Epoch Time 2.42s
+Epoch 01008 | Loss 1.4390 | Epoch Time 2.42s
+Epoch 01009 | Loss 1.4318 | Epoch Time 2.42s
+Epoch 01010 | Loss 1.4540 | Epoch Time 2.42s
+Valid acc 64.66% | Test acc 64.67%
+Epoch 01011 | Loss 1.4295 | Epoch Time 2.36s
+Epoch 01012 | Loss 1.4325 | Epoch Time 2.42s
+Epoch 01013 | Loss 1.4160 | Epoch Time 2.42s
+Epoch 01014 | Loss 1.4152 | Epoch Time 2.41s
+Epoch 01015 | Loss 1.4228 | Epoch Time 2.41s
+Valid acc 63.68% | Test acc 62.30%
+Epoch 01016 | Loss 1.4319 | Epoch Time 2.36s
+Epoch 01017 | Loss 1.4232 | Epoch Time 2.41s
+Epoch 01018 | Loss 1.4332 | Epoch Time 2.42s
+Epoch 01019 | Loss 1.4307 | Epoch Time 2.41s
+Epoch 01020 | Loss 1.4475 | Epoch Time 2.42s
+Valid acc 63.56% | Test acc 62.98%
+Epoch 01021 | Loss 1.4368 | Epoch Time 2.34s
+Epoch 01022 | Loss 1.4614 | Epoch Time 2.42s
+Epoch 01023 | Loss 1.4303 | Epoch Time 2.42s
+Epoch 01024 | Loss 1.4295 | Epoch Time 2.42s
+Epoch 01025 | Loss 1.4245 | Epoch Time 2.42s
+Valid acc 63.61% | Test acc 62.18%
+Epoch 01026 | Loss 1.4240 | Epoch Time 2.37s
+Epoch 01027 | Loss 1.4230 | Epoch Time 2.41s
+Epoch 01028 | Loss 1.4235 | Epoch Time 2.41s
+Epoch 01029 | Loss 1.4234 | Epoch Time 2.43s
+Epoch 01030 | Loss 1.4255 | Epoch Time 2.43s
+Valid acc 62.55% | Test acc 63.03%
+Epoch 01031 | Loss 1.4254 | Epoch Time 2.35s
+Epoch 01032 | Loss 1.4241 | Epoch Time 2.44s
+Epoch 01033 | Loss 1.4205 | Epoch Time 2.40s
+Epoch 01034 | Loss 1.4168 | Epoch Time 2.42s
+Epoch 01035 | Loss 1.4159 | Epoch Time 2.42s
+Valid acc 63.79% | Test acc 62.06%
+Epoch 01036 | Loss 1.4225 | Epoch Time 2.37s
+Epoch 01037 | Loss 1.4210 | Epoch Time 2.43s
+Epoch 01038 | Loss 1.4142 | Epoch Time 2.42s
+Epoch 01039 | Loss 1.4254 | Epoch Time 2.46s
+Epoch 01040 | Loss 1.4298 | Epoch Time 2.43s
+Valid acc 64.58% | Test acc 65.37%
+Epoch 01041 | Loss 1.4354 | Epoch Time 2.36s
+Epoch 01042 | Loss 1.4409 | Epoch Time 2.41s
+Epoch 01043 | Loss 1.4283 | Epoch Time 2.42s
+Epoch 01044 | Loss 1.4193 | Epoch Time 2.42s
+Epoch 01045 | Loss 1.4148 | Epoch Time 2.44s
+Valid acc 63.97% | Test acc 62.59%
+Epoch 01046 | Loss 1.4159 | Epoch Time 2.36s
+Epoch 01047 | Loss 1.4317 | Epoch Time 2.43s
+Epoch 01048 | Loss 1.4263 | Epoch Time 2.44s
+Epoch 01049 | Loss 1.4346 | Epoch Time 2.44s
+Epoch 01050 | Loss 1.4182 | Epoch Time 2.42s
+Valid acc 64.50% | Test acc 64.31%
+Epoch 01051 | Loss 1.4137 | Epoch Time 2.36s
+Epoch 01052 | Loss 1.4261 | Epoch Time 2.42s
+Epoch 01053 | Loss 1.4147 | Epoch Time 2.43s
+Epoch 01054 | Loss 1.4182 | Epoch Time 2.42s
+Epoch 01055 | Loss 1.4170 | Epoch Time 2.43s
+Valid acc 64.09% | Test acc 63.36%
+Epoch 01056 | Loss 1.4222 | Epoch Time 2.36s
+Epoch 01057 | Loss 1.4192 | Epoch Time 2.44s
+Epoch 01058 | Loss 1.4138 | Epoch Time 2.43s
+Epoch 01059 | Loss 1.4220 | Epoch Time 2.43s
+Epoch 01060 | Loss 1.4262 | Epoch Time 2.41s
+Valid acc 63.67% | Test acc 61.89%
+Epoch 01061 | Loss 1.4233 | Epoch Time 2.35s
+Epoch 01062 | Loss 1.4347 | Epoch Time 2.43s
+Epoch 01063 | Loss 1.4205 | Epoch Time 2.41s
+Epoch 01064 | Loss 1.4298 | Epoch Time 2.42s
+Epoch 01065 | Loss 1.4212 | Epoch Time 2.42s
+Valid acc 64.68% | Test acc 65.23%
+Epoch 01066 | Loss 1.4344 | Epoch Time 2.36s
+Epoch 01067 | Loss 1.4154 | Epoch Time 2.41s
+Epoch 01068 | Loss 1.4357 | Epoch Time 2.42s
+Epoch 01069 | Loss 1.4266 | Epoch Time 2.41s
+Epoch 01070 | Loss 1.4616 | Epoch Time 2.43s
+Valid acc 63.43% | Test acc 61.70%
+Epoch 01071 | Loss 1.4324 | Epoch Time 2.35s
+Epoch 01072 | Loss 1.4348 | Epoch Time 2.42s
+Epoch 01073 | Loss 1.4117 | Epoch Time 2.40s
+Epoch 01074 | Loss 1.4097 | Epoch Time 2.40s
+Epoch 01075 | Loss 1.4123 | Epoch Time 2.42s
+Valid acc 64.33% | Test acc 63.97%
+Epoch 01076 | Loss 1.4177 | Epoch Time 2.35s
+Epoch 01077 | Loss 1.4182 | Epoch Time 2.40s
+Epoch 01078 | Loss 1.4148 | Epoch Time 2.44s
+Epoch 01079 | Loss 1.4301 | Epoch Time 2.42s
+Epoch 01080 | Loss 1.4302 | Epoch Time 2.42s
+Valid acc 63.98% | Test acc 63.14%
+Epoch 01081 | Loss 1.4254 | Epoch Time 2.37s
+Epoch 01082 | Loss 1.4390 | Epoch Time 2.40s
+Epoch 01083 | Loss 1.4244 | Epoch Time 2.41s
+Epoch 01084 | Loss 1.4206 | Epoch Time 2.42s
+Epoch 01085 | Loss 1.4097 | Epoch Time 2.41s
+Valid acc 64.28% | Test acc 62.79%
+Epoch 01086 | Loss 1.4286 | Epoch Time 2.35s
+Epoch 01087 | Loss 1.4154 | Epoch Time 2.41s
+Epoch 01088 | Loss 1.4187 | Epoch Time 2.41s
+Epoch 01089 | Loss 1.4270 | Epoch Time 2.41s
+Epoch 01090 | Loss 1.4231 | Epoch Time 2.41s
+Valid acc 61.39% | Test acc 61.06%
+Epoch 01091 | Loss 1.4364 | Epoch Time 2.36s
+Epoch 01092 | Loss 1.4188 | Epoch Time 2.41s
+Epoch 01093 | Loss 1.4106 | Epoch Time 2.42s
+Epoch 01094 | Loss 1.4166 | Epoch Time 2.41s
+Epoch 01095 | Loss 1.4486 | Epoch Time 2.41s
+Valid acc 64.66% | Test acc 64.04%
+Epoch 01096 | Loss 1.4224 | Epoch Time 2.35s
+Epoch 01097 | Loss 1.4205 | Epoch Time 2.40s
+Epoch 01098 | Loss 1.4182 | Epoch Time 2.41s
+Epoch 01099 | Loss 1.4421 | Epoch Time 2.41s
+Epoch 01100 | Loss 1.4141 | Epoch Time 2.40s
+Valid acc 64.30% | Test acc 62.91%
+Epoch 01101 | Loss 1.4164 | Epoch Time 2.34s
+Epoch 01102 | Loss 1.4124 | Epoch Time 2.42s
+Epoch 01103 | Loss 1.4160 | Epoch Time 2.41s
+Epoch 01104 | Loss 1.4150 | Epoch Time 2.41s
+Epoch 01105 | Loss 1.4336 | Epoch Time 2.41s
+Valid acc 64.60% | Test acc 64.01%
+Epoch 01106 | Loss 1.4208 | Epoch Time 2.35s
+Epoch 01107 | Loss 1.4265 | Epoch Time 2.40s
+Epoch 01108 | Loss 1.4119 | Epoch Time 2.41s
+Epoch 01109 | Loss 1.4163 | Epoch Time 2.41s
+Epoch 01110 | Loss 1.4121 | Epoch Time 2.40s
+Valid acc 64.45% | Test acc 63.49%
+Epoch 01111 | Loss 1.4139 | Epoch Time 2.34s
+Epoch 01112 | Loss 1.4093 | Epoch Time 2.40s
+Epoch 01113 | Loss 1.4109 | Epoch Time 2.40s
+Epoch 01114 | Loss 1.4145 | Epoch Time 2.40s
+Epoch 01115 | Loss 1.4233 | Epoch Time 2.42s
+Valid acc 64.56% | Test acc 64.22%
+Epoch 01116 | Loss 1.4206 | Epoch Time 2.34s
+Epoch 01117 | Loss 1.3983 | Epoch Time 2.41s
+Epoch 01118 | Loss 1.3970 | Epoch Time 2.41s
+Epoch 01119 | Loss 1.4136 | Epoch Time 2.39s
+Epoch 01120 | Loss 1.4083 | Epoch Time 2.40s
+Valid acc 63.75% | Test acc 62.13%
+Epoch 01121 | Loss 1.4281 | Epoch Time 2.34s
+Epoch 01122 | Loss 1.3970 | Epoch Time 2.41s
+Epoch 01123 | Loss 1.4044 | Epoch Time 2.40s
+Epoch 01124 | Loss 1.4045 | Epoch Time 2.40s
+Epoch 01125 | Loss 1.4107 | Epoch Time 2.40s
+Valid acc 63.30% | Test acc 62.89%
+Epoch 01126 | Loss 1.4138 | Epoch Time 2.33s
+Epoch 01127 | Loss 1.4075 | Epoch Time 2.40s
+Epoch 01128 | Loss 1.4223 | Epoch Time 2.40s
+Epoch 01129 | Loss 1.4239 | Epoch Time 2.40s
+Epoch 01130 | Loss 1.4210 | Epoch Time 2.41s
+Valid acc 64.46% | Test acc 63.59%
+Epoch 01131 | Loss 1.4025 | Epoch Time 2.34s
+Epoch 01132 | Loss 1.4056 | Epoch Time 2.40s
+Epoch 01133 | Loss 1.4020 | Epoch Time 2.42s
+Epoch 01134 | Loss 1.4151 | Epoch Time 2.40s
+Epoch 01135 | Loss 1.4349 | Epoch Time 2.40s
+Valid acc 62.57% | Test acc 61.50%
+Epoch 01136 | Loss 1.4211 | Epoch Time 2.35s
+Epoch 01137 | Loss 1.4187 | Epoch Time 2.40s
+Epoch 01138 | Loss 1.4054 | Epoch Time 2.40s
+Epoch 01139 | Loss 1.4177 | Epoch Time 2.41s
+Epoch 01140 | Loss 1.4074 | Epoch Time 2.40s
+Valid acc 63.92% | Test acc 62.64%
+Epoch 01141 | Loss 1.4231 | Epoch Time 2.34s
+Epoch 01142 | Loss 1.4019 | Epoch Time 2.40s
+Epoch 01143 | Loss 1.4024 | Epoch Time 2.39s
+Epoch 01144 | Loss 1.4173 | Epoch Time 2.40s
+Epoch 01145 | Loss 1.4112 | Epoch Time 2.40s
+Valid acc 64.55% | Test acc 64.60%
+Epoch 01146 | Loss 1.4221 | Epoch Time 2.34s
+Epoch 01147 | Loss 1.4134 | Epoch Time 2.39s
+Epoch 01148 | Loss 1.4037 | Epoch Time 2.40s
+Epoch 01149 | Loss 1.4083 | Epoch Time 2.40s
+Epoch 01150 | Loss 1.4117 | Epoch Time 2.40s
+Valid acc 64.44% | Test acc 63.01%
+Epoch 01151 | Loss 1.4089 | Epoch Time 2.35s
+Epoch 01152 | Loss 1.4048 | Epoch Time 2.39s
+Epoch 01153 | Loss 1.4081 | Epoch Time 2.40s
+Epoch 01154 | Loss 1.4041 | Epoch Time 2.40s
+Epoch 01155 | Loss 1.4067 | Epoch Time 2.41s
+Valid acc 64.90% | Test acc 64.88%
+Epoch 01156 | Loss 1.4029 | Epoch Time 2.34s
+Epoch 01157 | Loss 1.4084 | Epoch Time 2.40s
+Epoch 01158 | Loss 1.4056 | Epoch Time 2.41s
+Epoch 01159 | Loss 1.4066 | Epoch Time 2.40s
+Epoch 01160 | Loss 1.4215 | Epoch Time 2.39s
+Valid acc 63.59% | Test acc 61.81%
+Epoch 01161 | Loss 1.4123 | Epoch Time 2.33s
+Epoch 01162 | Loss 1.4122 | Epoch Time 2.39s
+Epoch 01163 | Loss 1.4071 | Epoch Time 2.40s
+Epoch 01164 | Loss 1.4203 | Epoch Time 2.40s
+Epoch 01165 | Loss 1.4121 | Epoch Time 2.40s
+Valid acc 64.29% | Test acc 63.53%
+Epoch 01166 | Loss 1.4134 | Epoch Time 2.34s
+Epoch 01167 | Loss 1.4149 | Epoch Time 2.39s
+Epoch 01168 | Loss 1.4172 | Epoch Time 2.39s
+Epoch 01169 | Loss 1.4087 | Epoch Time 2.40s
+Epoch 01170 | Loss 1.4135 | Epoch Time 2.42s
+Valid acc 63.60% | Test acc 62.84%
+Epoch 01171 | Loss 1.4222 | Epoch Time 2.33s
+Epoch 01172 | Loss 1.4197 | Epoch Time 2.41s
+Epoch 01173 | Loss 1.4210 | Epoch Time 2.40s
+Epoch 01174 | Loss 1.4257 | Epoch Time 2.39s
+Epoch 01175 | Loss 1.4142 | Epoch Time 2.39s
+Valid acc 64.78% | Test acc 64.80%
+Epoch 01176 | Loss 1.4074 | Epoch Time 2.35s
+Epoch 01177 | Loss 1.4064 | Epoch Time 2.40s
+Epoch 01178 | Loss 1.3908 | Epoch Time 2.39s
+Epoch 01179 | Loss 1.4043 | Epoch Time 2.40s
+Epoch 01180 | Loss 1.4046 | Epoch Time 2.39s
+Valid acc 63.34% | Test acc 61.00%
+Epoch 01181 | Loss 1.3981 | Epoch Time 2.33s
+Epoch 01182 | Loss 1.4061 | Epoch Time 2.39s
+Epoch 01183 | Loss 1.4156 | Epoch Time 2.40s
+Epoch 01184 | Loss 1.4221 | Epoch Time 2.40s
+Epoch 01185 | Loss 1.4091 | Epoch Time 2.40s
+Valid acc 64.51% | Test acc 65.06%
+Epoch 01186 | Loss 1.4146 | Epoch Time 2.34s
+Epoch 01187 | Loss 1.4029 | Epoch Time 2.40s
+Epoch 01188 | Loss 1.4181 | Epoch Time 2.42s
+Epoch 01189 | Loss 1.3963 | Epoch Time 2.39s
+Epoch 01190 | Loss 1.3978 | Epoch Time 2.40s
+Valid acc 64.32% | Test acc 63.07%
+Epoch 01191 | Loss 1.3949 | Epoch Time 2.33s
+Epoch 01192 | Loss 1.3900 | Epoch Time 2.40s
+Epoch 01193 | Loss 1.4011 | Epoch Time 2.40s
+Epoch 01194 | Loss 1.3985 | Epoch Time 2.39s
+Epoch 01195 | Loss 1.4005 | Epoch Time 2.41s
+Valid acc 64.46% | Test acc 63.88%
+Epoch 01196 | Loss 1.4044 | Epoch Time 2.34s
+Epoch 01197 | Loss 1.3977 | Epoch Time 2.41s
+Epoch 01198 | Loss 1.4013 | Epoch Time 2.39s
+Epoch 01199 | Loss 1.3954 | Epoch Time 2.40s
+Epoch 01200 | Loss 1.3939 | Epoch Time 2.40s
+Valid acc 64.90% | Test acc 64.93%
+Epoch 01201 | Loss 1.4005 | Epoch Time 2.34s
+Epoch 01202 | Loss 1.3961 | Epoch Time 2.40s
+Epoch 01203 | Loss 1.4054 | Epoch Time 2.40s
+Epoch 01204 | Loss 1.4041 | Epoch Time 2.40s
+Epoch 01205 | Loss 1.4048 | Epoch Time 2.40s
+Valid acc 63.31% | Test acc 62.02%
+Epoch 01206 | Loss 1.3990 | Epoch Time 2.34s
+Epoch 01207 | Loss 1.4097 | Epoch Time 2.42s
+Epoch 01208 | Loss 1.3975 | Epoch Time 2.40s
+Epoch 01209 | Loss 1.4031 | Epoch Time 2.40s
+Epoch 01210 | Loss 1.3964 | Epoch Time 2.51s
+Valid acc 64.69% | Test acc 64.63%
+Epoch 01211 | Loss 1.4072 | Epoch Time 2.34s
+Epoch 01212 | Loss 1.4024 | Epoch Time 2.40s
+Epoch 01213 | Loss 1.4178 | Epoch Time 2.42s
+Epoch 01214 | Loss 1.4167 | Epoch Time 2.40s
+Epoch 01215 | Loss 1.4402 | Epoch Time 2.40s
+Valid acc 64.07% | Test acc 63.60%
+Epoch 01216 | Loss 1.4188 | Epoch Time 2.34s
+Epoch 01217 | Loss 1.4135 | Epoch Time 2.41s
+Epoch 01218 | Loss 1.3914 | Epoch Time 2.41s
+Epoch 01219 | Loss 1.4033 | Epoch Time 2.40s
+Epoch 01220 | Loss 1.4180 | Epoch Time 2.41s
+Valid acc 64.21% | Test acc 62.92%
+Epoch 01221 | Loss 1.4053 | Epoch Time 2.35s
+Epoch 01222 | Loss 1.4104 | Epoch Time 2.42s
+Epoch 01223 | Loss 1.4021 | Epoch Time 2.40s
+Epoch 01224 | Loss 1.4043 | Epoch Time 2.41s
+Epoch 01225 | Loss 1.4022 | Epoch Time 2.40s
+Valid acc 64.73% | Test acc 64.72%
+Epoch 01226 | Loss 1.4316 | Epoch Time 2.36s
+Epoch 01227 | Loss 1.3966 | Epoch Time 2.41s
+Epoch 01228 | Loss 1.3823 | Epoch Time 2.41s
+Epoch 01229 | Loss 1.3854 | Epoch Time 2.41s
+Epoch 01230 | Loss 1.4041 | Epoch Time 2.39s
+Valid acc 64.53% | Test acc 63.61%
+Epoch 01231 | Loss 1.4185 | Epoch Time 2.35s
+Epoch 01232 | Loss 1.4111 | Epoch Time 2.42s
+Epoch 01233 | Loss 1.3968 | Epoch Time 2.41s
+Epoch 01234 | Loss 1.4002 | Epoch Time 2.41s
+Epoch 01235 | Loss 1.3918 | Epoch Time 2.43s
+Valid acc 64.89% | Test acc 65.08%
+Epoch 01236 | Loss 1.4001 | Epoch Time 2.35s
+Epoch 01237 | Loss 1.4011 | Epoch Time 2.42s
+Epoch 01238 | Loss 1.4201 | Epoch Time 2.41s
+Epoch 01239 | Loss 1.4149 | Epoch Time 2.41s
+Epoch 01240 | Loss 1.4165 | Epoch Time 2.42s
+Valid acc 63.41% | Test acc 61.82%
+Epoch 01241 | Loss 1.4003 | Epoch Time 2.35s
+Epoch 01242 | Loss 1.4002 | Epoch Time 2.41s
+Epoch 01243 | Loss 1.4007 | Epoch Time 2.42s
+Epoch 01244 | Loss 1.3999 | Epoch Time 2.41s
+Epoch 01245 | Loss 1.4058 | Epoch Time 2.42s
+Valid acc 64.55% | Test acc 64.70%
+Epoch 01246 | Loss 1.3917 | Epoch Time 2.38s
+Epoch 01247 | Loss 1.4048 | Epoch Time 2.41s
+Epoch 01248 | Loss 1.3894 | Epoch Time 2.42s
+Epoch 01249 | Loss 1.3890 | Epoch Time 2.42s
+Epoch 01250 | Loss 1.3913 | Epoch Time 2.42s
+Valid acc 63.23% | Test acc 60.90%
+Epoch 01251 | Loss 1.4082 | Epoch Time 2.36s
+Epoch 01252 | Loss 1.3993 | Epoch Time 2.43s
+Epoch 01253 | Loss 1.4184 | Epoch Time 2.45s
+Epoch 01254 | Loss 1.4030 | Epoch Time 2.42s
+Epoch 01255 | Loss 1.4018 | Epoch Time 2.42s
+Valid acc 65.27% | Test acc 65.80%
+Epoch 01256 | Loss 1.4094 | Epoch Time 2.36s
+Epoch 01257 | Loss 1.3994 | Epoch Time 2.41s
+Epoch 01258 | Loss 1.3964 | Epoch Time 2.43s
+Epoch 01259 | Loss 1.4004 | Epoch Time 2.43s
+Epoch 01260 | Loss 1.3997 | Epoch Time 2.42s
+Valid acc 62.87% | Test acc 61.28%
+Epoch 01261 | Loss 1.3952 | Epoch Time 2.37s
+Epoch 01262 | Loss 1.4007 | Epoch Time 2.42s
+Epoch 01263 | Loss 1.3994 | Epoch Time 2.42s
+Epoch 01264 | Loss 1.3906 | Epoch Time 2.45s
+Epoch 01265 | Loss 1.3929 | Epoch Time 2.44s
+Valid acc 64.96% | Test acc 64.19%
+Epoch 01266 | Loss 1.3931 | Epoch Time 2.37s
+Epoch 01267 | Loss 1.4039 | Epoch Time 2.42s
+Epoch 01268 | Loss 1.3828 | Epoch Time 2.42s
+Epoch 01269 | Loss 1.3808 | Epoch Time 2.42s
+Epoch 01270 | Loss 1.3837 | Epoch Time 2.42s
+Valid acc 64.23% | Test acc 63.74%
+Epoch 01271 | Loss 1.3811 | Epoch Time 2.37s
+Epoch 01272 | Loss 1.3881 | Epoch Time 2.42s
+Epoch 01273 | Loss 1.3917 | Epoch Time 2.43s
+Epoch 01274 | Loss 1.4043 | Epoch Time 2.44s
+Epoch 01275 | Loss 1.3892 | Epoch Time 2.43s
+Valid acc 64.19% | Test acc 62.80%
+Epoch 01276 | Loss 1.3894 | Epoch Time 2.37s
+Epoch 01277 | Loss 1.3952 | Epoch Time 2.43s
+Epoch 01278 | Loss 1.3923 | Epoch Time 2.43s
+Epoch 01279 | Loss 1.3920 | Epoch Time 2.42s
+Epoch 01280 | Loss 1.4173 | Epoch Time 2.42s
+Valid acc 64.35% | Test acc 63.54%
+Epoch 01281 | Loss 1.3996 | Epoch Time 2.38s
+Epoch 01282 | Loss 1.4099 | Epoch Time 2.44s
+Epoch 01283 | Loss 1.3946 | Epoch Time 2.43s
+Epoch 01284 | Loss 1.3970 | Epoch Time 2.44s
+Epoch 01285 | Loss 1.3891 | Epoch Time 2.42s
+Valid acc 64.80% | Test acc 64.47%
+Epoch 01286 | Loss 1.3908 | Epoch Time 2.38s
+Epoch 01287 | Loss 1.3850 | Epoch Time 2.43s
+Epoch 01288 | Loss 1.4028 | Epoch Time 2.43s
+Epoch 01289 | Loss 1.3937 | Epoch Time 2.43s
+Epoch 01290 | Loss 1.3945 | Epoch Time 2.42s
+Valid acc 64.56% | Test acc 64.11%
+Epoch 01291 | Loss 1.4091 | Epoch Time 2.36s
+Epoch 01292 | Loss 1.3879 | Epoch Time 2.43s
+Epoch 01293 | Loss 1.3934 | Epoch Time 2.42s
+Epoch 01294 | Loss 1.3993 | Epoch Time 2.43s
+Epoch 01295 | Loss 1.3924 | Epoch Time 2.43s
+Valid acc 64.41% | Test acc 63.31%
+Epoch 01296 | Loss 1.4095 | Epoch Time 2.35s
+Epoch 01297 | Loss 1.3942 | Epoch Time 2.42s
+Epoch 01298 | Loss 1.3995 | Epoch Time 2.43s
+Epoch 01299 | Loss 1.3889 | Epoch Time 2.42s
+Epoch 01300 | Loss 1.3900 | Epoch Time 2.42s
+Valid acc 64.91% | Test acc 64.76%
+Epoch 01301 | Loss 1.3841 | Epoch Time 2.36s
+Epoch 01302 | Loss 1.3833 | Epoch Time 2.42s
+Epoch 01303 | Loss 1.3815 | Epoch Time 2.42s
+Epoch 01304 | Loss 1.3840 | Epoch Time 2.43s
+Epoch 01305 | Loss 1.3896 | Epoch Time 2.43s
+Valid acc 63.55% | Test acc 61.62%
+Epoch 01306 | Loss 1.3902 | Epoch Time 2.35s
+Epoch 01307 | Loss 1.4123 | Epoch Time 2.42s
+Epoch 01308 | Loss 1.4020 | Epoch Time 2.43s
+Epoch 01309 | Loss 1.3764 | Epoch Time 2.42s
+Epoch 01310 | Loss 1.3873 | Epoch Time 2.42s
+Valid acc 64.66% | Test acc 64.42%
+Epoch 01311 | Loss 1.3822 | Epoch Time 2.36s
+Epoch 01312 | Loss 1.4000 | Epoch Time 2.41s
+Epoch 01313 | Loss 1.3964 | Epoch Time 2.41s
+Epoch 01314 | Loss 1.3996 | Epoch Time 2.42s
+Epoch 01315 | Loss 1.3883 | Epoch Time 2.42s
+Valid acc 63.94% | Test acc 62.84%
+Epoch 01316 | Loss 1.3827 | Epoch Time 2.36s
+Epoch 01317 | Loss 1.3972 | Epoch Time 2.41s
+Epoch 01318 | Loss 1.3866 | Epoch Time 2.41s
+Epoch 01319 | Loss 1.3958 | Epoch Time 2.41s
+Epoch 01320 | Loss 1.3793 | Epoch Time 2.42s
+Valid acc 64.48% | Test acc 63.65%
+Epoch 01321 | Loss 1.3765 | Epoch Time 2.36s
+Epoch 01322 | Loss 1.3778 | Epoch Time 2.41s
+Epoch 01323 | Loss 1.3858 | Epoch Time 2.43s
+Epoch 01324 | Loss 1.4083 | Epoch Time 2.41s
+Epoch 01325 | Loss 1.3847 | Epoch Time 2.40s
+Valid acc 64.84% | Test acc 64.12%
+Epoch 01326 | Loss 1.3886 | Epoch Time 2.36s
+Epoch 01327 | Loss 1.3794 | Epoch Time 2.41s
+Epoch 01328 | Loss 1.3869 | Epoch Time 2.41s
+Epoch 01329 | Loss 1.3848 | Epoch Time 2.43s
+Epoch 01330 | Loss 1.3891 | Epoch Time 2.41s
+Valid acc 64.04% | Test acc 62.30%
+Epoch 01331 | Loss 1.3898 | Epoch Time 2.35s
+Epoch 01332 | Loss 1.3911 | Epoch Time 2.42s
+Epoch 01333 | Loss 1.3810 | Epoch Time 2.40s
+Epoch 01334 | Loss 1.3855 | Epoch Time 2.42s
+Epoch 01335 | Loss 1.3817 | Epoch Time 2.40s
+Valid acc 64.79% | Test acc 64.68%
+Epoch 01336 | Loss 1.3864 | Epoch Time 2.35s
+Epoch 01337 | Loss 1.4055 | Epoch Time 2.41s
+Epoch 01338 | Loss 1.3979 | Epoch Time 2.40s
+Epoch 01339 | Loss 1.4076 | Epoch Time 2.41s
+Epoch 01340 | Loss 1.4009 | Epoch Time 2.41s
+Valid acc 63.56% | Test acc 61.66%
+Epoch 01341 | Loss 1.4086 | Epoch Time 2.36s
+Epoch 01342 | Loss 1.3903 | Epoch Time 2.41s
+Epoch 01343 | Loss 1.3981 | Epoch Time 2.41s
+Epoch 01344 | Loss 1.3876 | Epoch Time 2.40s
+Epoch 01345 | Loss 1.3947 | Epoch Time 2.41s
+Valid acc 65.07% | Test acc 64.98%
+Epoch 01346 | Loss 1.3977 | Epoch Time 2.35s
+Epoch 01347 | Loss 1.4096 | Epoch Time 2.42s
+Epoch 01348 | Loss 1.3828 | Epoch Time 2.40s
+Epoch 01349 | Loss 1.3818 | Epoch Time 2.40s
+Epoch 01350 | Loss 1.3839 | Epoch Time 2.40s
+Valid acc 64.59% | Test acc 63.32%
+Epoch 01351 | Loss 1.3844 | Epoch Time 2.34s
+Epoch 01352 | Loss 1.3891 | Epoch Time 2.41s
+Epoch 01353 | Loss 1.3837 | Epoch Time 2.40s
+Epoch 01354 | Loss 1.3750 | Epoch Time 2.39s
+Epoch 01355 | Loss 1.3845 | Epoch Time 2.40s
+Valid acc 64.48% | Test acc 65.14%
+Epoch 01356 | Loss 1.3860 | Epoch Time 2.34s
+Epoch 01357 | Loss 1.3829 | Epoch Time 2.41s
+Epoch 01358 | Loss 1.3773 | Epoch Time 2.40s
+Epoch 01359 | Loss 1.3883 | Epoch Time 2.41s
+Epoch 01360 | Loss 1.3895 | Epoch Time 2.43s
+Valid acc 63.34% | Test acc 61.35%
+Epoch 01361 | Loss 1.3959 | Epoch Time 2.35s
+Epoch 01362 | Loss 1.3976 | Epoch Time 2.42s
+Epoch 01363 | Loss 1.3863 | Epoch Time 2.40s
+Epoch 01364 | Loss 1.3952 | Epoch Time 2.41s
+Epoch 01365 | Loss 1.3858 | Epoch Time 2.40s
+Valid acc 64.04% | Test acc 63.62%
+Epoch 01366 | Loss 1.4033 | Epoch Time 2.34s
+Epoch 01367 | Loss 1.3935 | Epoch Time 2.40s
+Epoch 01368 | Loss 1.3834 | Epoch Time 2.40s
+Epoch 01369 | Loss 1.3889 | Epoch Time 2.41s
+Epoch 01370 | Loss 1.3938 | Epoch Time 2.41s
+Valid acc 65.15% | Test acc 65.08%
+Epoch 01371 | Loss 1.3879 | Epoch Time 2.34s
+Epoch 01372 | Loss 1.3795 | Epoch Time 2.40s
+Epoch 01373 | Loss 1.3810 | Epoch Time 2.40s
+Epoch 01374 | Loss 1.3842 | Epoch Time 2.40s
+Epoch 01375 | Loss 1.3859 | Epoch Time 2.40s
+Valid acc 63.70% | Test acc 62.12%
+Epoch 01376 | Loss 1.3927 | Epoch Time 2.35s
+Epoch 01377 | Loss 1.4030 | Epoch Time 2.40s
+Epoch 01378 | Loss 1.3875 | Epoch Time 2.42s
+Epoch 01379 | Loss 1.3898 | Epoch Time 2.41s
+Epoch 01380 | Loss 1.3904 | Epoch Time 2.40s
+Valid acc 65.17% | Test acc 65.42%
+Epoch 01381 | Loss 1.3922 | Epoch Time 2.34s
+Epoch 01382 | Loss 1.3894 | Epoch Time 2.40s
+Epoch 01383 | Loss 1.3801 | Epoch Time 2.40s
+Epoch 01384 | Loss 1.3885 | Epoch Time 2.41s
+Epoch 01385 | Loss 1.3851 | Epoch Time 2.40s
+Valid acc 63.85% | Test acc 62.01%
+Epoch 01386 | Loss 1.3875 | Epoch Time 2.35s
+Epoch 01387 | Loss 1.3842 | Epoch Time 2.40s
+Epoch 01388 | Loss 1.3689 | Epoch Time 2.40s
+Epoch 01389 | Loss 1.3798 | Epoch Time 2.41s
+Epoch 01390 | Loss 1.4009 | Epoch Time 2.40s
+Valid acc 65.38% | Test acc 65.22%
+Epoch 01391 | Loss 1.3941 | Epoch Time 2.35s
+Epoch 01392 | Loss 1.4071 | Epoch Time 2.41s
+Epoch 01393 | Loss 1.3787 | Epoch Time 2.41s
+Epoch 01394 | Loss 1.3767 | Epoch Time 2.40s
+Epoch 01395 | Loss 1.3714 | Epoch Time 2.40s
+Valid acc 64.61% | Test acc 63.17%
+Epoch 01396 | Loss 1.3709 | Epoch Time 2.36s
+Epoch 01397 | Loss 1.3722 | Epoch Time 2.40s
+Epoch 01398 | Loss 1.3814 | Epoch Time 2.40s
+Epoch 01399 | Loss 1.3743 | Epoch Time 2.40s
+Epoch 01400 | Loss 1.3790 | Epoch Time 2.40s
+Valid acc 64.17% | Test acc 63.74%
+Epoch 01401 | Loss 1.3719 | Epoch Time 2.34s
+Epoch 01402 | Loss 1.3888 | Epoch Time 2.42s
+Epoch 01403 | Loss 1.3825 | Epoch Time 2.40s
+Epoch 01404 | Loss 1.3940 | Epoch Time 2.40s
+Epoch 01405 | Loss 1.3986 | Epoch Time 2.39s
+Valid acc 63.48% | Test acc 61.78%
+Epoch 01406 | Loss 1.3736 | Epoch Time 2.33s
+Epoch 01407 | Loss 1.3824 | Epoch Time 2.39s
+Epoch 01408 | Loss 1.3727 | Epoch Time 2.40s
+Epoch 01409 | Loss 1.3746 | Epoch Time 2.40s
+Epoch 01410 | Loss 1.3842 | Epoch Time 2.39s
+Valid acc 65.25% | Test acc 64.86%
+Epoch 01411 | Loss 1.3799 | Epoch Time 2.33s
+Epoch 01412 | Loss 1.3807 | Epoch Time 2.40s
+Epoch 01413 | Loss 1.3792 | Epoch Time 2.40s
+Epoch 01414 | Loss 1.3794 | Epoch Time 2.40s
+Epoch 01415 | Loss 1.3720 | Epoch Time 2.41s
+Valid acc 64.22% | Test acc 62.59%
+Epoch 01416 | Loss 1.3850 | Epoch Time 2.33s
+Epoch 01417 | Loss 1.3947 | Epoch Time 2.40s
+Epoch 01418 | Loss 1.3780 | Epoch Time 2.39s
+Epoch 01419 | Loss 1.3781 | Epoch Time 2.40s
+Epoch 01420 | Loss 1.3801 | Epoch Time 2.40s
+Valid acc 65.24% | Test acc 65.37%
+Epoch 01421 | Loss 1.3880 | Epoch Time 2.34s
+Epoch 01422 | Loss 1.3831 | Epoch Time 2.39s
+Epoch 01423 | Loss 1.3918 | Epoch Time 2.40s
+Epoch 01424 | Loss 1.3856 | Epoch Time 2.40s
+Epoch 01425 | Loss 1.3905 | Epoch Time 2.39s
+Valid acc 63.84% | Test acc 62.39%
+Epoch 01426 | Loss 1.3783 | Epoch Time 2.33s
+Epoch 01427 | Loss 1.3789 | Epoch Time 2.40s
+Epoch 01428 | Loss 1.3700 | Epoch Time 2.40s
+Epoch 01429 | Loss 1.3742 | Epoch Time 2.39s
+Epoch 01430 | Loss 1.3724 | Epoch Time 2.39s
+Valid acc 65.53% | Test acc 65.66%
+Epoch 01431 | Loss 1.3667 | Epoch Time 2.33s
+Epoch 01432 | Loss 1.3754 | Epoch Time 2.40s
+Epoch 01433 | Loss 1.3801 | Epoch Time 2.43s
+Epoch 01434 | Loss 1.3783 | Epoch Time 2.40s
+Epoch 01435 | Loss 1.3694 | Epoch Time 2.41s
+Valid acc 64.41% | Test acc 63.29%
+Epoch 01436 | Loss 1.3875 | Epoch Time 2.34s
+Epoch 01437 | Loss 1.3787 | Epoch Time 2.40s
+Epoch 01438 | Loss 1.3836 | Epoch Time 2.40s
+Epoch 01439 | Loss 1.3823 | Epoch Time 2.42s
+Epoch 01440 | Loss 1.3895 | Epoch Time 2.40s
+Valid acc 64.90% | Test acc 64.16%
+Epoch 01441 | Loss 1.3760 | Epoch Time 2.33s
+Epoch 01442 | Loss 1.3952 | Epoch Time 2.40s
+Epoch 01443 | Loss 1.3807 | Epoch Time 2.40s
+Epoch 01444 | Loss 1.3802 | Epoch Time 2.40s
+Epoch 01445 | Loss 1.3726 | Epoch Time 2.40s
+Valid acc 65.12% | Test acc 64.47%
+Epoch 01446 | Loss 1.3713 | Epoch Time 2.34s
+Epoch 01447 | Loss 1.3669 | Epoch Time 2.40s
+Epoch 01448 | Loss 1.3625 | Epoch Time 2.40s
+Epoch 01449 | Loss 1.3718 | Epoch Time 2.40s
+Epoch 01450 | Loss 1.3837 | Epoch Time 2.40s
+Valid acc 63.41% | Test acc 61.67%
+Epoch 01451 | Loss 1.3843 | Epoch Time 2.37s
+Epoch 01452 | Loss 1.3719 | Epoch Time 2.40s
+Epoch 01453 | Loss 1.3771 | Epoch Time 2.40s
+Epoch 01454 | Loss 1.3830 | Epoch Time 2.40s
+Epoch 01455 | Loss 1.3882 | Epoch Time 2.41s
+Valid acc 64.24% | Test acc 63.26%
+Epoch 01456 | Loss 1.3830 | Epoch Time 2.34s
+Epoch 01457 | Loss 1.3860 | Epoch Time 2.43s
+Epoch 01458 | Loss 1.3667 | Epoch Time 2.40s
+Epoch 01459 | Loss 1.3651 | Epoch Time 2.40s
+Epoch 01460 | Loss 1.3697 | Epoch Time 2.41s
+Valid acc 64.57% | Test acc 63.40%
+Epoch 01461 | Loss 1.3662 | Epoch Time 2.35s
+Epoch 01462 | Loss 1.3835 | Epoch Time 2.41s
+Epoch 01463 | Loss 1.3813 | Epoch Time 2.40s
+Epoch 01464 | Loss 1.3682 | Epoch Time 2.42s
+Epoch 01465 | Loss 1.3716 | Epoch Time 2.42s
+Valid acc 65.07% | Test acc 65.02%
+Epoch 01466 | Loss 1.3756 | Epoch Time 2.35s
+Epoch 01467 | Loss 1.3751 | Epoch Time 2.41s
+Epoch 01468 | Loss 1.3962 | Epoch Time 2.41s
+Epoch 01469 | Loss 1.3769 | Epoch Time 2.41s
+Epoch 01470 | Loss 1.3939 | Epoch Time 2.43s
+Valid acc 63.80% | Test acc 62.12%
+Epoch 01471 | Loss 1.3761 | Epoch Time 2.36s
+Epoch 01472 | Loss 1.3692 | Epoch Time 2.41s
+Epoch 01473 | Loss 1.3670 | Epoch Time 2.42s
+Epoch 01474 | Loss 1.3992 | Epoch Time 2.41s
+Epoch 01475 | Loss 1.3970 | Epoch Time 2.42s
+Valid acc 65.28% | Test acc 65.83%
+Epoch 01476 | Loss 1.3847 | Epoch Time 2.35s
+Epoch 01477 | Loss 1.3693 | Epoch Time 2.41s
+Epoch 01478 | Loss 1.3788 | Epoch Time 2.42s
+Epoch 01479 | Loss 1.3881 | Epoch Time 2.42s
+Epoch 01480 | Loss 1.3771 | Epoch Time 2.41s
+Valid acc 64.73% | Test acc 63.65%
+Epoch 01481 | Loss 1.3843 | Epoch Time 2.36s
+Epoch 01482 | Loss 1.3733 | Epoch Time 2.43s
+Epoch 01483 | Loss 1.3821 | Epoch Time 2.41s
+Epoch 01484 | Loss 1.3962 | Epoch Time 2.42s
+Epoch 01485 | Loss 1.3736 | Epoch Time 2.40s
+Valid acc 64.52% | Test acc 63.41%
+Epoch 01486 | Loss 1.3763 | Epoch Time 2.35s
+Epoch 01487 | Loss 1.3751 | Epoch Time 2.42s
+Epoch 01488 | Loss 1.3845 | Epoch Time 2.41s
+Epoch 01489 | Loss 1.3938 | Epoch Time 2.42s
+Epoch 01490 | Loss 1.3786 | Epoch Time 2.42s
+Valid acc 64.79% | Test acc 64.41%
+Epoch 01491 | Loss 1.3634 | Epoch Time 2.38s
+Epoch 01492 | Loss 1.3698 | Epoch Time 2.43s
+Epoch 01493 | Loss 1.3708 | Epoch Time 2.40s
+Epoch 01494 | Loss 1.3671 | Epoch Time 2.43s
+Epoch 01495 | Loss 1.3682 | Epoch Time 2.43s
+Valid acc 64.88% | Test acc 64.05%
+Epoch 01496 | Loss 1.3645 | Epoch Time 2.36s
+Epoch 01497 | Loss 1.3789 | Epoch Time 2.43s
+Epoch 01498 | Loss 1.3792 | Epoch Time 2.42s
+Epoch 01499 | Loss 1.3808 | Epoch Time 2.42s
+Epoch 01500 | Loss 1.3684 | Epoch Time 2.41s
+Valid acc 65.34% | Test acc 64.87%
+Epoch 01501 | Loss 1.3749 | Epoch Time 2.36s
+Epoch 01502 | Loss 1.3724 | Epoch Time 2.44s
+Epoch 01503 | Loss 1.3684 | Epoch Time 2.43s
+Epoch 01504 | Loss 1.3630 | Epoch Time 2.42s
+Epoch 01505 | Loss 1.3702 | Epoch Time 2.41s
+Valid acc 64.74% | Test acc 64.09%
+Epoch 01506 | Loss 1.3683 | Epoch Time 2.36s
+Epoch 01507 | Loss 1.3740 | Epoch Time 2.43s
+Epoch 01508 | Loss 1.3939 | Epoch Time 2.43s
+Epoch 01509 | Loss 1.3615 | Epoch Time 2.44s
+Epoch 01510 | Loss 1.3648 | Epoch Time 2.46s
+Valid acc 65.19% | Test acc 64.06%
+Epoch 01511 | Loss 1.3744 | Epoch Time 2.37s
+Epoch 01512 | Loss 1.4002 | Epoch Time 2.43s
+Epoch 01513 | Loss 1.3716 | Epoch Time 2.43s
+Epoch 01514 | Loss 1.3745 | Epoch Time 2.43s
+Epoch 01515 | Loss 1.3671 | Epoch Time 2.43s
+Valid acc 64.84% | Test acc 63.34%
+Epoch 01516 | Loss 1.3701 | Epoch Time 2.36s
+Epoch 01517 | Loss 1.3636 | Epoch Time 2.44s
+Epoch 01518 | Loss 1.3684 | Epoch Time 2.42s
+Epoch 01519 | Loss 1.3718 | Epoch Time 2.43s
+Epoch 01520 | Loss 1.3900 | Epoch Time 2.43s
+Valid acc 63.38% | Test acc 64.31%
+Epoch 01521 | Loss 1.3900 | Epoch Time 2.35s
+Epoch 01522 | Loss 1.3981 | Epoch Time 2.44s
+Epoch 01523 | Loss 1.3927 | Epoch Time 2.44s
+Epoch 01524 | Loss 1.3709 | Epoch Time 2.41s
+Epoch 01525 | Loss 1.3704 | Epoch Time 2.42s
+Valid acc 62.96% | Test acc 60.36%
+Epoch 01526 | Loss 1.3898 | Epoch Time 2.35s
+Epoch 01527 | Loss 1.3671 | Epoch Time 2.44s
+Epoch 01528 | Loss 1.3682 | Epoch Time 2.44s
+Epoch 01529 | Loss 1.3682 | Epoch Time 2.43s
+Epoch 01530 | Loss 1.3758 | Epoch Time 2.43s
+Valid acc 64.79% | Test acc 64.82%
+Epoch 01531 | Loss 1.3650 | Epoch Time 2.36s
+Epoch 01532 | Loss 1.3807 | Epoch Time 2.43s
+Epoch 01533 | Loss 1.3769 | Epoch Time 2.42s
+Epoch 01534 | Loss 1.3618 | Epoch Time 2.44s
+Epoch 01535 | Loss 1.3582 | Epoch Time 2.44s
+Valid acc 64.88% | Test acc 63.64%
+Epoch 01536 | Loss 1.3566 | Epoch Time 2.37s
+Epoch 01537 | Loss 1.3696 | Epoch Time 2.43s
+Epoch 01538 | Loss 1.3693 | Epoch Time 2.41s
+Epoch 01539 | Loss 1.3673 | Epoch Time 2.43s
+Epoch 01540 | Loss 1.3692 | Epoch Time 2.43s
+Valid acc 64.34% | Test acc 62.82%
+Epoch 01541 | Loss 1.3760 | Epoch Time 2.36s
+Epoch 01542 | Loss 1.3667 | Epoch Time 2.41s
+Epoch 01543 | Loss 1.3682 | Epoch Time 2.42s
+Epoch 01544 | Loss 1.3659 | Epoch Time 2.41s
+Epoch 01545 | Loss 1.3656 | Epoch Time 2.42s
+Valid acc 65.48% | Test acc 65.37%
+Epoch 01546 | Loss 1.3721 | Epoch Time 2.38s
+Epoch 01547 | Loss 1.3638 | Epoch Time 2.42s
+Epoch 01548 | Loss 1.3686 | Epoch Time 2.42s
+Epoch 01549 | Loss 1.3705 | Epoch Time 2.41s
+Epoch 01550 | Loss 1.3666 | Epoch Time 2.41s
+Valid acc 64.51% | Test acc 63.29%
+Epoch 01551 | Loss 1.3749 | Epoch Time 2.35s
+Epoch 01552 | Loss 1.3764 | Epoch Time 2.44s
+Epoch 01553 | Loss 1.3660 | Epoch Time 2.42s
+Epoch 01554 | Loss 1.3618 | Epoch Time 2.41s
+Epoch 01555 | Loss 1.3561 | Epoch Time 2.41s
+Valid acc 65.42% | Test acc 64.75%
+Epoch 01556 | Loss 1.3528 | Epoch Time 2.34s
+Epoch 01557 | Loss 1.3520 | Epoch Time 2.42s
+Epoch 01558 | Loss 1.3710 | Epoch Time 2.41s
+Epoch 01559 | Loss 1.3663 | Epoch Time 2.42s
+Epoch 01560 | Loss 1.3738 | Epoch Time 2.40s
+Valid acc 64.89% | Test acc 64.44%
+Epoch 01561 | Loss 1.3759 | Epoch Time 2.35s
+Epoch 01562 | Loss 1.3955 | Epoch Time 2.42s
+Epoch 01563 | Loss 1.3676 | Epoch Time 2.41s
+Epoch 01564 | Loss 1.3682 | Epoch Time 2.41s
+Epoch 01565 | Loss 1.3666 | Epoch Time 2.43s
+Valid acc 64.14% | Test acc 62.94%
+Epoch 01566 | Loss 1.3758 | Epoch Time 2.36s
+Epoch 01567 | Loss 1.3715 | Epoch Time 2.42s
+Epoch 01568 | Loss 1.3648 | Epoch Time 2.41s
+Epoch 01569 | Loss 1.3804 | Epoch Time 2.42s
+Epoch 01570 | Loss 1.3673 | Epoch Time 2.41s
+Valid acc 64.00% | Test acc 62.81%
+Epoch 01571 | Loss 1.3624 | Epoch Time 2.35s
+Epoch 01572 | Loss 1.3681 | Epoch Time 2.40s
+Epoch 01573 | Loss 1.3623 | Epoch Time 2.42s
+Epoch 01574 | Loss 1.3711 | Epoch Time 2.42s
+Epoch 01575 | Loss 1.3613 | Epoch Time 2.41s
+Valid acc 65.10% | Test acc 64.23%
+Epoch 01576 | Loss 1.3678 | Epoch Time 2.35s
+Epoch 01577 | Loss 1.3568 | Epoch Time 2.41s
+Epoch 01578 | Loss 1.3649 | Epoch Time 2.41s
+Epoch 01579 | Loss 1.3634 | Epoch Time 2.41s
+Epoch 01580 | Loss 1.3673 | Epoch Time 2.41s
+Valid acc 65.17% | Test acc 65.30%
+Epoch 01581 | Loss 1.3705 | Epoch Time 2.35s
+Epoch 01582 | Loss 1.3709 | Epoch Time 2.41s
+Epoch 01583 | Loss 1.3691 | Epoch Time 2.43s
+Epoch 01584 | Loss 1.3716 | Epoch Time 2.42s
+Epoch 01585 | Loss 1.3668 | Epoch Time 2.41s
+Valid acc 64.77% | Test acc 63.71%
+Epoch 01586 | Loss 1.3796 | Epoch Time 2.35s
+Epoch 01587 | Loss 1.3611 | Epoch Time 2.40s
+Epoch 01588 | Loss 1.3691 | Epoch Time 2.42s
+Epoch 01589 | Loss 1.4176 | Epoch Time 2.43s
+Epoch 01590 | Loss 1.3921 | Epoch Time 2.40s
+Valid acc 64.80% | Test acc 64.51%
+Epoch 01591 | Loss 1.3761 | Epoch Time 2.35s
+Epoch 01592 | Loss 1.3763 | Epoch Time 2.42s
+Epoch 01593 | Loss 1.3750 | Epoch Time 2.41s
+Epoch 01594 | Loss 1.3692 | Epoch Time 2.42s
+Epoch 01595 | Loss 1.3572 | Epoch Time 2.40s
+Valid acc 64.88% | Test acc 63.46%
+Epoch 01596 | Loss 1.3626 | Epoch Time 2.35s
+Epoch 01597 | Loss 1.3787 | Epoch Time 2.41s
+Epoch 01598 | Loss 1.3691 | Epoch Time 2.41s
+Epoch 01599 | Loss 1.3811 | Epoch Time 2.41s
+Epoch 01600 | Loss 1.3709 | Epoch Time 2.40s
+Valid acc 65.33% | Test acc 65.04%
+Epoch 01601 | Loss 1.3767 | Epoch Time 2.36s
+Epoch 01602 | Loss 1.3564 | Epoch Time 2.41s
+Epoch 01603 | Loss 1.3549 | Epoch Time 2.42s
+Epoch 01604 | Loss 1.3691 | Epoch Time 2.41s
+Epoch 01605 | Loss 1.3644 | Epoch Time 2.41s
+Valid acc 64.07% | Test acc 62.08%
+Epoch 01606 | Loss 1.3559 | Epoch Time 2.34s
+Epoch 01607 | Loss 1.3564 | Epoch Time 2.42s
+Epoch 01608 | Loss 1.3755 | Epoch Time 2.41s
+Epoch 01609 | Loss 1.3777 | Epoch Time 2.41s
+Epoch 01610 | Loss 1.3675 | Epoch Time 2.40s
+Valid acc 65.60% | Test acc 65.75%
+Epoch 01611 | Loss 1.3696 | Epoch Time 2.34s
+Epoch 01612 | Loss 1.3665 | Epoch Time 2.40s
+Epoch 01613 | Loss 1.3616 | Epoch Time 2.41s
+Epoch 01614 | Loss 1.3613 | Epoch Time 2.40s
+Epoch 01615 | Loss 1.3662 | Epoch Time 2.41s
+Valid acc 63.95% | Test acc 62.85%
+Epoch 01616 | Loss 1.3615 | Epoch Time 2.34s
+Epoch 01617 | Loss 1.3597 | Epoch Time 2.40s
+Epoch 01618 | Loss 1.3683 | Epoch Time 2.41s
+Epoch 01619 | Loss 1.3637 | Epoch Time 2.41s
+Epoch 01620 | Loss 1.3654 | Epoch Time 2.42s
+Valid acc 65.28% | Test acc 64.58%
+Epoch 01621 | Loss 1.3637 | Epoch Time 2.34s
+Epoch 01622 | Loss 1.3558 | Epoch Time 2.40s
+Epoch 01623 | Loss 1.3634 | Epoch Time 2.40s
+Epoch 01624 | Loss 1.3614 | Epoch Time 2.41s
+Epoch 01625 | Loss 1.3546 | Epoch Time 2.40s
+Valid acc 65.29% | Test acc 64.80%
+Epoch 01626 | Loss 1.3488 | Epoch Time 2.34s
+Epoch 01627 | Loss 1.3650 | Epoch Time 2.40s
+Epoch 01628 | Loss 1.3506 | Epoch Time 2.40s
+Epoch 01629 | Loss 1.3613 | Epoch Time 2.40s
+Epoch 01630 | Loss 1.3646 | Epoch Time 2.40s
+Valid acc 63.83% | Test acc 62.01%
+Epoch 01631 | Loss 1.3595 | Epoch Time 2.34s
+Epoch 01632 | Loss 1.3601 | Epoch Time 2.39s
+Epoch 01633 | Loss 1.3658 | Epoch Time 2.40s
+Epoch 01634 | Loss 1.3651 | Epoch Time 2.40s
+Epoch 01635 | Loss 1.3645 | Epoch Time 2.40s
+Valid acc 65.65% | Test acc 65.65%
+Epoch 01636 | Loss 1.3620 | Epoch Time 2.33s
+Epoch 01637 | Loss 1.3608 | Epoch Time 2.39s
+Epoch 01638 | Loss 1.3549 | Epoch Time 2.42s
+Epoch 01639 | Loss 1.3628 | Epoch Time 2.39s
+Epoch 01640 | Loss 1.3585 | Epoch Time 2.39s
+Valid acc 64.08% | Test acc 63.44%
+Epoch 01641 | Loss 1.3591 | Epoch Time 2.34s
+Epoch 01642 | Loss 1.3442 | Epoch Time 2.40s
+Epoch 01643 | Loss 1.3472 | Epoch Time 2.39s
+Epoch 01644 | Loss 1.3470 | Epoch Time 2.41s
+Epoch 01645 | Loss 1.3498 | Epoch Time 2.40s
+Valid acc 65.03% | Test acc 63.82%
+Epoch 01646 | Loss 1.3457 | Epoch Time 2.34s
+Epoch 01647 | Loss 1.3557 | Epoch Time 2.40s
+Epoch 01648 | Loss 1.3574 | Epoch Time 2.39s
+Epoch 01649 | Loss 1.3535 | Epoch Time 2.40s
+Epoch 01650 | Loss 1.3608 | Epoch Time 2.40s
+Valid acc 64.73% | Test acc 63.97%
+Epoch 01651 | Loss 1.3845 | Epoch Time 2.34s
+Epoch 01652 | Loss 1.3586 | Epoch Time 2.40s
+Epoch 01653 | Loss 1.3739 | Epoch Time 2.40s
+Epoch 01654 | Loss 1.3790 | Epoch Time 2.40s
+Epoch 01655 | Loss 1.3555 | Epoch Time 2.40s
+Valid acc 64.27% | Test acc 62.21%
+Epoch 01656 | Loss 1.3607 | Epoch Time 2.36s
+Epoch 01657 | Loss 1.3610 | Epoch Time 2.40s
+Epoch 01658 | Loss 1.3596 | Epoch Time 2.40s
+Epoch 01659 | Loss 1.3573 | Epoch Time 2.40s
+Epoch 01660 | Loss 1.3665 | Epoch Time 2.40s
+Valid acc 65.19% | Test acc 65.49%
+Epoch 01661 | Loss 1.3502 | Epoch Time 2.34s
+Epoch 01662 | Loss 1.3630 | Epoch Time 2.41s
+Epoch 01663 | Loss 1.3530 | Epoch Time 2.40s
+Epoch 01664 | Loss 1.3604 | Epoch Time 2.40s
+Epoch 01665 | Loss 1.3532 | Epoch Time 2.40s
+Valid acc 64.38% | Test acc 62.57%
+Epoch 01666 | Loss 1.3528 | Epoch Time 2.34s
+Epoch 01667 | Loss 1.3548 | Epoch Time 2.40s
+Epoch 01668 | Loss 1.3599 | Epoch Time 2.40s
+Epoch 01669 | Loss 1.3629 | Epoch Time 2.40s
+Epoch 01670 | Loss 1.3797 | Epoch Time 2.40s
+Valid acc 65.55% | Test acc 64.89%
+Epoch 01671 | Loss 1.3524 | Epoch Time 2.34s
+Epoch 01672 | Loss 1.3531 | Epoch Time 2.40s
+Epoch 01673 | Loss 1.3482 | Epoch Time 2.41s
+Epoch 01674 | Loss 1.3619 | Epoch Time 2.40s
+Epoch 01675 | Loss 1.3590 | Epoch Time 2.42s
+Valid acc 64.96% | Test acc 63.55%
+Epoch 01676 | Loss 1.3560 | Epoch Time 2.33s
+Epoch 01677 | Loss 1.3539 | Epoch Time 2.39s
+Epoch 01678 | Loss 1.3574 | Epoch Time 2.40s
+Epoch 01679 | Loss 1.3472 | Epoch Time 2.40s
+Epoch 01680 | Loss 1.3406 | Epoch Time 2.40s
+Valid acc 64.95% | Test acc 64.33%
+Epoch 01681 | Loss 1.3564 | Epoch Time 2.33s
+Epoch 01682 | Loss 1.3456 | Epoch Time 2.39s
+Epoch 01683 | Loss 1.3578 | Epoch Time 2.40s
+Epoch 01684 | Loss 1.3590 | Epoch Time 2.41s
+Epoch 01685 | Loss 1.3696 | Epoch Time 2.40s
+Valid acc 62.66% | Test acc 60.44%
+Epoch 01686 | Loss 1.3650 | Epoch Time 2.34s
+Epoch 01687 | Loss 1.3639 | Epoch Time 2.40s
+Epoch 01688 | Loss 1.3636 | Epoch Time 2.40s
+Epoch 01689 | Loss 1.3663 | Epoch Time 2.40s
+Epoch 01690 | Loss 1.3636 | Epoch Time 2.40s
+Valid acc 65.47% | Test acc 65.06%
+Epoch 01691 | Loss 1.3464 | Epoch Time 2.34s
+Epoch 01692 | Loss 1.3422 | Epoch Time 2.39s
+Epoch 01693 | Loss 1.3505 | Epoch Time 2.40s
+Epoch 01694 | Loss 1.3560 | Epoch Time 2.41s
+Epoch 01695 | Loss 1.3707 | Epoch Time 2.40s
+Valid acc 65.23% | Test acc 64.02%
+Epoch 01696 | Loss 1.3622 | Epoch Time 2.37s
+Epoch 01697 | Loss 1.3624 | Epoch Time 2.40s
+Epoch 01698 | Loss 1.3430 | Epoch Time 2.40s
+Epoch 01699 | Loss 1.3434 | Epoch Time 2.41s
+Epoch 01700 | Loss 1.3467 | Epoch Time 2.41s
+Valid acc 65.79% | Test acc 65.05%
+Epoch 01701 | Loss 1.3515 | Epoch Time 2.34s
+Epoch 01702 | Loss 1.3477 | Epoch Time 2.42s
+Epoch 01703 | Loss 1.3526 | Epoch Time 2.40s
+Epoch 01704 | Loss 1.3572 | Epoch Time 2.41s
+Epoch 01705 | Loss 1.3529 | Epoch Time 2.42s
+Valid acc 64.52% | Test acc 63.11%
+Epoch 01706 | Loss 1.3510 | Epoch Time 2.35s
+Epoch 01707 | Loss 1.3782 | Epoch Time 2.40s
+Epoch 01708 | Loss 1.3533 | Epoch Time 2.42s
+Epoch 01709 | Loss 1.3589 | Epoch Time 2.40s
+Epoch 01710 | Loss 1.3736 | Epoch Time 2.41s
+Valid acc 65.93% | Test acc 65.92%
+Epoch 01711 | Loss 1.3461 | Epoch Time 2.35s
+Epoch 01712 | Loss 1.3596 | Epoch Time 2.41s
+Epoch 01713 | Loss 1.3614 | Epoch Time 2.41s
+Epoch 01714 | Loss 1.3704 | Epoch Time 2.41s
+Epoch 01715 | Loss 1.3564 | Epoch Time 2.43s
+Valid acc 64.25% | Test acc 62.88%
+Epoch 01716 | Loss 1.3562 | Epoch Time 2.36s
+Epoch 01717 | Loss 1.3514 | Epoch Time 2.42s
+Epoch 01718 | Loss 1.3522 | Epoch Time 2.42s
+Epoch 01719 | Loss 1.3457 | Epoch Time 2.42s
+Epoch 01720 | Loss 1.3562 | Epoch Time 2.43s
+Valid acc 65.71% | Test acc 65.36%
+Epoch 01721 | Loss 1.3561 | Epoch Time 2.36s
+Epoch 01722 | Loss 1.3469 | Epoch Time 2.43s
+Epoch 01723 | Loss 1.3612 | Epoch Time 2.41s
+Epoch 01724 | Loss 1.3485 | Epoch Time 2.42s
+Epoch 01725 | Loss 1.3563 | Epoch Time 2.42s
+Valid acc 64.39% | Test acc 63.20%
+Epoch 01726 | Loss 1.3565 | Epoch Time 2.36s
+Epoch 01727 | Loss 1.3420 | Epoch Time 2.42s
+Epoch 01728 | Loss 1.3452 | Epoch Time 2.42s
+Epoch 01729 | Loss 1.3641 | Epoch Time 2.42s
+Epoch 01730 | Loss 1.3542 | Epoch Time 2.43s
+Valid acc 64.73% | Test acc 64.82%
+Epoch 01731 | Loss 1.3533 | Epoch Time 2.37s
+Epoch 01732 | Loss 1.3534 | Epoch Time 2.43s
+Epoch 01733 | Loss 1.3677 | Epoch Time 2.45s
+Epoch 01734 | Loss 1.3573 | Epoch Time 2.42s
+Epoch 01735 | Loss 1.3462 | Epoch Time 2.42s
+Valid acc 63.44% | Test acc 61.11%
+Epoch 01736 | Loss 1.3585 | Epoch Time 2.35s
+Epoch 01737 | Loss 1.3542 | Epoch Time 2.43s
+Epoch 01738 | Loss 1.3573 | Epoch Time 2.42s
+Epoch 01739 | Loss 1.3545 | Epoch Time 2.43s
+Epoch 01740 | Loss 1.3451 | Epoch Time 2.41s
+Valid acc 65.50% | Test acc 65.43%
+Epoch 01741 | Loss 1.3647 | Epoch Time 2.36s
+Epoch 01742 | Loss 1.3528 | Epoch Time 2.43s
+Epoch 01743 | Loss 1.3415 | Epoch Time 2.42s
+Epoch 01744 | Loss 1.3418 | Epoch Time 2.43s
+Epoch 01745 | Loss 1.3404 | Epoch Time 2.43s
+Valid acc 64.84% | Test acc 63.38%
+Epoch 01746 | Loss 1.3383 | Epoch Time 2.36s
+Epoch 01747 | Loss 1.3570 | Epoch Time 2.42s
+Epoch 01748 | Loss 1.3439 | Epoch Time 2.43s
+Epoch 01749 | Loss 1.3426 | Epoch Time 2.43s
+Epoch 01750 | Loss 1.3439 | Epoch Time 2.44s
+Valid acc 65.38% | Test acc 65.27%
+Epoch 01751 | Loss 1.3518 | Epoch Time 2.39s
+Epoch 01752 | Loss 1.3479 | Epoch Time 2.42s
+Epoch 01753 | Loss 1.3566 | Epoch Time 2.42s
+Epoch 01754 | Loss 1.3496 | Epoch Time 2.43s
+Epoch 01755 | Loss 1.3574 | Epoch Time 2.44s
+Valid acc 64.49% | Test acc 63.55%
+Epoch 01756 | Loss 1.3603 | Epoch Time 2.37s
+Epoch 01757 | Loss 1.3502 | Epoch Time 2.45s
+Epoch 01758 | Loss 1.3544 | Epoch Time 2.42s
+Epoch 01759 | Loss 1.3528 | Epoch Time 2.43s
+Epoch 01760 | Loss 1.3491 | Epoch Time 2.42s
+Valid acc 64.70% | Test acc 63.29%
+Epoch 01761 | Loss 1.3526 | Epoch Time 2.37s
+Epoch 01762 | Loss 1.3557 | Epoch Time 2.42s
+Epoch 01763 | Loss 1.3515 | Epoch Time 2.43s
+Epoch 01764 | Loss 1.3537 | Epoch Time 2.43s
+Epoch 01765 | Loss 1.3623 | Epoch Time 2.44s
+Valid acc 64.91% | Test acc 63.86%
+Epoch 01766 | Loss 1.3408 | Epoch Time 2.36s
+Epoch 01767 | Loss 1.3488 | Epoch Time 2.41s
+Epoch 01768 | Loss 1.3509 | Epoch Time 2.43s
+Epoch 01769 | Loss 1.3474 | Epoch Time 2.44s
+Epoch 01770 | Loss 1.3512 | Epoch Time 2.43s
+Valid acc 65.46% | Test acc 65.60%
+Epoch 01771 | Loss 1.3526 | Epoch Time 2.37s
+Epoch 01772 | Loss 1.3575 | Epoch Time 2.43s
+Epoch 01773 | Loss 1.3581 | Epoch Time 2.42s
+Epoch 01774 | Loss 1.3578 | Epoch Time 2.42s
+Epoch 01775 | Loss 1.3511 | Epoch Time 2.41s
+Valid acc 64.34% | Test acc 62.39%
+Epoch 01776 | Loss 1.3452 | Epoch Time 2.35s
+Epoch 01777 | Loss 1.3411 | Epoch Time 2.41s
+Epoch 01778 | Loss 1.3499 | Epoch Time 2.43s
+Epoch 01779 | Loss 1.3486 | Epoch Time 2.40s
+Epoch 01780 | Loss 1.3565 | Epoch Time 2.42s
+Valid acc 65.67% | Test acc 65.34%
+Epoch 01781 | Loss 1.3461 | Epoch Time 2.34s
+Epoch 01782 | Loss 1.3437 | Epoch Time 2.41s
+Epoch 01783 | Loss 1.3390 | Epoch Time 2.41s
+Epoch 01784 | Loss 1.3415 | Epoch Time 2.41s
+Epoch 01785 | Loss 1.3430 | Epoch Time 2.40s
+Valid acc 64.76% | Test acc 64.56%
+Epoch 01786 | Loss 1.3437 | Epoch Time 2.35s
+Epoch 01787 | Loss 1.3416 | Epoch Time 2.44s
+Epoch 01788 | Loss 1.3431 | Epoch Time 2.41s
+Epoch 01789 | Loss 1.3446 | Epoch Time 2.40s
+Epoch 01790 | Loss 1.3523 | Epoch Time 2.41s
+Valid acc 64.92% | Test acc 63.13%
+Epoch 01791 | Loss 1.3523 | Epoch Time 2.34s
+Epoch 01792 | Loss 1.3400 | Epoch Time 2.41s
+Epoch 01793 | Loss 1.3430 | Epoch Time 2.41s
+Epoch 01794 | Loss 1.3430 | Epoch Time 2.42s
+Epoch 01795 | Loss 1.3390 | Epoch Time 2.40s
+Valid acc 64.71% | Test acc 65.17%
+Epoch 01796 | Loss 1.3481 | Epoch Time 2.36s
+Epoch 01797 | Loss 1.3422 | Epoch Time 2.40s
+Epoch 01798 | Loss 1.3510 | Epoch Time 2.42s
+Epoch 01799 | Loss 1.3694 | Epoch Time 2.41s
+Epoch 01800 | Loss 1.3457 | Epoch Time 2.41s
+Valid acc 64.01% | Test acc 61.84%
+Epoch 01801 | Loss 1.3601 | Epoch Time 2.35s
+Epoch 01802 | Loss 1.3564 | Epoch Time 2.41s
+Epoch 01803 | Loss 1.3625 | Epoch Time 2.41s
+Epoch 01804 | Loss 1.3545 | Epoch Time 2.41s
+Epoch 01805 | Loss 1.3672 | Epoch Time 2.42s
+Valid acc 64.18% | Test acc 63.72%
+Epoch 01806 | Loss 1.3507 | Epoch Time 2.34s
+Epoch 01807 | Loss 1.3602 | Epoch Time 2.40s
+Epoch 01808 | Loss 1.3413 | Epoch Time 2.52s
+Epoch 01809 | Loss 1.3416 | Epoch Time 2.41s
+Epoch 01810 | Loss 1.3513 | Epoch Time 2.40s
+Valid acc 65.74% | Test acc 64.86%
+Epoch 01811 | Loss 1.3439 | Epoch Time 2.35s
+Epoch 01812 | Loss 1.3346 | Epoch Time 2.43s
+Epoch 01813 | Loss 1.3383 | Epoch Time 2.40s
+Epoch 01814 | Loss 1.3444 | Epoch Time 2.40s
+Epoch 01815 | Loss 1.3674 | Epoch Time 2.41s
+Valid acc 65.23% | Test acc 64.21%
+Epoch 01816 | Loss 1.3515 | Epoch Time 2.34s
+Epoch 01817 | Loss 1.3576 | Epoch Time 2.40s
+Epoch 01818 | Loss 1.3443 | Epoch Time 2.41s
+Epoch 01819 | Loss 1.3439 | Epoch Time 2.40s
+Epoch 01820 | Loss 1.3426 | Epoch Time 2.41s
+Valid acc 65.25% | Test acc 64.00%
+Epoch 01821 | Loss 1.3420 | Epoch Time 2.35s
+Epoch 01822 | Loss 1.3500 | Epoch Time 2.40s
+Epoch 01823 | Loss 1.3510 | Epoch Time 2.40s
+Epoch 01824 | Loss 1.3473 | Epoch Time 2.42s
+Epoch 01825 | Loss 1.3498 | Epoch Time 2.40s
+Valid acc 65.49% | Test acc 65.00%
+Epoch 01826 | Loss 1.3344 | Epoch Time 2.35s
+Epoch 01827 | Loss 1.3456 | Epoch Time 2.40s
+Epoch 01828 | Loss 1.3423 | Epoch Time 2.41s
+Epoch 01829 | Loss 1.3431 | Epoch Time 2.41s
+Epoch 01830 | Loss 1.3451 | Epoch Time 2.40s
+Valid acc 64.75% | Test acc 63.01%
+Epoch 01831 | Loss 1.3510 | Epoch Time 2.34s
+Epoch 01832 | Loss 1.3466 | Epoch Time 2.40s
+Epoch 01833 | Loss 1.3482 | Epoch Time 2.42s
+Epoch 01834 | Loss 1.3416 | Epoch Time 2.40s
+Epoch 01835 | Loss 1.3398 | Epoch Time 2.40s
+Valid acc 65.69% | Test acc 65.60%
+Epoch 01836 | Loss 1.3407 | Epoch Time 2.35s
+Epoch 01837 | Loss 1.3460 | Epoch Time 2.40s
+Epoch 01838 | Loss 1.3309 | Epoch Time 2.39s
+Epoch 01839 | Loss 1.3385 | Epoch Time 2.40s
+Epoch 01840 | Loss 1.3327 | Epoch Time 2.39s
+Valid acc 65.54% | Test acc 64.28%
+Epoch 01841 | Loss 1.3415 | Epoch Time 2.34s
+Epoch 01842 | Loss 1.3444 | Epoch Time 2.40s
+Epoch 01843 | Loss 1.3418 | Epoch Time 2.40s
+Epoch 01844 | Loss 1.3387 | Epoch Time 2.40s
+Epoch 01845 | Loss 1.3409 | Epoch Time 2.39s
+Valid acc 64.46% | Test acc 63.44%
+Epoch 01846 | Loss 1.3429 | Epoch Time 2.34s
+Epoch 01847 | Loss 1.3466 | Epoch Time 2.40s
+Epoch 01848 | Loss 1.3542 | Epoch Time 2.40s
+Epoch 01849 | Loss 1.3399 | Epoch Time 2.39s
+Epoch 01850 | Loss 1.3409 | Epoch Time 2.39s
+Valid acc 65.55% | Test acc 65.01%
+Epoch 01851 | Loss 1.3389 | Epoch Time 2.35s
+Epoch 01852 | Loss 1.3364 | Epoch Time 2.40s
+Epoch 01853 | Loss 1.3362 | Epoch Time 2.40s
+Epoch 01854 | Loss 1.3356 | Epoch Time 2.40s
+Epoch 01855 | Loss 1.3663 | Epoch Time 2.39s
+Valid acc 64.54% | Test acc 63.51%
+Epoch 01856 | Loss 1.3384 | Epoch Time 2.34s
+Epoch 01857 | Loss 1.3362 | Epoch Time 2.39s
+Epoch 01858 | Loss 1.3369 | Epoch Time 2.40s
+Epoch 01859 | Loss 1.3363 | Epoch Time 2.39s
+Epoch 01860 | Loss 1.3413 | Epoch Time 2.39s
+Valid acc 65.63% | Test acc 65.24%
+Epoch 01861 | Loss 1.3496 | Epoch Time 2.33s
+Epoch 01862 | Loss 1.3370 | Epoch Time 2.40s
+Epoch 01863 | Loss 1.3410 | Epoch Time 2.39s
+Epoch 01864 | Loss 1.3328 | Epoch Time 2.41s
+Epoch 01865 | Loss 1.3335 | Epoch Time 2.39s
+Valid acc 65.26% | Test acc 64.33%
+Epoch 01866 | Loss 1.3442 | Epoch Time 2.33s
+Epoch 01867 | Loss 1.3399 | Epoch Time 2.40s
+Epoch 01868 | Loss 1.3474 | Epoch Time 2.40s
+Epoch 01869 | Loss 1.3506 | Epoch Time 2.40s
+Epoch 01870 | Loss 1.3400 | Epoch Time 2.40s
+Valid acc 65.40% | Test acc 65.38%
+Epoch 01871 | Loss 1.3495 | Epoch Time 2.34s
+Epoch 01872 | Loss 1.3617 | Epoch Time 2.40s
+Epoch 01873 | Loss 1.3545 | Epoch Time 2.40s
+Epoch 01874 | Loss 1.3393 | Epoch Time 2.39s
+Epoch 01875 | Loss 1.3551 | Epoch Time 2.39s
+Valid acc 65.02% | Test acc 64.35%
+Epoch 01876 | Loss 1.3470 | Epoch Time 2.33s
+Epoch 01877 | Loss 1.3464 | Epoch Time 2.39s
+Epoch 01878 | Loss 1.3419 | Epoch Time 2.38s
+Epoch 01879 | Loss 1.3446 | Epoch Time 2.39s
+Epoch 01880 | Loss 1.3498 | Epoch Time 2.40s
+Valid acc 65.06% | Test acc 63.74%
+Epoch 01881 | Loss 1.3543 | Epoch Time 2.34s
+Epoch 01882 | Loss 1.3434 | Epoch Time 2.42s
+Epoch 01883 | Loss 1.3407 | Epoch Time 2.39s
+Epoch 01884 | Loss 1.3377 | Epoch Time 2.40s
+Epoch 01885 | Loss 1.3458 | Epoch Time 2.39s
+Valid acc 65.43% | Test acc 64.28%
+Epoch 01886 | Loss 1.3378 | Epoch Time 2.46s
+Epoch 01887 | Loss 1.3399 | Epoch Time 2.39s
+Epoch 01888 | Loss 1.3342 | Epoch Time 2.39s
+Epoch 01889 | Loss 1.3400 | Epoch Time 2.39s
+Epoch 01890 | Loss 1.3343 | Epoch Time 2.39s
+Valid acc 63.84% | Test acc 64.10%
+Epoch 01891 | Loss 1.3366 | Epoch Time 2.34s
+Epoch 01892 | Loss 1.3352 | Epoch Time 2.39s
+Epoch 01893 | Loss 1.3433 | Epoch Time 2.40s
+Epoch 01894 | Loss 1.3363 | Epoch Time 2.39s
+Epoch 01895 | Loss 1.3291 | Epoch Time 2.40s
+Valid acc 65.14% | Test acc 64.10%
+Epoch 01896 | Loss 1.3281 | Epoch Time 2.34s
+Epoch 01897 | Loss 1.3326 | Epoch Time 2.39s
+Epoch 01898 | Loss 1.3521 | Epoch Time 2.39s
+Epoch 01899 | Loss 1.3352 | Epoch Time 2.40s
+Epoch 01900 | Loss 1.3393 | Epoch Time 2.39s
+Valid acc 65.66% | Test acc 64.99%
+Epoch 01901 | Loss 1.3344 | Epoch Time 2.33s
+Epoch 01902 | Loss 1.3432 | Epoch Time 2.39s
+Epoch 01903 | Loss 1.3381 | Epoch Time 2.39s
+Epoch 01904 | Loss 1.3364 | Epoch Time 2.41s
+Epoch 01905 | Loss 1.3330 | Epoch Time 2.39s
+Valid acc 65.26% | Test acc 63.93%
+Epoch 01906 | Loss 1.3434 | Epoch Time 2.33s
+Epoch 01907 | Loss 1.3356 | Epoch Time 2.39s
+Epoch 01908 | Loss 1.3423 | Epoch Time 2.40s
+Epoch 01909 | Loss 1.3357 | Epoch Time 2.40s
+Epoch 01910 | Loss 1.3411 | Epoch Time 2.41s
+Valid acc 64.60% | Test acc 64.47%
+Epoch 01911 | Loss 1.3439 | Epoch Time 2.33s
+Epoch 01912 | Loss 1.3305 | Epoch Time 2.39s
+Epoch 01913 | Loss 1.3367 | Epoch Time 2.40s
+Epoch 01914 | Loss 1.3254 | Epoch Time 2.40s
+Epoch 01915 | Loss 1.3247 | Epoch Time 2.39s
+Valid acc 65.20% | Test acc 63.88%
+Epoch 01916 | Loss 1.3335 | Epoch Time 2.33s
+Epoch 01917 | Loss 1.3259 | Epoch Time 2.40s
+Epoch 01918 | Loss 1.3290 | Epoch Time 2.40s
+Epoch 01919 | Loss 1.3381 | Epoch Time 2.40s
+Epoch 01920 | Loss 1.3334 | Epoch Time 2.39s
+Valid acc 65.64% | Test acc 64.98%
+Epoch 01921 | Loss 1.3534 | Epoch Time 2.34s
+Epoch 01922 | Loss 1.3416 | Epoch Time 2.42s
+Epoch 01923 | Loss 1.3374 | Epoch Time 2.40s
+Epoch 01924 | Loss 1.3371 | Epoch Time 2.40s
+Epoch 01925 | Loss 1.3604 | Epoch Time 2.40s
+Valid acc 64.67% | Test acc 63.07%
+Epoch 01926 | Loss 1.3394 | Epoch Time 2.34s
+Epoch 01927 | Loss 1.3479 | Epoch Time 2.40s
+Epoch 01928 | Loss 1.3411 | Epoch Time 2.41s
+Epoch 01929 | Loss 1.3552 | Epoch Time 2.42s
+Epoch 01930 | Loss 1.3442 | Epoch Time 2.41s
+Valid acc 65.82% | Test acc 65.40%
+Epoch 01931 | Loss 1.3519 | Epoch Time 2.34s
+Epoch 01932 | Loss 1.3399 | Epoch Time 2.41s
+Epoch 01933 | Loss 1.3477 | Epoch Time 2.40s
+Epoch 01934 | Loss 1.3409 | Epoch Time 2.41s
+Epoch 01935 | Loss 1.3526 | Epoch Time 2.40s
+Valid acc 65.28% | Test acc 65.11%
+Epoch 01936 | Loss 1.3431 | Epoch Time 2.34s
+Epoch 01937 | Loss 1.3431 | Epoch Time 2.41s
+Epoch 01938 | Loss 1.3372 | Epoch Time 2.41s
+Epoch 01939 | Loss 1.3406 | Epoch Time 2.41s
+Epoch 01940 | Loss 1.3329 | Epoch Time 2.40s
+Valid acc 63.53% | Test acc 61.08%
+Epoch 01941 | Loss 1.3351 | Epoch Time 2.34s
+Epoch 01942 | Loss 1.3307 | Epoch Time 2.41s
+Epoch 01943 | Loss 1.3394 | Epoch Time 2.42s
+Epoch 01944 | Loss 1.3279 | Epoch Time 2.41s
+Epoch 01945 | Loss 1.3368 | Epoch Time 2.41s
+Valid acc 65.70% | Test acc 65.73%
+Epoch 01946 | Loss 1.3293 | Epoch Time 2.35s
+Epoch 01947 | Loss 1.3352 | Epoch Time 2.42s
+Epoch 01948 | Loss 1.3288 | Epoch Time 2.41s
+Epoch 01949 | Loss 1.3352 | Epoch Time 2.42s
+Epoch 01950 | Loss 1.3435 | Epoch Time 2.42s
+Valid acc 64.25% | Test acc 61.97%
+Epoch 01951 | Loss 1.3365 | Epoch Time 2.36s
+Epoch 01952 | Loss 1.3338 | Epoch Time 2.41s
+Epoch 01953 | Loss 1.3325 | Epoch Time 2.41s
+Epoch 01954 | Loss 1.3349 | Epoch Time 2.42s
+Epoch 01955 | Loss 1.3614 | Epoch Time 2.41s
+Valid acc 65.68% | Test acc 65.23%
+Epoch 01956 | Loss 1.3352 | Epoch Time 2.35s
+Epoch 01957 | Loss 1.3430 | Epoch Time 2.41s
+Epoch 01958 | Loss 1.3424 | Epoch Time 2.42s
+Epoch 01959 | Loss 1.3342 | Epoch Time 2.44s
+Epoch 01960 | Loss 1.3357 | Epoch Time 2.42s
+Valid acc 65.35% | Test acc 63.93%
+Epoch 01961 | Loss 1.3281 | Epoch Time 2.36s
+Epoch 01962 | Loss 1.3251 | Epoch Time 2.42s
+Epoch 01963 | Loss 1.3260 | Epoch Time 2.40s
+Epoch 01964 | Loss 1.3357 | Epoch Time 2.42s
+Epoch 01965 | Loss 1.3366 | Epoch Time 2.41s
+Valid acc 65.56% | Test acc 64.87%
+Epoch 01966 | Loss 1.3307 | Epoch Time 2.35s
+Epoch 01967 | Loss 1.3462 | Epoch Time 2.42s
+Epoch 01968 | Loss 1.3249 | Epoch Time 2.42s
+Epoch 01969 | Loss 1.3304 | Epoch Time 2.41s
+Epoch 01970 | Loss 1.3234 | Epoch Time 2.42s
+Valid acc 65.77% | Test acc 64.81%
+Epoch 01971 | Loss 1.3410 | Epoch Time 2.37s
+Epoch 01972 | Loss 1.3346 | Epoch Time 2.43s
+Epoch 01973 | Loss 1.3355 | Epoch Time 2.42s
+Epoch 01974 | Loss 1.3351 | Epoch Time 2.42s
+Epoch 01975 | Loss 1.3345 | Epoch Time 2.41s
+Valid acc 63.50% | Test acc 62.55%
+Epoch 01976 | Loss 1.3412 | Epoch Time 2.35s
+Epoch 01977 | Loss 1.3327 | Epoch Time 2.44s
+Epoch 01978 | Loss 1.3406 | Epoch Time 2.42s
+Epoch 01979 | Loss 1.3256 | Epoch Time 2.42s
+Epoch 01980 | Loss 1.3208 | Epoch Time 2.41s
+Valid acc 65.72% | Test acc 65.35%
+Epoch 01981 | Loss 1.3287 | Epoch Time 2.37s
+Epoch 01982 | Loss 1.3408 | Epoch Time 2.41s
+Epoch 01983 | Loss 1.3363 | Epoch Time 2.43s
+Epoch 01984 | Loss 1.3361 | Epoch Time 2.42s
+Epoch 01985 | Loss 1.3363 | Epoch Time 2.42s
+Valid acc 64.59% | Test acc 63.16%
+Epoch 01986 | Loss 1.3358 | Epoch Time 2.37s
+Epoch 01987 | Loss 1.3328 | Epoch Time 2.41s
+Epoch 01988 | Loss 1.3446 | Epoch Time 2.43s
+Epoch 01989 | Loss 1.3356 | Epoch Time 2.43s
+Epoch 01990 | Loss 1.3290 | Epoch Time 2.42s
+Valid acc 65.69% | Test acc 65.66%
+Epoch 01991 | Loss 1.3360 | Epoch Time 2.37s
+Epoch 01992 | Loss 1.3340 | Epoch Time 2.43s
+Epoch 01993 | Loss 1.3306 | Epoch Time 2.43s
+Epoch 01994 | Loss 1.3341 | Epoch Time 2.43s
+Epoch 01995 | Loss 1.3330 | Epoch Time 2.41s
+Valid acc 64.98% | Test acc 63.86%
+Epoch 01996 | Loss 1.3348 | Epoch Time 2.36s
+Epoch 01997 | Loss 1.3361 | Epoch Time 2.42s
+Epoch 01998 | Loss 1.3229 | Epoch Time 2.42s
+Epoch 01999 | Loss 1.3265 | Epoch Time 2.41s
+Test accuracy 65.9198
