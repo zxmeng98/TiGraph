@@ -14,57 +14,28 @@ from GNNs.revgat_pp import RevGAT
 from utils.dataset import get_dataset, adjust_dataset
 import torch.distributed as dist
 from pipelining import pipeline, SplitPoint, PipelineStage
-from pipelining.schedules_interleave_dp import ScheduleGPipe
+from pipelining.schedules_interleave_dp_reorder import ScheduleGPipe
 from pipelining._utils import partition_uniform
 from ogb.nodeproppred import DglNodePropPredDataset
-from utils.dataset import intersection
+from utils.dataset import intersection, DataProcess, reformat_graph, split_mb_in_advance
+from pipelining.initialize import (
+    init_distributed, 
+    init_small_workload_pid, 
+    get_pipeline_parallel_rank,
+    get_device,
+    get_pipeline_parallel_group,
+    get_pipeline_parallel_world_size,
+    )
 
-
-# global rank, device, pp_group, stage_index, num_stages
-# def init_distributed():
-#    global rank, device, pp_group, stage_index, num_stages
-#    rank = int(os.environ["LOCAL_RANK"])
-#    world_size = int(os.environ["WORLD_SIZE"])
-#    device = torch.device(f"cuda:{rank}") if torch.cuda.is_available() else torch.device("cpu")
-#    dist.init_process_group("nccl")
-
-#    # This group can be a sub-group in the N-D parallel case
-#    pp_group = dist.new_group()
-#    stage_index = rank
-#    num_stages = world_size
-   
 global rank, device, pp_group, stage_index, num_stages
-def init_distributed():
-    """Initialize torch.distributed and core model parallel."""
+def init_pp():
     global rank, device, pp_group, stage_index, num_stages
-    device_count = torch.cuda.device_count()
-    assert device_count != 0, 'expected GPU number > 0.'
-    if torch.distributed.is_initialized():
-        if torch.distributed.get_rank() == 0:
-            print('torch distributed is already initialized, '
-                  'skipping initialization ...', flush=True)
-        rank = torch.distributed.get_rank()
-        world_size = torch.distributed.get_world_size()
-
-    else:
-        rank = int(os.environ["RANK"])
-        world_size = int(os.environ["WORLD_SIZE"])
-        if rank == 0:
-            print('> initializing torch distributed ...', flush=True)
-
-        # Manually set the device ids.
-        if device_count > 0:
-            device = rank % device_count
-            torch.cuda.set_device(device) # only do so when device_count > 0
-        # Call the init process
-    torch.distributed.init_process_group(
-        backend='nccl',
-        world_size=world_size, rank=rank,
-        )
-    device = f'cuda:{torch.cuda.current_device()}' 
-    pp_group = dist.new_group()
+    init_distributed()
+    rank = get_pipeline_parallel_rank()
+    device = get_device()
+    pp_group = get_pipeline_parallel_group()
     stage_index = rank
-    num_stages = world_size
+    num_stages = get_pipeline_parallel_world_size()
 
 
 def manual_model_split(args, model, example_input_microbatch) -> PipelineStage:
@@ -114,22 +85,28 @@ def manual_model_split(args, model, example_input_microbatch) -> PipelineStage:
     return stage
 
 
-def evaluate(args, packed_batch, batch_nodes, split_idx, stage, schedule):
+def evaluate(args, preprocessed_batches, batch_idxes, split_idx, stage, schedule):
     valid_output, test_output = [], []
     valid_labels, test_labels = [], []
     stage.submod.eval()
     # with torch.no_grad():
-    for i in range(len(batch_nodes)):
-        g_i, features_i, labels_i = packed_batch[i]
-        g_i, features_i, labels_i = g_i.to(device), features_i.to(device), labels_i.to(device)
-        nodes_i = batch_nodes[i].tolist()
+    for i in range(len(batch_idxes)):
+        batch_data = preprocessed_batches[i]
+        args_split = batch_data['args_split']
+        kwargs_split = batch_data['kwargs_split']
+        chunked_sg_ori_node_idxes = batch_data['chunked_sg_ori_node_idxes']
+        labels_split = batch_data['reordered_targets']
+        # batch_idx = batch_idxes[i].tolist()
+        batch_idx = torch.cat(chunked_sg_ori_node_idxes).tolist()
+        labels_i = torch.cat(labels_split)
+
         if rank == 0:
-            schedule.step(g_i, features_i, split_idx=split_idx['valid'])
+            schedule.step(args_split, kwargs_split, chunked_sg_ori_node_idxes, split_idx=split_idx['valid'])
         elif rank == num_stages - 1:
-            output = schedule.step(g_i, target=labels_i, split_idx=split_idx['valid'])   
-            mapper = {node: idx for idx, node in enumerate(nodes_i)} # map node to index
-            inter_valid_node = intersection(nodes_i, split_idx['valid'].tolist())
-            inter_test_node = intersection(nodes_i, split_idx['test'].tolist())
+            output = schedule.step(args_split, kwargs_split, chunked_sg_ori_node_idxes, target=labels_split, split_idx=split_idx['valid'])   
+            mapper = {node: idx for idx, node in enumerate(batch_idx)} # map node to index
+            inter_valid_node = intersection(batch_idx, split_idx['valid'].tolist())
+            inter_test_node = intersection(batch_idx, split_idx['test'].tolist())
             local_valid_idx = [mapper[node] for node in inter_valid_node]
             local_test_idx = [mapper[node] for node in inter_test_node]
 
@@ -138,7 +115,7 @@ def evaluate(args, packed_batch, batch_nodes, split_idx, stage, schedule):
             valid_labels.append(labels_i[local_valid_idx])
             test_labels.append(labels_i[local_test_idx])
         else:
-            schedule.step(g_i, split_idx=split_idx['valid'])
+            schedule.step(args_split, kwargs_split, chunked_sg_ori_node_idxes, split_idx=split_idx['valid'])
     
     if rank == num_stages - 1:
         # Need to make sure labels and outputs match. 
@@ -160,13 +137,12 @@ def evaluate(args, packed_batch, batch_nodes, split_idx, stage, schedule):
 
         valid_acc = valid_correct.item() * 100.0 / len(valid_indices)
         test_acc = test_correct.item() * 100.0 / len(test_indices)
-        print("Valid acc {:.2f}% | Test acc {:.2f}%".format(valid_acc, test_acc))
         return (valid_acc, test_acc)
         
     
 
 if __name__ == "__main__":
-    init_distributed()
+    init_pp()
         
     parser = argparse.ArgumentParser()
     # Dataset
@@ -202,12 +178,12 @@ if __name__ == "__main__":
     
     # Interleaved workload
     parser.add_argument('--pid', nargs='+', type=int, default=None, help='PID of the small workload.')
-    parser.add_argument('--lm_model', type=str, default='deberta',
+    parser.add_argument('--lm_model', type=str, default='deberta-base',
                         help='deberta-base, ')
 
     # Model
-    parser.add_argument('--model', type=str, default='revgat',
-                        help='gcn backbone [revgnn, resgnn, revgat]')
+    parser.add_argument('--gnn_model', type=str, default='revgat',
+                        help='gcn backbone [revgcn, resgnn, revgat]')
     parser.add_argument('--backbone', type=str, default='rev',
                         help='gcn backbone [deepergcn, weighttied, deq, rev]')
     parser.add_argument('--group', type=int, default=2,
@@ -260,6 +236,17 @@ if __name__ == "__main__":
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(args.seed)
 
+    # Initialize small workload PID
+    pid = None
+    if args.pid is not None:
+        if len(args.pid) > rank:  # This rank has a specified PID
+            pid = args.pid[rank]
+        elif len(args.pid) == 1 and rank == 0:  # Only first rank gets the single PID
+            pid = args.pid[0]
+    
+    init_small_workload_pid(pid)
+    small_workload_pid = pid
+
     # Load and preprocess dataset
     g, split_idx, features, labels, num_classes = get_dataset(args.dataset)
     LM_emb_path = f"./lm_workloads/prt_lm/ogbn-arxiv/microsoft/deberta-base-seed0.emb"
@@ -274,58 +261,37 @@ if __name__ == "__main__":
         ).to(torch.float32)
     g.ndata['feat'] = features
 
-    g, split_idx, features, labels = adjust_dataset(args, g, split_idx, features, labels)
     g = dgl.to_bidirected(g)
     g = g.remove_self_loop().add_self_loop()
+    g.ndata['feat'] = features
     g.create_formats_()
 
-    # all_nodes = torch.randperm(features.shape[0])
-    all_nodes = torch.arange(features.shape[0])
-    g.ndata['random_idx'] = all_nodes
-
-    num_batches = all_nodes.shape[0] // args.bs 
-    args.in_size = features.shape[1]
+    data_processed = DataProcess(args, g, split_idx, features, labels)
+    args.in_size = data_processed.features.shape[1]
     args.out_size = num_classes
     
     if rank == 0:
         print(f"{args.dataset} load successfully")
         print(f"Total nodes: {g.num_nodes()}, Train nodes: {split_idx['train'].shape[0]}, Val nodes: {split_idx['valid'].shape[0]}, Test nodes: {split_idx['test'].shape[0]}")
-
-    batch_nodes = torch.tensor_split(all_nodes, num_batches)
     
-    if num_batches > 1:
-        batch_g = dgl.node_subgraph(g, batch_nodes[0])
+    if data_processed.num_batches > 1:
+        batch_g = dgl.node_subgraph(g, data_processed.batch_nodes[0])
     else:
         batch_g = g
     
-    num_microbatches = batch_nodes[0].shape[0] // args.mb_size
+    num_microbatches = data_processed.batch_nodes[0].shape[0] // args.mb_size
     batch_local_idxes = torch.arange(batch_g.num_nodes())
     microbatch_idxes = torch.tensor_split(batch_local_idxes, num_microbatches)
     microbatch_g = dgl.node_subgraph(batch_g, microbatch_idxes[0])
-    if '_ID' in batch_g.ndata or '_ID' in batch_g.edata:
-        microbatch_nodes = batch_g.ndata["_ID"][microbatch_g.ndata["_ID"]]
-    else:
-        microbatch_nodes = microbatch_g.ndata["_ID"]
     microbatch_g.ndata.clear()
     microbatch_g.edata.clear()
-    example_input_microbatch = (microbatch_g, features[microbatch_nodes])
+    example_input_microbatch = (microbatch_g, features[microbatch_idxes[0]])
 
     if rank == 0:
-        print(f"Num of train batches: {num_batches}, num of train microbatches: {num_microbatches}, microbatch size: {args.mb_size}")
+        print(f"Num of train batches: {data_processed.num_batches}, num of train microbatches: {num_microbatches}, microbatch size: {args.mb_size}")
     
     # Pack batch graph trained in each iter beforehand
-    packed_batch = []
-    if num_batches > 1:
-        for i in range(num_batches):
-            nodes_i = batch_nodes[i]
-            g_i = dgl.node_subgraph(g, nodes_i)
-            features_i = features[nodes_i]
-            labels_i = labels[nodes_i]
-            packed_batch.append((g_i, features_i, labels_i))
-    elif num_batches == 1:
-        features = features[batch_nodes[0]]
-        labels = labels[batch_nodes[0]]
-        packed_batch.append((g, features, labels))
+    packed_batch = data_processed.pack_batch(data_processed.features)
 
     # Create GCN model
     model = RevGAT(
@@ -343,8 +309,6 @@ if __name__ == "__main__":
                     use_symmetric_norm=True,
                     number_of_edges=packed_batch[0][0].num_edges(),
                     )
-    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    print(f"\nNumber of parameters: {trainable_params}")
     stage = manual_model_split(args, model, example_input_microbatch)
 
     loss_fcn = nn.CrossEntropyLoss()
@@ -357,64 +321,89 @@ if __name__ == "__main__":
         features = features.to(dtype=torch.bfloat16)
         model = model.to(dtype=torch.bfloat16)
 
+    # Split in advance
+    preprocessed_batches = split_mb_in_advance(data_processed.num_batches, schedule, packed_batch, device, k=8)
+
     # Model training
     if rank == 0:
         print("Training...")
 
-    # m = torch.zeros(4, 8).bernoulli_(1 - 0.75)
-    # mask = m.requires_grad_(False) / (1 - 0.75) 
-    # print(rank, mask)
-    # exit()
+    timestamp0 = time.time()
+    local_time = time.localtime(timestamp0)
+    time_str = time.strftime('%Y-%m-%d %H:%M:%S', local_time)
+    ms = int((timestamp0 - int(timestamp0)) * 1000)
+    formatted_time = f"{time_str}.{ms:03d}"
+    print(f"{args.gnn_model} start time: {formatted_time}")
 
-    # Training loop
 
     loss_list, val_acc_list, test_acc_list, epoch_time_list = [], [], [], [] 
-    for epoch in range(args.epochs):
-       
+    for epoch in range(args.epochs):   
+        # for param_group in optimizer.param_groups:
+        #     param_group['lr'] = args.lr * epoch / 50
         optimizer.zero_grad()
         stage.submod.train()
 
         t0 = time.time()
-        for i in range(num_batches):
-            g_i, features_i, labels_i = packed_batch[i]
-            print(features_i.shape, args.in_size)
-            g_i, features_i, labels_i = g_i.to(device), features_i.to(device), labels_i.to(device)
+        for i in range(data_processed.num_batches):
+            batch_data = preprocessed_batches[i]
+            args_split = batch_data['args_split']
+            kwargs_split = batch_data['kwargs_split']
+            chunked_sg_ori_node_idxes = batch_data['chunked_sg_ori_node_idxes']
+            labels_split = batch_data['reordered_targets']
+
             if rank == 0:
-                schedule.step(g_i, features_i, split_idx=split_idx['train'])
+                schedule.step(args_split, kwargs_split, chunked_sg_ori_node_idxes, split_idx=split_idx['train'])
             elif rank == num_stages - 1:
                 losses = []
-                output = schedule.step(g_i, target=labels_i, losses=losses, split_idx=split_idx['train']) 
+                output = schedule.step(args_split, kwargs_split, chunked_sg_ori_node_idxes, target=labels_split, losses=losses, split_idx=split_idx['train']) 
                 for i in range(len(losses)):
                     losses[i] = losses[i].item()
                 loss = np.mean(losses)
 
             else:
-                schedule.step(g_i, split_idx=split_idx['train'])
+                schedule.step(args_split, kwargs_split, chunked_sg_ori_node_idxes, split_idx=split_idx['train'])
             optimizer.step()
+
         t1 = time.time()
-        if rank == num_stages - 1:
-            print(
-                    "Epoch {:05d} | Loss {:.4f} | Epoch Time {:.2f}s".format(
-                        epoch, loss, t1 - t0
+        epoch_time_list.append(t1 - t0)
+        if epoch > 4:
+            if rank == num_stages - 1:
+                print(
+                        "Epoch {:05d} | Loss {:.4f} | Avg Epoch Time {:.4f}s".format(
+                            epoch, loss, np.mean(epoch_time_list[5:])
+                        )
                     )
-                )
+        else:
+            if rank == num_stages - 1:
+                print(
+                        "Epoch {:05d} | Loss {:.4f} | Epoch Time {:.2f}s".format(
+                            epoch, loss, t1 - t0
+                        )
+                    )
 
         # Validation
         if epoch % 5 == 0:
-            results = evaluate(args, packed_batch, batch_nodes, split_idx, stage, schedule)
+            results = evaluate(args, preprocessed_batches, data_processed.batch_nodes, split_idx, stage, schedule)
             if rank == num_stages - 1:
+                print("Epoch {:05d} | Valid acc: {:.2f}% | Test acc: {:.2f}%".format(epoch, results[0], results[1]))
                 loss_list.append(loss)
                 val_acc_list.append(results[0])
                 test_acc_list.append(results[1])
-                epoch_time_list.append(t1 - t0)
+
+    timestamp1 = time.time()
+    local_time = time.localtime(timestamp1)
+    time_str = time.strftime('%Y-%m-%d %H:%M:%S', local_time)
+    ms = int((timestamp1 - int(timestamp1)) * 1000)
+    formatted_time = f"{time_str}.{ms:03d}"
+    print(f"{args.gnn_model} finish time: {formatted_time}, wall-time: {timestamp1-timestamp0:.3f}s")
         
     if rank == num_stages - 1:
-        print("Test accuracy {:.4f}".format(max(test_acc_list)))
+        print("Best TestAcc: {:.4f}".format(max(test_acc_list)))
 
         if not os.path.exists(f'./exps/{args.dataset}'): 
             os.makedirs(f'./exps/{args.dataset}')
-        np.save(f'./exps/{args.dataset}/{args.model}_pp_loss_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(loss_list))
-        np.save(f'./exps/{args.dataset}/{args.model}_pp_val_acc_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(val_acc_list))
-        np.save(f'./exps/{args.dataset}/{args.model}_pp_test_acc_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(test_acc_list))
+        np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{data_processed.num_batches}b_{num_microbatches}mb_{args.lm_model}_loss', np.array(loss_list))
+        np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{data_processed.num_batches}b_{num_microbatches}mb_{args.lm_model}_val_acc', np.array(val_acc_list))
+        np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{data_processed.num_batches}b_{num_microbatches}mb_{args.lm_model}_test_acc', np.array(test_acc_list))
 
     dist.destroy_process_group()

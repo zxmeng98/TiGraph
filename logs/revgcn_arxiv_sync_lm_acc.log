@@ -1,0 +1,150 @@
+W0322 12:40:07.688000 140391747561280 torch/distributed/run.py:779] 
+W0322 12:40:07.688000 140391747561280 torch/distributed/run.py:779] *****************************************
+W0322 12:40:07.688000 140391747561280 torch/distributed/run.py:779] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+W0322 12:40:07.688000 140391747561280 torch/distributed/run.py:779] *****************************************
+> initializing torch distributed ...
+Loading trained LM features (title and abstract) ...
+LM_emb_path: ./lm_workloads/prt_lm/ogbn-arxiv/microsoft/deberta-base-seed0.emb
+768
+768
+768
+ogbn-arxiv load and processed successfully
+Train nodes: 90941, Val nodes: 29799, Test nodes: 48603
+Num of train batches: 1, num of train microbatches: 4, microbatch size: 42335
+768
+
+Number of parameters: 11648936
+stage=3 layers=84 - 112
+
+Number of parameters: 11648936
+stage=1 layers=28 - 56
+
+Number of parameters: 11648936
+stage=0 layers=0 - 28
+
+Number of parameters: 11648936
+stage=2 layers=56 - 84
+[12:40:13] /opt/dgl/src/graph/transform/metis_partition_hetero.cc:89: Partition a graph with 42335 nodes and 146418 edges into 4 parts and get 6822 edge cuts
+[12:40:14] /opt/dgl/src/graph/transform/metis_partition_hetero.cc:89: Partition a graph with 42335 nodes and 146418 edges into 4 parts and get 6822 edge cuts
+[12:40:14] /opt/dgl/src/graph/transform/metis_partition_hetero.cc:89: Partition a graph with 42335 nodes and 146418 edges into 4 parts and get 6822 edge cuts
+[12:40:14] /opt/dgl/src/graph/transform/metis_partition_hetero.cc:89: Partition a graph with 42335 nodes and 146418 edges into 4 parts and get 6822 edge cuts
+[12:40:14] /opt/dgl/src/graph/transform/metis_partition_hetero.cc:89: Partition a graph with 42335 nodes and 153226 edges into 4 parts and get 6823 edge cuts
+[12:40:14] /opt/dgl/src/graph/transform/metis_partition_hetero.cc:89: Partition a graph with 42335 nodes and 153226 edges into 4 parts and get 6823 edge cuts
+[12:40:14] /opt/dgl/src/graph/transform/metis_partition_hetero.cc:89: Partition a graph with 42335 nodes and 153226 edges into 4 parts and get 6823 edge cuts
+[12:40:15] /opt/dgl/src/graph/transform/metis_partition_hetero.cc:89: Partition a graph with 42335 nodes and 153226 edges into 4 parts and get 6823 edge cuts
+[12:40:15] /opt/dgl/src/graph/transform/metis_partition_hetero.cc:89: Partition a graph with 42335 nodes and 144694 edges into 4 parts and get 6339 edge cuts
+[12:40:15] /opt/dgl/src/graph/transform/metis_partition_hetero.cc:89: Partition a graph with 42335 nodes and 144694 edges into 4 parts and get 6339 edge cuts
+[12:40:15] /opt/dgl/src/graph/transform/metis_partition_hetero.cc:89: Partition a graph with 42335 nodes and 144694 edges into 4 parts and get 6339 edge cuts
+[12:40:15] /opt/dgl/src/graph/transform/metis_partition_hetero.cc:89: Partition a graph with 42335 nodes and 144694 edges into 4 parts and get 6339 edge cuts
+[12:40:15] /opt/dgl/src/graph/transform/metis_partition_hetero.cc:89: Partition a graph with 42335 nodes and 135136 edges into 4 parts and get 5487 edge cuts
+[12:40:15] /opt/dgl/src/graph/transform/metis_partition_hetero.cc:89: Partition a graph with 42335 nodes and 135136 edges into 4 parts and get 5487 edge cuts
+revgnn start time: 2025-03-22 12:40:16.212
+[12:40:16] /opt/dgl/src/graph/transform/metis_partition_hetero.cc:89: Partition a graph with 42335 nodes and 135136 edges into 4 parts and get 5487 edge cuts
+revgnn start time: 2025-03-22 12:40:16.344
+[12:40:16] /opt/dgl/src/graph/transform/metis_partition_hetero.cc:89: Partition a graph with 42335 nodes and 135136 edges into 4 parts and get 5487 edge cuts
+revgnn start time: 2025-03-22 12:40:16.746
+Training...
+revgnn start time: 2025-03-22 12:40:16.995
+Epoch 00000 | Loss 3.8232 | Epoch Time 3.26s
+Epoch 00000 | Valid acc: 7.63% | Test acc: 5.86%
+Epoch 00001 | Loss 3.2574 | Epoch Time 2.95s
+Epoch 00002 | Loss 3.0713 | Epoch Time 3.01s
+Epoch 00003 | Loss 2.9237 | Epoch Time 3.01s
+Epoch 00004 | Loss 2.7577 | Epoch Time 3.02s
+Epoch 00005 | Loss 2.6280 | Avg Epoch Time 3.0182s
+Epoch 00005 | Valid acc: 34.24% | Test acc: 30.57%
+Epoch 00006 | Loss 2.5117 | Avg Epoch Time 2.9992s
+Epoch 00007 | Loss 2.3858 | Avg Epoch Time 3.0113s
+Epoch 00008 | Loss 2.2708 | Avg Epoch Time 3.0215s
+Epoch 00009 | Loss 2.1639 | Avg Epoch Time 3.0277s
+Epoch 00010 | Loss 2.0579 | Avg Epoch Time 3.0329s
+Epoch 00010 | Valid acc: 57.03% | Test acc: 56.28%
+Epoch 00011 | Loss 1.9614 | Avg Epoch Time 3.0302s
+Epoch 00012 | Loss 1.8801 | Avg Epoch Time 3.0360s
+Epoch 00013 | Loss 1.8045 | Avg Epoch Time 3.0403s
+Epoch 00014 | Loss 1.7432 | Avg Epoch Time 3.0444s
+Epoch 00015 | Loss 1.6911 | Avg Epoch Time 3.0499s
+Epoch 00015 | Valid acc: 64.47% | Test acc: 64.80%
+Epoch 00016 | Loss 1.6280 | Avg Epoch Time 3.0507s
+Epoch 00017 | Loss 1.5708 | Avg Epoch Time 3.0568s
+Epoch 00018 | Loss 1.5229 | Avg Epoch Time 3.0613s
+Epoch 00019 | Loss 1.4757 | Avg Epoch Time 3.0657s
+Epoch 00020 | Loss 1.4243 | Avg Epoch Time 3.0695s
+Epoch 00020 | Valid acc: 66.98% | Test acc: 66.39%
+Epoch 00021 | Loss 1.3829 | Avg Epoch Time 3.0768s
+Epoch 00022 | Loss 1.3486 | Avg Epoch Time 3.0792s
+Epoch 00023 | Loss 1.3125 | Avg Epoch Time 3.0810s
+Epoch 00024 | Loss 1.2842 | Avg Epoch Time 3.0823s
+Epoch 00025 | Loss 1.2601 | Avg Epoch Time 3.0837s
+Epoch 00025 | Valid acc: 68.62% | Test acc: 67.22%
+Epoch 00026 | Loss 1.2360 | Avg Epoch Time 3.0826s
+Epoch 00027 | Loss 1.2188 | Avg Epoch Time 3.0838s
+Epoch 00028 | Loss 1.1966 | Avg Epoch Time 3.0850s
+Epoch 00029 | Loss 1.1725 | Avg Epoch Time 3.0862s
+Epoch 00030 | Loss 1.1559 | Avg Epoch Time 3.0871s
+Epoch 00030 | Valid acc: 69.86% | Test acc: 68.47%
+Epoch 00031 | Loss 1.1341 | Avg Epoch Time 3.0873s
+Epoch 00032 | Loss 1.1145 | Avg Epoch Time 3.1131s
+Epoch 00033 | Loss 1.1021 | Avg Epoch Time 3.1784s
+Epoch 00034 | Loss 1.0912 | Avg Epoch Time 3.2783s
+Epoch 00035 | Loss 1.0701 | Avg Epoch Time 3.3753s
+Epoch 00035 | Valid acc: 70.59% | Test acc: 68.78%
+Epoch 00036 | Loss 1.0550 | Avg Epoch Time 3.4636s
+Epoch 00037 | Loss 1.0469 | Avg Epoch Time 3.5479s
+Epoch 00038 | Loss 1.0311 | Avg Epoch Time 3.6280s
+Epoch 00039 | Loss 1.0179 | Avg Epoch Time 3.7036s
+Epoch 00040 | Loss 1.0083 | Avg Epoch Time 3.7736s
+Epoch 00040 | Valid acc: 72.03% | Test acc: 71.18%
+Epoch 00041 | Loss 1.0076 | Avg Epoch Time 3.8129s
+Epoch 00042 | Loss 1.0084 | Avg Epoch Time 3.7941s
+Epoch 00043 | Loss 0.9965 | Avg Epoch Time 3.7760s
+Epoch 00044 | Loss 0.9699 | Avg Epoch Time 3.7588s
+Epoch 00045 | Loss 0.9810 | Avg Epoch Time 3.7423s
+Epoch 00045 | Valid acc: 72.14% | Test acc: 70.79%
+Epoch 00046 | Loss 0.9590 | Avg Epoch Time 3.7257s
+Epoch 00047 | Loss 0.9520 | Avg Epoch Time 3.7108s
+Epoch 00048 | Loss 0.9488 | Avg Epoch Time 3.6971s
+Epoch 00049 | Loss 0.9411 | Avg Epoch Time 3.6838s
+Epoch 00050 | Loss 0.9300 | Avg Epoch Time 3.6713s
+Epoch 00050 | Valid acc: 72.19% | Test acc: 70.09%
+Epoch 00051 | Loss 0.9305 | Avg Epoch Time 3.6584s
+Epoch 00052 | Loss 0.9219 | Avg Epoch Time 3.6468s
+Epoch 00053 | Loss 0.9216 | Avg Epoch Time 3.6362s
+Epoch 00054 | Loss 0.9222 | Avg Epoch Time 3.6259s
+Epoch 00055 | Loss 0.9181 | Avg Epoch Time 3.6159s
+Epoch 00055 | Valid acc: 72.47% | Test acc: 70.49%
+Epoch 00056 | Loss 0.9112 | Avg Epoch Time 3.6052s
+Epoch 00057 | Loss 0.9021 | Avg Epoch Time 3.5959s
+Epoch 00058 | Loss 0.9022 | Avg Epoch Time 3.5870s
+Epoch 00059 | Loss 0.9019 | Avg Epoch Time 3.5783s
+Epoch 00060 | Loss 0.8917 | Avg Epoch Time 3.5699s
+Epoch 00060 | Valid acc: 72.67% | Test acc: 71.04%
+Epoch 00061 | Loss 0.8934 | Avg Epoch Time 3.5611s
+Epoch 00062 | Loss 0.8889 | Avg Epoch Time 3.5550s
+Epoch 00063 | Loss 0.8805 | Avg Epoch Time 3.5477s
+Epoch 00064 | Loss 0.8795 | Avg Epoch Time 3.5406s
+Epoch 00065 | Loss 0.8703 | Avg Epoch Time 3.5334s
+Epoch 00065 | Valid acc: 72.36% | Test acc: 70.60%
+Epoch 00066 | Loss 0.8687 | Avg Epoch Time 3.5259s
+Epoch 00067 | Loss 0.8654 | Avg Epoch Time 3.5193s
+Epoch 00068 | Loss 0.8597 | Avg Epoch Time 3.5130s
+Epoch 00069 | Loss 0.8567 | Avg Epoch Time 3.5068s
+Epoch 00070 | Loss 0.8552 | Avg Epoch Time 3.5009s
+Epoch 00070 | Valid acc: 72.79% | Test acc: 71.02%
+Epoch 00071 | Loss 0.8511 | Avg Epoch Time 3.4942s
+Epoch 00072 | Loss 0.8501 | Avg Epoch Time 3.4887s
+Epoch 00073 | Loss 0.8431 | Avg Epoch Time 3.4834s
+Epoch 00074 | Loss 0.8445 | Avg Epoch Time 3.4781s
+Epoch 00075 | Loss 0.8403 | Avg Epoch Time 3.4728s
+Epoch 00075 | Valid acc: 72.51% | Test acc: 70.75%
+Epoch 00076 | Loss 0.8381 | Avg Epoch Time 3.4673s
+Epoch 00077 | Loss 0.8360 | Avg Epoch Time 3.4624s
+Epoch 00078 | Loss 0.8339 | Avg Epoch Time 3.4574s
+Epoch 00079 | Loss 0.8344 | Avg Epoch Time 3.4527s
+Epoch 00080 | Loss 0.8367 | Avg Epoch Time 3.4483s
+Epoch 00080 | Valid acc: 72.29% | Test acc: 70.22%
+Epoch 00081 | Loss 0.8454 | Avg Epoch Time 3.4431s
+Epoch 00082 | Loss 0.8418 | Avg Epoch Time 3.4390s
+Epoch 00083 | Loss 0.8350 | Avg Epoch Time 3.4347s
+Epoch 00084 | Loss 0.8343 | Avg Epoch Time 3.4307s
+Epoch 00085 | Loss 0.8292 | Avg Epoch Time 3.4269s

@@ -283,6 +283,33 @@ def intersection(lst1, lst2):
     return list(set(lst1) & set(lst2))
 
 
+def adjust_dataset(args, g, split_idx, features, labels):
+    rest_nums = features.shape[0] % args.bs
+
+    if rest_nums == 0: 
+        return g, split_idx, features, labels
+    else:
+        nodes_to_remove = torch.Tensor(range(features.shape[0] - rest_nums, features.shape[0])).long()
+        g.remove_nodes(nodes_to_remove) 
+        labels = labels[:features.shape[0] - rest_nums]
+        
+        train_idx, valid_idx, test_idx = split_idx["train"], split_idx["valid"], split_idx["test"]
+        
+        keep_in_train = ~torch.isin(train_idx, nodes_to_remove)
+        train_idx = train_idx[keep_in_train]
+
+        keep_in_valid = ~torch.isin(valid_idx, nodes_to_remove)
+        valid_idx = valid_idx[keep_in_valid]
+
+        keep_in_test = ~torch.isin(test_idx, nodes_to_remove)
+        test_idx = test_idx[keep_in_test]
+        split_idx = {'train': train_idx.to(torch.int32),
+            'valid': valid_idx.to(torch.int32),
+            'test': test_idx.to(torch.int32)}
+        
+        data_x = g.ndata["feat"]
+        return g, split_idx, data_x, labels
+
 
 class DataProcess():
     def __init__(self, args, g, split_idx, features, labels):
@@ -358,23 +385,23 @@ class DataProcess():
     def check_load_from_lm(self, feature_type, last_written_rows):
         if feature_type == 'TA':     
             # LM_emb_path = f"prt_lm/{self.dataset_name}/{self.lm_model_name}.emb"
-            LM_emb_path = f"./lm_workloads/prt_lm/ogbn-arxiv2/microsoft/deberta-base-seed0.emb"
+            LM_emb_path = f"./lm_workloads/prt_lm/ogbn-arxiv/microsoft/deberta-base-seed0.emb"
             if os.path.exists(LM_emb_path):
+                if get_pipeline_parallel_rank() == 0:
+                    print("Loading trained LM features (title and abstract) ...")
+                    print(f"LM_emb_path: {LM_emb_path}")
                 features = torch.from_numpy(np.array(
                         np.memmap(LM_emb_path, mode='r',
                                 dtype=np.float16,
-                                shape=(self.num_nodes, 128)))
+                                shape=(self.num_nodes, 768)))
                 ).to(torch.float32)
-                load_lm_emb, last_written_rows = self.has_written_quarter(features, 1000, last_written_rows)
-                if load_lm_emb:
-                    if get_pipeline_parallel_rank() == 0:
-                        print("Loading trained LM features (title and abstract) ...")
-                        print(f"LM_emb_path: {LM_emb_path}")
-                    features = self.override_null_with_gold(features)
-                    packed_data = self.pack_batch(features)
-                    return packed_data, last_written_rows
-                else:
-                    return None, last_written_rows
+                # load_lm_emb, last_written_rows = self.has_written_quarter(features, 1000, last_written_rows)
+                # if load_lm_emb:
+                #     features = self.override_null_with_gold(features)
+                packed_data = self.pack_batch(features)
+                return packed_data, last_written_rows
+                # else:
+                #     return None, last_written_rows
 
             else:
                 print(f"LM embeddings not ready. Still use gold features.")

@@ -704,23 +704,23 @@ class MyTrainer(Trainer):
                         self.accelerator.gradient_state._set_sync_gradients(True) 
 
                     # Manually sync gradient，注意要先all-reduce再clip 
-                    if dist.is_initialized():
-                        grad_list = []
-                        for param in model.parameters():
-                            if not param.requires_grad:
-                                continue
+                    # if dist.is_initialized():
+                    #     grad_list = []
+                    #     for param in model.parameters():
+                    #         if not param.requires_grad:
+                    #             continue
                             
-                            if param.grad is None:
-                                param.grad = torch.zeros(param.size(), dtype=param.dtype, device=param.device)
-                            grad_data = param.grad.data
-                            grad_list.append(grad_data)
+                    #         if param.grad is None:
+                    #             param.grad = torch.zeros(param.size(), dtype=param.dtype, device=param.device)
+                    #         grad_data = param.grad.data
+                    #         grad_list.append(grad_data)
 
-                        coalesced = _flatten_dense_tensors(grad_list)
-                        coalesced /= dist.get_world_size()                                      
-                        dist.all_reduce(coalesced, op=dist.ReduceOp.SUM, group=dist.group.WORLD)
-                        for buf, synced in zip(grad_list, _unflatten_dense_tensors(
-                        coalesced, grad_list)):
-                            buf.copy_(synced)
+                    #     coalesced = _flatten_dense_tensors(grad_list)
+                    #     coalesced /= dist.get_world_size()                                      
+                    #     dist.all_reduce(coalesced, op=dist.ReduceOp.SUM, group=dist.group.WORLD)
+                    #     for buf, synced in zip(grad_list, _unflatten_dense_tensors(
+                    #     coalesced, grad_list)):
+                    #         buf.copy_(synced)
 
                         # last_param = list(model.parameters())[-1]
                         # print(f"AFTER SYNC: rank {dist.get_rank()} last param gradient: {last_param.grad}")
