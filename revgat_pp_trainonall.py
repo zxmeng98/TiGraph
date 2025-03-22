@@ -272,7 +272,7 @@ if __name__ == "__main__":
                         dtype=np.float16,
                         shape=(g.num_nodes(), 768)))
         ).to(torch.float32)
-    g.ndata['feat'] = features
+        g.ndata['feat'] = features
 
     g, split_idx, features, labels = adjust_dataset(args, g, split_idx, features, labels)
     g = dgl.to_bidirected(g)
