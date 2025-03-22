@@ -385,23 +385,23 @@ class DataProcess():
     def check_load_from_lm(self, feature_type, last_written_rows):
         if feature_type == 'TA':     
             # LM_emb_path = f"prt_lm/{self.dataset_name}/{self.lm_model_name}.emb"
-            LM_emb_path = f"./lm_workloads/prt_lm/ogbn-arxiv2/microsoft/deberta-base-seed0.emb"
+            LM_emb_path = f"./lm_workloads/prt_lm/ogbn-arxiv/microsoft/deberta-base-seed0.emb"
             if os.path.exists(LM_emb_path):
+                if get_pipeline_parallel_rank() == 0:
+                    print("Loading trained LM features (title and abstract) ...")
+                    print(f"LM_emb_path: {LM_emb_path}")
                 features = torch.from_numpy(np.array(
                         np.memmap(LM_emb_path, mode='r',
                                 dtype=np.float16,
-                                shape=(self.num_nodes, 128)))
+                                shape=(self.num_nodes, 768)))
                 ).to(torch.float32)
-                load_lm_emb, last_written_rows = self.has_written_quarter(features, 1000, last_written_rows)
-                if load_lm_emb:
-                    if get_pipeline_parallel_rank() == 0:
-                        print("Loading trained LM features (title and abstract) ...")
-                        print(f"LM_emb_path: {LM_emb_path}")
-                    features = self.override_null_with_gold(features)
-                    packed_data = self.pack_batch(features)
-                    return packed_data, last_written_rows
-                else:
-                    return None, last_written_rows
+                # load_lm_emb, last_written_rows = self.has_written_quarter(features, 1000, last_written_rows)
+                # if load_lm_emb:
+                #     features = self.override_null_with_gold(features)
+                packed_data = self.pack_batch(features)
+                return packed_data, last_written_rows
+                # else:
+                #     return None, last_written_rows
 
             else:
                 print(f"LM embeddings not ready. Still use gold features.")

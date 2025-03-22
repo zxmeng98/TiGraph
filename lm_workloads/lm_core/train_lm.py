@@ -68,7 +68,8 @@ class PrintEpochTimeCallback(TrainerCallback):
         self.ckpt_dir = ckpt_dir
         self.num_nodes = num_nodes
         self.feat_shrink = feat_shrink
-        self.iter_time_list = [] 
+        self.itrlv_iter_time_list = [] 
+        self.iter_time_list = []
         self.gnn_input_dim = model.gnn_input_dim 
 
     def on_train_begin(self, args, state, control, **kwargs):
@@ -86,36 +87,46 @@ class PrintEpochTimeCallback(TrainerCallback):
     def on_step_end(self, args, state, control, **kwargs):
         torch.cuda.synchronize() 
         step_time = time.time() - self.step_start_time # NOTE: 开了梯度累积这里统计的时间后面的epoch可能不对，因为step_begin是根据step%accum_steps==0来的，但是step_end是根据total_batched_samples % args.gradient_accumulation_steps==0，一个epoch结束后step会从0开始，但是total_batched_samples一直是累加的，后面这俩不同步了，间隔为accum_step就被打乱了。
-        slowdown_threshold = 1.5  # seconds - adjust based on your normal iteration time
+        slowdown_threshold = 2  # seconds - adjust based on your normal iteration time
     
         if step_time > slowdown_threshold:
-            self.iter_time_list.append(step_time) 
+            self.itrlv_iter_time_list.append(step_time) 
+        else:
+            self.iter_time_list.append(step_time)
         # pp_profile.step()  
 
         if self.get_rank() == 0:
             if state.log_history:
-                loss = state.log_history[-1]["loss"] if "loss" in state.log_history[-1] else None
+                loss = state.log_history[-1]["loss"] 
                 if loss is not None:
-                    print_str = f"Rank {self.get_rank()}, Iter {state.global_step}/{state.max_steps}: Loss = {loss:.4f}, Iter Time = {step_time:.4f} s."
-                    if len(self.iter_time_list) > 0:
-                        print_str += f" Avg Interleaved Time: {np.mean(self.iter_time_list):.4f} s."
+                    # Base print string with common information
+                    print_str = f"Rank {self.get_rank()}, Iter {state.global_step}/{state.max_steps}: Loss = {loss:.4f}, "
+                    
+                    # Add iteration time info based on available data
+                    if len(self.iter_time_list) >= 5:
+                        print_str += f"Iter Time = {np.mean(self.iter_time_list[5:]):.4f}s."
+                    else:
+                        print_str += f"Iter Time = {step_time:.4f}s."
+                    
+                    # Add interleaved time info if available
+                    if len(self.itrlv_iter_time_list) > 0:
+                        print_str = f"Rank {self.get_rank()}, Iter {state.global_step}/{state.max_steps}: Loss = {loss:.4f}, Iter Time = {step_time:.4f}s, Avg Interlvd Time: {np.mean(self.itrlv_iter_time_list):.4f}s."
+                        
                     print(print_str)
-            else:
-                loss = None
             # print(f"Iter {state.global_step}/{state.max_steps}: Iter Time = {step_time:.4f} s.")
         
-    def on_epoch_end(self, args, state, control, **kwargs):
-        if state.epoch + 1 < state.num_train_epochs:
-            if self.get_rank() == 0:
-                print(f"Epoch {state.epoch} end. Refresh emb file...")
+    # def on_epoch_end(self, args, state, control, **kwargs):
+        # if state.epoch + 1 < state.num_train_epochs:
+        #     if self.get_rank() == 0:
+        #         print(f"Epoch {state.epoch} end. Refresh emb file...")
 
-            emb = np.memmap(init_path(f"{self.ckpt_dir}.emb"),
-                    dtype=np.float16,
-                    mode='w+',
-                    shape=(self.num_nodes, int(self.gnn_input_dim)))
-            self.model.emb = emb
-            if self.get_rank() == 0:
-                print(f"Refresh emb file: {self.ckpt_dir}")
+        #     emb = np.memmap(init_path(f"{self.ckpt_dir}.emb"),
+        #             dtype=np.float16,
+        #             mode='w+',
+        #             shape=(self.num_nodes, int(self.gnn_input_dim)))
+        #     self.model.emb = emb
+        #     if self.get_rank() == 0:
+        #         print(f"Refresh emb file: {self.ckpt_dir}")
 
 
     # def on_train_end(self, args, state, control, **kwargs):
@@ -339,6 +350,15 @@ def run(cfg):
         print(f"LM start time: {formatted_time}")
 
         trainer.train()
+        
+        timestamp = time.time()
+        local_time = time.localtime(timestamp)
+        time_str = time.strftime('%Y-%m-%d %H:%M:%S', local_time)
+        ms = int((timestamp - int(timestamp)) * 1000)
+        formatted_time = f"{time_str}.{ms:03d}"
+        print(f"LM finish time: {formatted_time}")
+        
+        
         acc = trainer.eval_and_save()
         all_acc.append(acc)
 
@@ -347,12 +367,7 @@ def run(cfg):
         for k, v in df.items():
             print(f"{k}: {v.mean():.4f} ± {v.std():.4f}")
 
-    timestamp = time.time()
-    local_time = time.localtime(timestamp)
-    time_str = time.strftime('%Y-%m-%d %H:%M:%S', local_time)
-    ms = int((timestamp - int(timestamp)) * 1000)
-    formatted_time = f"{time_str}.{ms:03d}"
-    print(f"LM finish time: {formatted_time}")
+
 
 
 if __name__ == '__main__':

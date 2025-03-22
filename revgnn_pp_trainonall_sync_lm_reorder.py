@@ -173,18 +173,18 @@ if __name__ == "__main__":
     
     # Interleaved workload
     parser.add_argument('--pid', nargs='+', type=int, default=None, help='PID of the small workload.')
-    parser.add_argument('--lm_model', type=str, default='deberta',
+    parser.add_argument('--lm_model', type=str, default='deberta-base',
                         help='deberta-base, ')
     
 
     # Model
     parser.add_argument('--gnn_model', type=str, default='revgnn',
-                        help='gcn backbone [revgnn, resgnn]')
+                        help='gcn backbone [revgcn, resgnn, revgat]')
     parser.add_argument('--backbone', type=str, default='rev',
                         help='gcn backbone [deepergcn, weighttied, deq, rev]')
     parser.add_argument('--group', type=int, default=2,
                         help='num of groups for rev gnns')
-    parser.add_argument('--num_layers', type=int, default=448,
+    parser.add_argument('--num_layers', type=int, default=112,
                         help='the number of layers of the networks')
     parser.add_argument('--mlp_layers', type=int, default=2,
                         help='the number of layers of mlp in conv')
@@ -232,26 +232,29 @@ if __name__ == "__main__":
         torch.cuda.manual_seed_all(args.seed)
     
     # Initialize small workload PID
+    pid = None
     if args.pid is not None:
-        if len(args.pid) >= num_stages:
+        if len(args.pid) > rank:  # This rank has a specified PID
             pid = args.pid[rank]
-        elif len(args.pid) == 1:
-            if rank == 0:
-                pid = args.pid[0]
-            else:
-                pid = None
-        elif 1 < len(args.pid) < num_stages:
-            if rank in range(len(args.pid)):
-                pid = args.pid[rank]
-            else:
-                pid = None
-    else:
-        pid = args.pid
+        elif len(args.pid) == 1 and rank == 0:  # Only first rank gets the single PID
+            pid = args.pid[0]
+
     init_small_workload_pid(pid)
     small_workload_pid = pid
 
     # Load and preprocess dataset
     g, split_idx, features, labels, num_classes = get_dataset(args.dataset)
+    LM_emb_path = f"./lm_workloads/prt_lm/ogbn-arxiv/microsoft/deberta-base-seed0.emb"
+    if os.path.exists(LM_emb_path):
+        if rank == 0:
+            print("Loading trained LM features (title and abstract) ...")
+            print(f"LM_emb_path: {LM_emb_path}")
+        features = torch.from_numpy(np.array(
+                np.memmap(LM_emb_path, mode='r',
+                        dtype=np.float16,
+                        shape=(g.num_nodes(), 768)))
+        ).to(torch.float32)
+    g.ndata['feat'] = features
 
     data_processed = DataProcess(args, g, split_idx, features, labels)
     args.in_size = data_processed.features.shape[1]
@@ -283,15 +286,14 @@ if __name__ == "__main__":
 
     # Create GCN model
     model = RevGCN(args)
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print(f"\nNumber of parameters: {trainable_params}")
+
     stage = manual_model_split(args, model, example_input_microbatch)
 
     loss_fcn = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(stage.submod.parameters(), lr=args.lr)
     schedule = ScheduleGPipe(stage, n_microbatches=num_microbatches, loss_fn=loss_fcn)
-
-    # Split in advance
-    preprocessed_batches = split_mb_in_advance(data_processed.num_batches, schedule, packed_batch, device, k=4)
-    
 
     # Convert model and graph to bfloat16 if needed
     if args.dt == "bfloat16":
@@ -302,6 +304,10 @@ if __name__ == "__main__":
     # After pp workload start up, pause the small workload till the bubble
     if rank == 0 and small_workload_pid is not None:
         send_signal(small_workload_pid, "pause")
+
+    # Split in advance
+    preprocessed_batches = split_mb_in_advance(data_processed.num_batches, schedule, packed_batch, device, k=4)
+
 
     # Model training
     if rank == 0:
@@ -335,13 +341,13 @@ if __name__ == "__main__":
     )
     # pp_profile.start()
 
-    delta_sync = 100000
+    delta_sync = 20
     last_written_rows = 0
     for epoch in range(args.epochs):
-        if (epoch+1) % delta_sync == 0:
-            packed_batch_from_lm, last_written_rows = data_processed.check_load_from_lm("TA", last_written_rows)
-            if packed_batch_from_lm is not None:
-                packed_batch = packed_batch_from_lm
+        # if (epoch+1) == delta_sync:
+        #     packed_batch_from_lm, last_written_rows = data_processed.check_load_from_lm("TA", last_written_rows)
+        #     if packed_batch_from_lm is not None:
+        #         packed_batch = packed_batch_from_lm
         optimizer.zero_grad()
         stage.submod.train()
         t0 = time.time()
@@ -375,7 +381,7 @@ if __name__ == "__main__":
         if epoch > 4:
             if rank == num_stages - 1:
                 print(
-                        "Epoch {:05d} | Loss {:.4f} | Avg Epoch Time {:.2f}s".format(
+                        "Epoch {:05d} | Loss {:.4f} | Avg Epoch Time {:.4f}s".format(
                             epoch, loss, np.mean(epoch_time_list[5:])
                         )
                     )
@@ -388,8 +394,6 @@ if __name__ == "__main__":
                     )
             
         # pp_profile.stop()
-            
-
         # Validation
         if epoch % 5 == 0:
             results = evaluate(args, preprocessed_batches, data_processed.batch_nodes, split_idx, stage, schedule)
@@ -408,7 +412,7 @@ if __name__ == "__main__":
         
 
     if rank == num_stages - 1:
-        print("Test accuracy {:.4f}".format(max(test_acc_list)))
+        print("Best TestAcc: {:.4f}".format(max(test_acc_list)))
 
         if not os.path.exists(f'./exps/{args.dataset}'): 
             os.makedirs(f'./exps/{args.dataset}')
