@@ -1,4 +1,5 @@
 import argparse
+import time
 
 import dgl
 import dgl.nn as dglnn
@@ -150,7 +151,6 @@ def evaluate(args, packed_batch, batch_idxes, split_idx, stage, schedule):
 
         valid_acc = valid_correct.item() * 100.0 / len(valid_indices)
         test_acc = test_correct.item() * 100.0 / len(test_indices)
-        print("Valid acc: {:.4f}. Test acc: {:.4f}".format(valid_acc, test_acc))
         return (valid_acc, test_acc)
         
 
@@ -159,7 +159,7 @@ if __name__ == "__main__":
         
     parser = argparse.ArgumentParser()
     # dataset
-    parser.add_argument('--dataset', type=str, default='pubmed',
+    parser.add_argument('--dataset', type=str, default='ogbn-arxiv',
                         help='dataset name (default: ogbn-proteins)')
     parser.add_argument('--cluster_number', type=int, default=10,
                         help='the number of sub-graphs for training')
@@ -196,9 +196,9 @@ if __name__ == "__main__":
                        help='Timeout minutes for torch.distributed.')
     parser.add_argument('--pipeline-parallel-size', type=int, default=4,
                        help='Enable pipeline parallel.')
-    parser.add_argument('--bs', type=int, default=84670,
+    parser.add_argument('--bs', type=int, default=169340,
                        help='Number of microbatches.')
-    parser.add_argument('--mb_size', type=int, default=42335,
+    parser.add_argument('--mb_size', type=int, default=84670,
                        help='Number of microbatches.')
 
     # model
@@ -341,11 +341,13 @@ if __name__ == "__main__":
     if rank == 0:
         print("Training...")
 
-    loss_list, val_acc_list, test_acc_list = [], [], [] 
+    loss_list, val_acc_list, test_acc_list, epoch_time_list = [], [], [], [] 
     # training loop
     for epoch in range(args.epochs):
         optimizer.zero_grad()
         stage.submod.train()
+
+        t0 = time.time()
         for i in range(num_batches):
             g_i, features_i, labels_i = packed_batch[i]
             g_i, features_i, labels_i = g_i.to(device), features_i.to(device), labels_i.to(device)
@@ -364,23 +366,34 @@ if __name__ == "__main__":
             torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
             optimizer.step()
         
-        if rank == num_stages - 1:
-            print(
-                    "Epoch {:05d} | Loss {:.4f} ".format(
-                        epoch, loss
+        t1 = time.time()
+        epoch_time_list.append(t1 - t0)
+        if epoch > 4:
+            if rank == num_stages - 1:
+                print(
+                        "Epoch {:05d} | Loss {:.4f} | Avg Epoch Time {:.4f}s".format(
+                            epoch, loss, np.mean(epoch_time_list[5:])
+                        )
                     )
-                )
+        else:
+            if rank == num_stages - 1:
+                print(
+                        "Epoch {:05d} | Loss {:.4f} | Epoch Time {:.2f}s".format(
+                            epoch, loss, t1 - t0
+                        )
+                    )
 
         # Validation
         if epoch % 5 == 0:
             results = evaluate(args, packed_batch, batch_nodes, split_idx, stage, schedule)
             if rank == num_stages - 1:
+                print("Epoch {:05d} | Valid acc: {:.2f}% | Test acc: {:.2f}%".format(epoch, results[0], results[1]))
                 loss_list.append(loss)
                 val_acc_list.append(results[0])
                 test_acc_list.append(results[1])
 
     if rank == num_stages - 1:
-        print("Test accuracy {:.4f}".format(max(test_acc_list)))
+        print("Best TestAcc: {:.4f}".format(max(test_acc_list)))
 
         if not os.path.exists(f'./exps/{args.dataset}'): 
             os.makedirs(f'./exps/{args.dataset}')

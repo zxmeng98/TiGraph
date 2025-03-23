@@ -1,0 +1,90 @@
+torchrun --nnodes 1 --nproc_per_node 4 resgnn_pp_trainonall.py --num_layers 112 --hidden_channels 64 --dropout 0.5 --lr 0.01
+
+> initializing torch distributed ...
+The number of layers 112 Aggregation method max block: res+
+False
+LN/BN->ReLU->GraphConv->Res
+The number of layers 112 Aggregation method max block: res+
+False
+LN/BN->ReLU->GraphConv->Res
+ogbn-arxiv load successfully
+Train nodes: 90941, Val nodes: 29799, Test nodes: 48600
+stage=3 layers = 84-112
+Num of train batches: 1, num of train microbatches: 2, microbatch size: 84670
+stage=1 layers = 28-56
+The number of layers 112 Aggregation method max block: res+
+False
+LN/BN->ReLU->GraphConv->Res
+stage=0 layers = 0-28
+The number of layers 112 Aggregation method max block: res+
+False
+LN/BN->ReLU->GraphConv->Res
+Training...
+stage=2 layers = 56-84
+Epoch 00000 | Loss 3.8136 | Epoch Time 2.20s
+Epoch 00000 | Valid acc: 14.96% | Test acc: 22.10%
+Epoch 00001 | Loss 3.3216 | Epoch Time 0.87s
+Epoch 00002 | Loss 3.1818 | Epoch Time 0.90s
+Epoch 00003 | Loss 3.1267 | Epoch Time 0.89s
+Epoch 00004 | Loss 3.1040 | Epoch Time 0.91s
+Epoch 00005 | Loss 3.0956 | Avg Epoch Time 0.8851s
+Epoch 00005 | Valid acc: 22.97% | Test acc: 21.56%
+Epoch 00006 | Loss 3.0811 | Avg Epoch Time 0.8734s
+Epoch 00007 | Loss 3.0663 | Avg Epoch Time 0.8759s
+Epoch 00008 | Loss 3.0538 | Avg Epoch Time 0.8780s
+Epoch 00009 | Loss 3.0492 | Avg Epoch Time 0.8787s
+Epoch 00010 | Loss 3.0405 | Avg Epoch Time 0.8799s
+Epoch 00010 | Valid acc: 22.97% | Test acc: 21.56%
+Epoch 00011 | Loss 3.0378 | Avg Epoch Time 0.8771s
+Epoch 00012 | Loss 3.0345 | Avg Epoch Time 0.8778s
+Epoch 00013 | Loss 3.0319 | Avg Epoch Time 0.8823s
+Epoch 00014 | Loss 3.0270 | Avg Epoch Time 0.8824s
+Epoch 00015 | Loss 3.0227 | Avg Epoch Time 0.8829s
+Epoch 00015 | Valid acc: 22.97% | Test acc: 21.56%
+Epoch 00016 | Loss 3.0204 | Avg Epoch Time 0.8813s
+Epoch 00017 | Loss 3.0178 | Avg Epoch Time 0.8815s
+Epoch 00018 | Loss 3.0173 | Avg Epoch Time 0.8817s
+Epoch 00019 | Loss 3.0159 | Avg Epoch Time 0.8818s
+Epoch 00020 | Loss 3.0139 | Avg Epoch Time 0.8821s
+Epoch 00020 | Valid acc: 22.97% | Test acc: 21.56%
+Epoch 00021 | Loss 3.0128 | Avg Epoch Time 0.8829s
+Epoch 00022 | Loss 3.0122 | Avg Epoch Time 0.8829s
+Epoch 00023 | Loss 3.0103 | Avg Epoch Time 0.8830s
+Epoch 00024 | Loss 3.0092 | Avg Epoch Time 0.8831s
+Epoch 00025 | Loss 3.0088 | Avg Epoch Time 0.8836s
+Epoch 00025 | Valid acc: 22.97% | Test acc: 21.56%
+Epoch 00026 | Loss 3.0075 | Avg Epoch Time 0.8827s
+Epoch 00027 | Loss 3.0085 | Avg Epoch Time 0.8829s
+Epoch 00028 | Loss 3.0047 | Avg Epoch Time 0.8830s
+Epoch 00029 | Loss 3.0045 | Avg Epoch Time 0.8832s
+Epoch 00030 | Loss 3.0033 | Avg Epoch Time 0.8835s
+Epoch 00030 | Valid acc: 22.97% | Test acc: 21.56%
+Epoch 00031 | Loss 3.0021 | Avg Epoch Time 0.8828s
+Epoch 00032 | Loss 3.0013 | Avg Epoch Time 0.8841s
+Epoch 00033 | Loss 2.9997 | Avg Epoch Time 0.8842s
+Epoch 00034 | Loss 2.9984 | Avg Epoch Time 0.8843s
+Epoch 00035 | Loss 2.9969 | Avg Epoch Time 0.8845s
+Epoch 00035 | Valid acc: 22.97% | Test acc: 21.56%
+Epoch 00036 | Loss 2.9941 | Avg Epoch Time 0.8839s
+Epoch 00037 | Loss 2.9917 | Avg Epoch Time 0.8840s
+Epoch 00038 | Loss 2.9885 | Avg Epoch Time 0.8842s
+Epoch 00039 | Loss 2.9831 | Avg Epoch Time 0.8843s
+Epoch 00040 | Loss 2.9782 | Avg Epoch Time 0.8845s
+Epoch 00040 | Valid acc: 22.97% | Test acc: 21.56%
+Epoch 00041 | Loss 2.9720 | Avg Epoch Time 0.8842s
+Epoch 00042 | Loss 2.9702 | Avg Epoch Time 0.8844s
+Epoch 00043 | Loss 2.9586 | Avg Epoch Time 0.8846s
+Epoch 00044 | Loss 2.9418 | Avg Epoch Time 0.8848s
+Epoch 00045 | Loss 2.9317 | Avg Epoch Time 0.8851s
+Epoch 00045 | Valid acc: 28.01% | Test acc: 25.11%
+Epoch 00046 | Loss 2.9159 | Avg Epoch Time 0.8849s
+Epoch 00047 | Loss 2.8931 | Avg Epoch Time 0.8858s
+Epoch 00048 | Loss 2.8735 | Avg Epoch Time 0.8859s
+Epoch 00049 | Loss 2.8564 | Avg Epoch Time 0.8860s
+Epoch 00050 | Loss 2.8834 | Avg Epoch Time 0.8862s
+Epoch 00050 | Valid acc: 20.69% | Test acc: 17.58%
+Epoch 00051 | Loss 2.9506 | Avg Epoch Time 0.8858s
+Epoch 00052 | Loss 2.8771 | Avg Epoch Time 0.8859s
+Epoch 00053 | Loss 2.9004 | Avg Epoch Time 0.8861s
+Epoch 00054 | Loss 2.8755 | Avg Epoch Time 0.8863s
+Epoch 00055 | Loss 2.8409 | Avg Epoch Time 0.8864s
