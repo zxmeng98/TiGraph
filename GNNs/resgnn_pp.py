@@ -158,7 +158,7 @@ class DeeperGCN(torch.nn.Module):
 
                 for layer in range(1, len(self.gcns)):
                     h1 = self.gcns[layer](h, edge_index)
-                    h2 = self.layer_norms[layer](h1)
+                    h2 = self.layer_norms[layer-1](h1)
                     h = F.relu(h2) + h
                     h = F.dropout(h, p=self.dropout, training=self.training)
             else:

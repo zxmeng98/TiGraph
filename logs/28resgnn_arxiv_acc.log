@@ -1,0 +1,44 @@
+torchrun --nnodes 1 --nproc_per_node 4 resgnn_pp_trainonall.py --num_layers 28 --hidden_channels 128 --dropout 0.5 --lr 0.01
+
+> initializing torch distributed ...
+ogbn-arxiv load successfully
+Train nodes: 90941, Val nodes: 29799, Test nodes: 48600
+Num of train batches: 1, num of train microbatches: 2, microbatch size: 84670
+The number of layers 28 Aggregation method max block: res+
+False
+LN/BN->ReLU->GraphConv->Res
+The number of layers 28 Aggregation method max block: res+
+False
+LN/BN->ReLU->GraphConv->Res
+stage=3 layers = 21-28
+stage=0 layers = 0-7
+The number of layers 28 Aggregation method max block: res+
+False
+LN/BN->ReLU->GraphConv->Res
+stage=1 layers = 7-14
+Training...
+The number of layers 28 Aggregation method max block: res+
+False
+LN/BN->ReLU->GraphConv->Res
+stage=2 layers = 14-21
+Epoch 00000 | Loss 3.8562 | Epoch Time 2.16s
+Epoch 00000 | Valid acc: 22.97% | Test acc: 21.56%
+Epoch 00001 | Loss 3.2257 | Epoch Time 0.44s
+Epoch 00002 | Loss 3.1450 | Epoch Time 0.49s
+Epoch 00003 | Loss 3.0944 | Epoch Time 0.48s
+Epoch 00004 | Loss 3.0796 | Epoch Time 0.48s
+Epoch 00005 | Loss 3.0719 | Avg Epoch Time 0.4843s
+Epoch 00005 | Valid acc: 22.97% | Test acc: 21.56%
+Epoch 00006 | Loss 3.0575 | Avg Epoch Time 0.4697s
+Epoch 00007 | Loss 3.0503 | Avg Epoch Time 0.4736s
+Epoch 00008 | Loss 3.0464 | Avg Epoch Time 0.4787s
+Epoch 00009 | Loss 3.0346 | Avg Epoch Time 0.5049s
+Epoch 00010 | Loss 3.0261 | Avg Epoch Time 0.5056s
+Epoch 00010 | Valid acc: 22.97% | Test acc: 21.56%
+Epoch 00011 | Loss 3.0237 | Avg Epoch Time 0.4984s
+Epoch 00012 | Loss 3.0201 | Avg Epoch Time 0.4974s
+Epoch 00013 | Loss 3.0178 | Avg Epoch Time 0.4964s
+Epoch 00014 | Loss 3.0140 | Avg Epoch Time 0.4972s
+Epoch 00015 | Loss 3.0092 | Avg Epoch Time 0.4967s
+Epoch 00015 | Valid acc: 22.97% | Test acc: 21.56%
+Epoch 00016 | Loss 3.0087 | Avg Epoch Time 0.4931s
