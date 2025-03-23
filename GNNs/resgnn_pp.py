@@ -47,21 +47,21 @@ class DeeperGCN(torch.nn.Module):
         #     self.checkpoint_grad = True
         #     self.ckp_k = 9
 
-        print('The number of layers {}'.format(self.num_layers),
-              'Aggregation method {}'.format(aggr),
-              'block: {}'.format(self.block))
-        print(self.checkpoint_grad)
+        # print('The number of layers {}'.format(self.num_layers),
+        #       'Aggregation method {}'.format(aggr),
+        #       'block: {}'.format(self.block))
+        # print(self.checkpoint_grad)
 
-        if self.block == 'res+':
-            print('LN/BN->ReLU->GraphConv->Res')
-        elif self.block == 'res':
-            print('GraphConv->LN/BN->ReLU->Res')
-        elif self.block == 'dense':
-            raise NotImplementedError('To be implemented')
-        elif self.block == "plain":
-            print('GraphConv->LN/BN->ReLU')
-        else:
-            raise Exception('Unknown block Type')
+        # if self.block == 'res+':
+        #     print('LN/BN->ReLU->GraphConv->Res')
+        # elif self.block == 'res':
+        #     print('GraphConv->LN/BN->ReLU->Res')
+        # elif self.block == 'dense':
+        #     raise NotImplementedError('To be implemented')
+        # elif self.block == "plain":
+        #     print('GraphConv->LN/BN->ReLU')
+        # else:
+        #     raise Exception('Unknown block Type')
 
         self.gcns = torch.nn.ModuleList()
         self.layer_norms = torch.nn.ModuleList()
