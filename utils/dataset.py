@@ -5,6 +5,7 @@ import time
 import pickle as pkl
 
 import numpy as np
+from sklearn.preprocessing import normalize
 import scipy
 import scipy.sparse as sp
 
@@ -15,6 +16,7 @@ import torch.distributed as dist
 
 import dgl
 from dgl import AddSelfLoop
+from torch_geometric.datasets import Planetoid
 from dgl.data import CiteseerGraphDataset, CoraGraphDataset, PubmedGraphDataset
 from torch_geometric.datasets import Amazon, CitationFull, Coauthor
 from torch_geometric.utils import coalesce
@@ -71,104 +73,158 @@ def preprocess(graph):
     return graph
 
 
+def parse_cora():
+    path = '/home/mzhang/work/TAPE/dataset/cora_orig/cora'
+    idx_features_labels = np.genfromtxt(
+        "{}.content".format(path), dtype=np.dtype(str))
+    data_X = idx_features_labels[:, 1:-1].astype(np.float32)
+    labels = idx_features_labels[:, -1]
+    class_map = {x: i for i, x in enumerate(['Case_Based', 'Genetic_Algorithms', 'Neural_Networks',
+                                            'Probabilistic_Methods', 'Reinforcement_Learning', 'Rule_Learning', 'Theory'])}
+    data_Y = np.array([class_map[l] for l in labels])
+    data_citeid = idx_features_labels[:, 0]
+    idx = np.array(data_citeid, dtype=np.dtype(str))
+    idx_map = {j: i for i, j in enumerate(idx)}
+    edges_unordered = np.genfromtxt(
+        "{}.cites".format(path), dtype=np.dtype(str))
+    edges = np.array(list(map(idx_map.get, edges_unordered.flatten()))).reshape(
+        edges_unordered.shape)
+    data_edges = np.array(edges[~(edges == None).max(1)], dtype='int')
+    data_edges = np.vstack((data_edges, np.fliplr(data_edges)))
+    return data_X, data_Y, data_citeid, np.unique(data_edges, axis=0).transpose()
+
+
+def parse_pubmed():
+    path = '/home/mzhang/work/TAPE/dataset/PubMed_orig/data/'
+
+    n_nodes = 19717
+    n_features = 500
+
+    data_X = np.zeros((n_nodes, n_features), dtype='float32')
+    data_Y = [None] * n_nodes
+    data_pubid = [None] * n_nodes
+    data_edges = []
+
+    paper_to_index = {}
+    feature_to_index = {}
+
+    # parse nodes
+    with open(path + 'Pubmed-Diabetes.NODE.paper.tab', 'r') as node_file:
+        # first two lines are headers
+        node_file.readline()
+        node_file.readline()
+
+        k = 0
+
+        for i, line in enumerate(node_file.readlines()):
+            items = line.strip().split('\t')
+
+            paper_id = items[0]
+            data_pubid[i] = paper_id
+            paper_to_index[paper_id] = i
+
+            # label=[1,2,3]
+            label = int(items[1].split('=')[-1]) - \
+                1  # subtract 1 to zero-count
+            data_Y[i] = label
+
+            # f1=val1 \t f2=val2 \t ... \t fn=valn summary=...
+            features = items[2:-1]
+            for feature in features:
+                parts = feature.split('=')
+                fname = parts[0]
+                fvalue = float(parts[1])
+
+                if fname not in feature_to_index:
+                    feature_to_index[fname] = k
+                    k += 1
+
+                data_X[i, feature_to_index[fname]] = fvalue
+
+    # parse graph
+    data_A = np.zeros((n_nodes, n_nodes), dtype='float32')
+
+    with open(path + 'Pubmed-Diabetes.DIRECTED.cites.tab', 'r') as edge_file:
+        # first two lines are headers
+        edge_file.readline()
+        edge_file.readline()
+
+        for i, line in enumerate(edge_file.readlines()):
+
+            # edge_id \t paper:tail \t | \t paper:head
+            items = line.strip().split('\t')
+
+            edge_id = items[0]
+
+            tail = items[1].split(':')[-1]
+            head = items[3].split(':')[-1]
+
+            data_A[paper_to_index[tail], paper_to_index[head]] = 1.0
+            data_A[paper_to_index[head], paper_to_index[tail]] = 1.0
+            if head != tail:
+                data_edges.append(
+                    (paper_to_index[head], paper_to_index[tail]))
+                data_edges.append(
+                    (paper_to_index[tail], paper_to_index[head]))
+
+    return data_A, data_X, data_Y, data_pubid, np.unique(data_edges, axis=0).transpose()
+
+
 def get_dataset(dataset_name):
     dataset_dir = "/home/mzhang/data/"
-    if dataset_name in ['cora', 'citeseer', 'pubmed']: 
+    if dataset_name in ['cora', 'pubmed']: 
         transform = (
         AddSelfLoop()
     )  # by default, it will first remove self-loops to prevent duplication
         if dataset_name == "cora":
-            data = CoraGraphDataset(transform=transform)
-        elif dataset_name == "citeseer":
-            data = CiteseerGraphDataset(transform=transform)
+            # data = CoraGraphDataset(transform=transform)
+            dataset = Planetoid(dataset_dir, 'cora', transform=T.NormalizeFeatures())
+            data = dataset[0]
+            data_X, data_Y, data_citeid, data_edges = parse_cora()
+            data_X = torch.tensor(data_X).float()
+            edge_index = torch.tensor(data_edges).long()
+            data_Y = torch.tensor(data_Y).long()
+            num_nodes = len(data_Y)
+            
         elif dataset_name == "pubmed":
-            data = PubmedGraphDataset(transform=transform)
-        g = data[0]
-        g = g.int()
+            # data = PubmedGraphDataset(transform=transform)
+            dataset = Planetoid(dataset_dir, 'PubMed', transform=T.NormalizeFeatures())
+            data = dataset[0]
+            _, data_X, data_Y, data_pubid, data_edges = parse_pubmed()
+            data_X = normalize(data_X, norm="l1")
+            edge_index = torch.tensor(data_edges)
+            
+        g = dgl.DGLGraph()
+        g.add_nodes(data.num_nodes)
+        g.add_edges(edge_index[0], edge_index[1])
+        if data.edge_attr is not None:
+            g.edata['feat'] = torch.FloatTensor(data.edge_attr)
+        g.ndata['feat'] = torch.FloatTensor(data_X)
+        g.ndata['label'] = torch.LongTensor(data_Y)
+            
         data_x = g.ndata["feat"]
         data_y = g.ndata["label"]
-        num_classes = data.num_classes
-        masks = g.ndata["train_mask"], g.ndata["val_mask"], g.ndata["test_mask"]
-        train_idx = torch.nonzero(masks[0], as_tuple=True)[0]  
-        val_idx = torch.nonzero(masks[1], as_tuple=True)[0]  
-        test_idx = torch.nonzero(masks[2], as_tuple=True)[0]    
-        split_idx = {'train': train_idx.to(torch.int32),
-                'valid': val_idx.to(torch.int32),
-                'test': test_idx.to(torch.int32)}
+        num_classes = dataset.num_classes
 
-    elif dataset_name in ['dblp']:
-        dataset = CitationFull(root=dataset_dir, name=dataset_name, transform=T.NormalizeFeatures())
-        data = dataset[0]
-        data_x = data.x
-        data_y = data.y
-        edge_index = data.edge_index
+        SEED = 0
+        torch.manual_seed(SEED)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(SEED)
+        np.random.seed(SEED)  # Numpy module.
+        random.seed(SEED)  # Python random module.
         
-        adj = sp.coo_matrix((np.ones(data.edge_index.shape[1]), (data.edge_index[0], data.edge_index[1])),
-                                    shape=(data.y.shape[0], data.y.shape[0]), dtype=np.float32)
-        normalized_adj = adj_normalize(adj)
-        column_normalized_adj = column_normalize(adj)
-            
-    elif dataset_name in ["CS", "Physics"]:
-    # TODO: https://pytorch-geometric.readthedocs.io/en/latest/generated/torch_geometric.datasets.Coauthor.html
-        dataset = Coauthor(root=dataset_dir, name=dataset_name, transform=T.NormalizeFeatures())
-        data = dataset[0]
-        data_x = data.x
-        data_y = data.y
-        edge_index = data.edge_index
-        
-        adj = sp.coo_matrix((np.ones(data.edge_index.shape[1]), (data.edge_index[0], data.edge_index[1])),
-                                    shape=(data.y.shape[0], data.y.shape[0]), dtype=np.float32)
-        normalized_adj = adj_normalize(adj)
-        column_normalized_adj = column_normalize(adj)
+        # split data
+        node_id = np.arange(g.num_nodes())
+        np.random.shuffle(node_id)
 
-    elif dataset_name in ["Photo"]:
-        dataset = Amazon(root=dataset_dir, name=dataset_name)
-        data = dataset[0]
-        data_x = data.x
-        data_y = data.y
-        edge_index = data.edge_index
-        
-        adj = sp.coo_matrix((np.ones(data.edge_index.shape[1]), (data.edge_index[0], data.edge_index[1])),
-                                    shape=(data.y.shape[0], data.y.shape[0]), dtype=np.float32)
-        normalized_adj = adj_normalize(adj)
-        column_normalized_adj = column_normalize(adj)
-    
-    elif dataset_name in ['aminer']:
-        adj = pkl.load(open(os.path.join(dataset_dir, dataset_name, "{}.adj.sp.pkl".format(dataset_name)), "rb"))
-        data_x = pkl.load(
-            open(os.path.join(dataset_dir, dataset_name, "{}.features.pkl".format(dataset_name)), "rb"))
-        data_y = pkl.load(
-            open(os.path.join(dataset_dir, dataset_name, "{}.labels.pkl".format(dataset_name)), "rb"))
-        # random_state = np.random.RandomState(split_seed)
-        data_x = torch.tensor(data_x, dtype=torch.float32)
-        data_y = torch.tensor(data_y)
-        data_y = torch.argmax(data_y, -1)
-        normalized_adj = adj_normalize(adj)
-        column_normalized_adj = column_normalize(adj)
-
-        row, col = adj.nonzero()
-        row = torch.from_numpy(row).to(torch.long)
-        col = torch.from_numpy(col).to(torch.long)
-        edge_index = torch.stack([row, col], dim=0)
-        edge_index = coalesce(edge_index, num_nodes=data_x.size(0))
-        
-    elif dataset_name in ['reddit']:
-        adj = sp.load_npz(os.path.join(dataset_dir, dataset_name, '{}_adj.npz'.format(dataset_name)))
-        data_x = np.load(os.path.join(dataset_dir, dataset_name, '{}_feat.npy'.format(dataset_name)))
-        data_y = np.load(os.path.join(dataset_dir, dataset_name, '{}_labels.npy'.format(dataset_name)))
-        # random_state = np.random.RandomState(split_seed)
-        data_x = torch.tensor(data_x, dtype=torch.float32)
-        data_y = torch.tensor(data_y)
-        data_y = torch.argmax(data_y, -1)
-        normalized_adj = adj_normalize(adj)
-        column_normalized_adj = column_normalize(adj)
-
-        row, col = adj.nonzero()
-        row = torch.from_numpy(row).to(torch.long)
-        col = torch.from_numpy(col).to(torch.long)
-        edge_index = torch.stack([row, col], dim=0)
-        edge_index = coalesce(edge_index, num_nodes=data_x.size(0))
-
+        # 11830 3943 3944
+        train_id = np.sort(node_id[:int(g.num_nodes() * 0.6)])
+        val_id = np.sort(
+            node_id[int(g.num_nodes() * 0.6):int(g.num_nodes() * 0.8)])
+        test_id = np.sort(node_id[int(g.num_nodes() * 0.8):])  
+        split_idx = {'train': torch.from_numpy(train_id).to(torch.int32),
+                'valid': torch.from_numpy(val_id).to(torch.int32),
+                'test': torch.from_numpy(test_id).to(torch.int32)}
         
     elif dataset_name in ['Amazon2M']:
         adj = sp.load_npz(os.path.join(dataset_dir, dataset_name, '{}_adj.npz'.format(dataset_name)))

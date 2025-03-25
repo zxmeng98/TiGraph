@@ -285,17 +285,17 @@ if __name__ == "__main__":
 
     # Load and preprocess dataset
     g, split_idx, features, labels, num_classes = get_dataset(args.dataset)
-    LM_emb_path = f"./lm_workloads/prt_lm/ogbn-arxiv/microsoft/deberta-base-seed0.emb"
-    if os.path.exists(LM_emb_path):
-        if rank == 0:
-            print("Loading trained LM features (title and abstract) ...")
-            print(f"LM_emb_path: {LM_emb_path}")
-        features = torch.from_numpy(np.array(
-                np.memmap(LM_emb_path, mode='r',
-                        dtype=np.float16,
-                        shape=(g.num_nodes(), 768)))
-        ).to(torch.float32)
-        g.ndata['feat'] = features
+    # LM_emb_path = f"./lm_workloads/prt_lm/ogbn-arxiv/microsoft/deberta-base-seed0.emb"
+    # if os.path.exists(LM_emb_path):
+    #     if rank == 0:
+    #         print("Loading trained LM features (title and abstract) ...")
+    #         print(f"LM_emb_path: {LM_emb_path}")
+    #     features = torch.from_numpy(np.array(
+    #             np.memmap(LM_emb_path, mode='r',
+    #                     dtype=np.float16,
+    #                     shape=(g.num_nodes(), 768)))
+    #     ).to(torch.float32)
+    #     g.ndata['feat'] = features
 
     data_processed = DataProcess(args, g, split_idx, features, labels)
     args.in_size = data_processed.features.shape[1]
@@ -409,8 +409,8 @@ if __name__ == "__main__":
 
         if not os.path.exists(f'./exps/{args.dataset}'): 
             os.makedirs(f'./exps/{args.dataset}')
-        # np.save(f'./exps/{args.dataset}/{args.model}_pp_loss_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(loss_list))
-        # np.save(f'./exps/{args.dataset}/{args.model}_pp_val_acc_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(val_acc_list))
-        # np.save(f'./exps/{args.dataset}/{args.model}_pp_test_acc_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(test_acc_list))
+        np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{data_processed.num_batches}b_{num_microbatches}mb_{args.lm_model}_loss', np.array(loss_list))
+        np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{data_processed.num_batches}b_{num_microbatches}mb_{args.lm_model}_val_acc', np.array(val_acc_list))
+        np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{data_processed.num_batches}b_{num_microbatches}mb_{args.lm_model}_test_acc', np.array(test_acc_list))
 
     dist.destroy_process_group()

@@ -87,7 +87,7 @@ class PrintEpochTimeCallback(TrainerCallback):
     def on_step_end(self, args, state, control, **kwargs):
         torch.cuda.synchronize() 
         step_time = time.time() - self.step_start_time # NOTE: 开了梯度累积这里统计的时间后面的epoch可能不对，因为step_begin是根据step%accum_steps==0来的，但是step_end是根据total_batched_samples % args.gradient_accumulation_steps==0，一个epoch结束后step会从0开始，但是total_batched_samples一直是累加的，后面这俩不同步了，间隔为accum_step就被打乱了。
-        slowdown_threshold = 2  # seconds - adjust based on your normal iteration time
+        slowdown_threshold = 2.3  # seconds - adjust based on your normal iteration time
     
         if step_time > slowdown_threshold:
             self.itrlv_iter_time_list.append(step_time) 

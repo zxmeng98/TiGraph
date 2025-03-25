@@ -13,7 +13,7 @@ import random
 import numpy as np
 import os
 from GNNs.RevGNN.revgcn_pp import RevGCN
-from utils.dataset import get_dataset
+from utils.dataset import get_dataset, adjust_dataset
 import torch.distributed as dist
 from pipelining import pipeline, SplitPoint, PipelineStage, ScheduleGPipe
 from pipelining.initialize import init_small_workload_pid, get_small_workload_pid
@@ -155,7 +155,7 @@ if __name__ == "__main__":
                         help='dataset name (default: ogbn-proteins)')
     
     # Training & eval settings
-    parser.add_argument('--seed', type=int, default=123)
+    parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--epochs', type=int, default=2000,
                         help='number of epochs to train (default: 2000)')
     parser.add_argument('--lr', type=float, default=0.001,
@@ -189,7 +189,7 @@ if __name__ == "__main__":
                         help='gcn backbone [deepergcn, weighttied, deq, rev]')
     parser.add_argument('--group', type=int, default=2,
                         help='num of groups for rev gnns')
-    parser.add_argument('--num_layers', type=int, default=448,
+    parser.add_argument('--num_layers', type=int, default=112,
                         help='the number of layers of the networks')
     parser.add_argument('--mlp_layers', type=int, default=2,
                         help='the number of layers of mlp in conv')
@@ -242,7 +242,20 @@ if __name__ == "__main__":
 
     # Load and preprocess dataset
     g, split_idx, features, labels, num_classes = get_dataset(args.dataset)
+    # LM_emb_path = f"./lm_workloads/prt_lm/{args.dataset}/microsoft/deberta-base-seed0.emb"
+    # if os.path.exists(LM_emb_path):
+    #     if rank == 0:
+    #         print("Loading trained LM features (title and abstract) ...")
+    #         print(f"LM_emb_path: {LM_emb_path}")
+    #     features = torch.from_numpy(np.array(
+    #             np.memmap(LM_emb_path, mode='r',
+    #                     dtype=np.float16,
+    #                     shape=(g.num_nodes(), 768)))
+    #     ).to(torch.float32)
+    #     g.ndata['feat'] = features
+
     g, split_idx, features, labels = adjust_dataset(args, g, split_idx, features, labels)
+
     # all_nodes = torch.randperm(features.shape[0])
     all_nodes = torch.arange(features.shape[0])
     g.ndata['random_idx'] = all_nodes
@@ -291,8 +304,8 @@ if __name__ == "__main__":
     model = RevGCN(args)
     stage = manual_model_split(args, model, example_input_microbatch)
 
-    loss_fcn = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(stage.submod.parameters(), lr=args.lr)
+    loss_fcn = nn.CrossEntropyLoss(reduction='mean')
+    optimizer = torch.optim.RMSprop(stage.submod.parameters(), lr=args.lr)
     schedule = ScheduleGPipe(stage, n_microbatches=num_microbatches, loss_fn=loss_fcn)
 
     # Convert model and graph to bfloat16 if needed
@@ -330,10 +343,10 @@ if __name__ == "__main__":
     )
     # pp_profile.start()
     for epoch in range(args.epochs):
-        optimizer.zero_grad()
         stage.submod.train()
         t0 = time.time()
         for i in range(num_batches):
+            optimizer.zero_grad()
             g_i, features_i, labels_i = packed_batch[i]
             g_i, features_i, labels_i = g_i.to(device), features_i.to(device), labels_i.to(device)
             if rank == 0:
@@ -348,44 +361,47 @@ if __name__ == "__main__":
             else:
                 schedule.step(g_i, split_idx=split_idx['train'])
 
-            torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
+            # torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
             optimizer.step()
             # pp_profile.step()
             
         t1 = time.time()
-        # if rank == num_stages - 1:
-        #     print(
-        #             "Epoch {:05d} | Loss {:.4f} | Epoch Time {:.2f}s".format(
-        #                 epoch, loss, t1 - t0
-        #             )
-        #         )
-        if rank == 0:
-            print(
-                    "Epoch {:05d} | Epoch Time {:.2f}s".format(
-                        epoch, t1 - t0
+        epoch_time_list.append(t1 - t0)
+        if epoch > 4:
+            if rank == num_stages - 1:
+                print(
+                        "Epoch {:05d} | Loss {:.4f} | Avg Epoch Time {:.4f}s".format(
+                            epoch, loss, np.mean(epoch_time_list[5:])
+                        )
                     )
-                )
+        else:
+            if rank == num_stages - 1:
+                print(
+                        "Epoch {:05d} | Loss {:.4f} | Epoch Time {:.2f}s".format(
+                            epoch, loss, t1 - t0
+                        )
+                    )
+            
             
     # pp_profile.stop()
             
-
         # Validation
-        # if epoch % 5 == 0:
-        #     results = evaluate(args, packed_batch, batch_nodes, split_idx, stage, schedule)
-        #     if rank == num_stages - 1:
-        #         print("Epoch {:05d} | Valid acc: {:.2f}% | Test acc: {:.2f}%".format(epoch, results[0], results[1]))
-        #         loss_list.append(loss)
-        #         val_acc_list.append(results[0])
-        #         test_acc_list.append(results[1])
+        if epoch % 1 == 0:
+            results = evaluate(args, packed_batch, batch_nodes, split_idx, stage, schedule)
+            if rank == num_stages - 1 and epoch % 5 == 0:
+                print("Epoch {:05d} | Valid acc: {:.2f}% | Test acc: {:.2f}%".format(epoch, results[0], results[1]))
+                loss_list.append(loss)
+                val_acc_list.append(results[0])
+                test_acc_list.append(results[1])
         
 
-    # if rank == num_stages - 1:
-    #     print("Test accuracy {:.4f}".format(max(test_acc_list)))
+    if rank == num_stages - 1:
+        print("Best TestAcc: {:.4f}".format(max(test_acc_list)))
 
-    #     if not os.path.exists(f'./exps/{args.dataset}'): 
-    #         os.makedirs(f'./exps/{args.dataset}')
-        # np.save(f'./exps/{args.dataset}/{args.model}_pp_loss_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(loss_list))
-        # np.save(f'./exps/{args.dataset}/{args.model}_pp_val_acc_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(val_acc_list))
-        # np.save(f'./exps/{args.dataset}/{args.model}_pp_test_acc_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(test_acc_list))
+        if not os.path.exists(f'./exps/{args.dataset}'): 
+            os.makedirs(f'./exps/{args.dataset}')
+        np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{num_batches}b_{num_microbatches}mb_{args.lm_model}_loss', np.array(loss_list))
+        np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{num_batches}b_{num_microbatches}mb_{args.lm_model}_val_acc', np.array(val_acc_list))
+        np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{num_batches}b_{num_microbatches}mb_{args.lm_model}_test_acc', np.array(test_acc_list))
 
     dist.destroy_process_group()
