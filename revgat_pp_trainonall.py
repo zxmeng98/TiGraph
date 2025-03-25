@@ -174,7 +174,7 @@ if __name__ == "__main__":
                         help='dataset name (default: ogbn-proteins)')
     
     # Training & eval settings
-    parser.add_argument('--seed', type=int, default=123)
+    parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--epochs', type=int, default=2000,
                         help='number of epochs to train (default: 2000)')
     parser.add_argument('--lr', type=float, default=0.002,
@@ -212,7 +212,7 @@ if __name__ == "__main__":
                         help='gcn backbone [deepergcn, weighttied, deq, rev]')
     parser.add_argument('--group', type=int, default=2,
                         help='num of groups for rev gnns')
-    parser.add_argument('--num_layers', type=int, default=5,
+    parser.add_argument('--num_layers', type=int, default=20,
                         help='the number of layers of the networks')
     parser.add_argument('--mlp_layers', type=int, default=2,
                         help='the number of layers of mlp in conv')
@@ -220,7 +220,7 @@ if __name__ == "__main__":
                         help='the dimension of embeddings of nodes and edges')
     parser.add_argument('--out_size', type=int, default=3,
                         help='the dimension of embeddings of nodes and edges')
-    parser.add_argument('--hidden_channels', type=int, default=768,
+    parser.add_argument('--hidden_channels', type=int, default=256,
                         help='the dimension of embeddings of nodes and edges')
     parser.add_argument('--gcn_aggr', type=str, default='max',
                         help='the aggregator of GENConv [mean, max, add, softmax, softmax_sg, power]')
@@ -347,7 +347,7 @@ if __name__ == "__main__":
     print(f"\nNumber of parameters: {trainable_params}")
     stage = manual_model_split(args, model, example_input_microbatch)
 
-    loss_fcn = nn.CrossEntropyLoss()
+    loss_fcn = nn.CrossEntropyLoss(reduction='mean')
     optimizer = torch.optim.RMSprop(stage.submod.parameters(), lr=args.lr, weight_decay=0)
     schedule = ScheduleGPipe(stage, n_microbatches=num_microbatches, loss_fn=loss_fcn)
 
@@ -370,12 +370,10 @@ if __name__ == "__main__":
 
     loss_list, val_acc_list, test_acc_list, epoch_time_list = [], [], [], [] 
     for epoch in range(args.epochs):
-       
-        optimizer.zero_grad()
         stage.submod.train()
-
         t0 = time.time()
         for i in range(num_batches):
+            optimizer.zero_grad()
             g_i, features_i, labels_i = packed_batch[i]
             g_i, features_i, labels_i = g_i.to(device), features_i.to(device), labels_i.to(device)
             if rank == 0:
@@ -389,6 +387,7 @@ if __name__ == "__main__":
 
             else:
                 schedule.step(g_i, split_idx=split_idx['train'])
+            torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
             optimizer.step()
         t1 = time.time()
         if rank == num_stages - 1:

@@ -164,16 +164,14 @@ if __name__ == "__main__":
                         help='the file path of extracted node features saved.')
     
     # training & eval settings
-    parser.add_argument('--use_gpu', action='store_true')
-    parser.add_argument('--device', type=int, default=0,
-                        help='which gpu to use if any (default: 0)')
+    parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--epochs', type=int, default=2000,
                         help='number of epochs to train (default: 2000)')
     parser.add_argument('--num_evals', type=int, default=1,
                         help='The number of evaluation times')
-    parser.add_argument('--lr', type=float, default=0.001,
+    parser.add_argument('--lr', type=float, default=0.01,
                         help='learning rate set for optimizer.')
-    parser.add_argument('--dropout', type=float, default=0.2)
+    parser.add_argument('--dropout', type=float, default=0.5)
 
     # pipeline pearallel 
     parser.add_argument('--rank', type=int, default=None,
@@ -263,7 +261,6 @@ if __name__ == "__main__":
         default="float",
         help="data type(float, bfloat16)",
     )
-    parser.add_argument('--seed', type=int, default=123)
     args = parser.parse_args()
 
     random.seed(args.seed)
@@ -332,7 +329,7 @@ if __name__ == "__main__":
 
     stage = manual_model_split(args, model, example_input_microbatch)
 
-    loss_fcn = nn.CrossEntropyLoss()
+    loss_fcn = nn.CrossEntropyLoss(reduction='mean')
     optimizer = torch.optim.Adam(stage.submod.parameters(), lr=args.lr)
     schedule = ScheduleGPipe(stage, n_microbatches=num_microbatches, loss_fn=loss_fcn)
 
@@ -352,11 +349,11 @@ if __name__ == "__main__":
     loss_list, val_acc_list, test_acc_list, epoch_time_list = [], [], [], [] 
     # training loop
     for epoch in range(args.epochs):
-        optimizer.zero_grad()
         stage.submod.train()
 
         t0 = time.time()
         for i in range(data_processed.num_batches):
+            optimizer.zero_grad()
             batch_data = preprocessed_batches[i]
             args_split = batch_data['args_split']
             kwargs_split = batch_data['kwargs_split']
@@ -375,7 +372,7 @@ if __name__ == "__main__":
             else:
                 schedule.step(args_split, kwargs_split, chunked_sg_ori_node_idxes, split_idx=split_idx['train'])
 
-            torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
+            torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)  
             optimizer.step()
         
         t1 = time.time()

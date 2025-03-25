@@ -139,7 +139,7 @@ if __name__ == "__main__":
                         help='dataset name (default: ogbn-proteins)')
     
     # Training & eval settings
-    parser.add_argument('--seed', type=int, default=123)
+    parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--epochs', type=int, default=1000,
                         help='number of epochs to train (default: 2000)')
     parser.add_argument('--lr', type=float, default=0.001,
@@ -178,7 +178,7 @@ if __name__ == "__main__":
                         help='gcn backbone [deepergcn, weighttied, deq, rev]')
     parser.add_argument('--group', type=int, default=2,
                         help='num of groups for rev gnns')
-    parser.add_argument('--num_layers', type=int, default=448,
+    parser.add_argument('--num_layers', type=int, default=112,
                         help='the number of layers of the networks')
     parser.add_argument('--mlp_layers', type=int, default=2,
                         help='the number of layers of mlp in conv')
@@ -301,7 +301,7 @@ if __name__ == "__main__":
     model = RevGCN(args)
     stage = manual_model_split(args, model, example_input_microbatch)
 
-    loss_fcn = nn.CrossEntropyLoss()
+    loss_fcn = nn.CrossEntropyLoss(reduction='mean')
     optimizer = torch.optim.Adam(stage.submod.parameters(), lr=args.lr)
     schedule = ScheduleGPipe(stage, n_microbatches=num_microbatches, loss_fn=loss_fcn)
 
@@ -347,10 +347,10 @@ if __name__ == "__main__":
             packed_batch_from_lm, last_written_rows = data_processed.check_load_from_lm("TA", last_written_rows)
             if packed_batch_from_lm is not None:
                 packed_batch = packed_batch_from_lm
-        optimizer.zero_grad()
         stage.submod.train()
         t0 = time.time()
         for i in range(data_processed.num_batches):
+            optimizer.zero_grad()
             g_i, features_i, labels_i = packed_batch[i]
             g_i, features_i, labels_i = g_i.to(device), features_i.to(device), labels_i.to(device)
             if rank == 0:

@@ -242,17 +242,17 @@ if __name__ == "__main__":
 
     # Load and preprocess dataset
     g, split_idx, features, labels, num_classes = get_dataset(args.dataset)
-    # LM_emb_path = f"./lm_workloads/prt_lm/{args.dataset}/microsoft/deberta-base-seed0.emb"
-    # if os.path.exists(LM_emb_path):
-    #     if rank == 0:
-    #         print("Loading trained LM features (title and abstract) ...")
-    #         print(f"LM_emb_path: {LM_emb_path}")
-    #     features = torch.from_numpy(np.array(
-    #             np.memmap(LM_emb_path, mode='r',
-    #                     dtype=np.float16,
-    #                     shape=(g.num_nodes(), 768)))
-    #     ).to(torch.float32)
-    #     g.ndata['feat'] = features
+    LM_emb_path = f"./lm_workloads/prt_lm/{args.dataset}/microsoft/deberta-base-seed0.emb"
+    if os.path.exists(LM_emb_path):
+        if rank == 0:
+            print("Loading trained LM features (title and abstract) ...")
+            print(f"LM_emb_path: {LM_emb_path}")
+        features = torch.from_numpy(np.array(
+                np.memmap(LM_emb_path, mode='r',
+                        dtype=np.float16,
+                        shape=(g.num_nodes(), 768)))
+        ).to(torch.float32)
+        g.ndata['feat'] = features
 
     g, split_idx, features, labels = adjust_dataset(args, g, split_idx, features, labels)
 
@@ -305,7 +305,7 @@ if __name__ == "__main__":
     stage = manual_model_split(args, model, example_input_microbatch)
 
     loss_fcn = nn.CrossEntropyLoss(reduction='mean')
-    optimizer = torch.optim.RMSprop(stage.submod.parameters(), lr=args.lr)
+    optimizer = torch.optim.Adam(stage.submod.parameters(), lr=args.lr)
     schedule = ScheduleGPipe(stage, n_microbatches=num_microbatches, loss_fn=loss_fcn)
 
     # Convert model and graph to bfloat16 if needed
@@ -361,7 +361,7 @@ if __name__ == "__main__":
             else:
                 schedule.step(g_i, split_idx=split_idx['train'])
 
-            # torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
+            torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
             optimizer.step()
             # pp_profile.step()
             
