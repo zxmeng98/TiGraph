@@ -34,7 +34,6 @@ class DeeperGCN(torch.nn.Module):
         conv_encode_edge = args.conv_encode_edge
         norm = args.norm
         mlp_layers = args.mlp_layers
-        node_features_file_path = args.nf_path
 
         self.use_one_hot_encoding = args.use_one_hot_encoding
 

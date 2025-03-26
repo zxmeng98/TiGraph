@@ -302,6 +302,7 @@ class RevGAT(nn.Module):
 
         self.convs = nn.ModuleList()
         self.norm = nn.BatchNorm1d(n_heads * n_hidden)
+        self.input_norm = nn.BatchNorm1d(in_feats)
 
         for i in range(n_layers):
             in_hidden = n_heads * n_hidden if i > 0 else in_feats
@@ -367,6 +368,7 @@ class RevGAT(nn.Module):
         h = feat
         
         if self.first_stage:
+            h = self.input_norm(h)
             m = torch.zeros(h.shape[0], self.n_hidden*self.num_heads, device=h.device).bernoulli_(1 - self.dropout)
             mask = m.requires_grad_(False) / (1 - self.dropout)
             h = self.input_drop(h) 
@@ -397,7 +399,8 @@ class RevGAT(nn.Module):
                 perm = torch.stack([self.perms[i]]*self.group, dim=1)
                 h = self.convs[i](h, graph, mask, perm)
             h = self.norm(h)
-            h = self.activation(h, inplace=True)
+            # h = self.activation(h, inplace=True)
+            h = self.activation(h)
             h = self.dp_last(h)
             h = self.convs[-1](graph, h, self.perms[-1]).flatten(1, -1)
             h = self.bias_last(h)

@@ -158,29 +158,23 @@ if __name__ == "__main__":
     init_distributed()
         
     parser = argparse.ArgumentParser()
-    # dataset
+    # Dataset
     parser.add_argument('--dataset', type=str, default='ogbn-arxiv',
                         help='dataset name (default: ogbn-proteins)')
-    parser.add_argument('--cluster_number', type=int, default=10,
-                        help='the number of sub-graphs for training')
-    parser.add_argument('--valid_cluster_number', type=int, default=5,
-                        help='the number of sub-graphs for evaluation')
-    parser.add_argument('--aggr', type=str, default='add',
-                        help='the aggregation operator to obtain nodes\' initial features [mean, max, add]')
-    parser.add_argument('--nf_path', type=str, default='init_node_features_add.pt',
-                        help='the file path of extracted node features saved.')
     
-    # training & eval settings
+    # Training & eval settings
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--epochs', type=int, default=2000,
                         help='number of epochs to train (default: 2000)')
-    parser.add_argument('--num_evals', type=int, default=1,
-                        help='The number of evaluation times')
     parser.add_argument('--lr', type=float, default=0.01,
                         help='learning rate set for optimizer.')
     parser.add_argument('--dropout', type=float, default=0.5)
+    parser.add_argument('--bs', type=int, default=169340,
+                       help='Number of microbatches.')
+    parser.add_argument('--mb_size', type=int, default=84670, # 84670
+                       help='Number of microbatches.')
 
-    # pipeline pearallel 
+    # Pipeline pearallel 
     parser.add_argument('--rank', type=int, default=None,
                        help='rank passed from distributed launcher.')
     parser.add_argument('--local-rank', '--local_rank', type=int, default=None,
@@ -194,27 +188,26 @@ if __name__ == "__main__":
                        help='Timeout minutes for torch.distributed.')
     parser.add_argument('--pipeline-parallel-size', type=int, default=4,
                        help='Enable pipeline parallel.')
-    parser.add_argument('--bs', type=int, default=169340,
-                       help='Number of microbatches.')
-    parser.add_argument('--mb_size', type=int, default=84670,
-                       help='Number of microbatches.')
 
-    # model
-    parser.add_argument('--backbone', type=str, default='rev',
-                        help='gcn backbone [deepergcn, weighttied, deq, rev]')
+    # Interleaved workload
+    parser.add_argument('--pid', nargs='+', type=int, default=None, help='PID of the small workload.')
+    parser.add_argument('--lm_model', type=str, default='deberta-base',
+                        help='deberta-base, ')
+
+    # Model
+    parser.add_argument('--gnn_model', type=str, default='resgen',
+                        help='gcn backbone [revgcn, resgen, revgat]')
     parser.add_argument('--group', type=int, default=2,
                         help='num of groups for rev gnns')
-    parser.add_argument('--num_layers', type=int, default=112,
+    parser.add_argument('--num_layers', type=int, default=56,
                         help='the number of layers of the networks')
-    parser.add_argument('--num_steps', type=int, default=3,
-                        help='the number of steps of weight tied layers')
     parser.add_argument('--mlp_layers', type=int, default=2,
                         help='the number of layers of mlp in conv')
     parser.add_argument('--in_size', type=int, default=50,
                         help='the dimension of embeddings of nodes and edges')
     parser.add_argument('--out_size', type=int, default=3,
                         help='the dimension of embeddings of nodes and edges')
-    parser.add_argument('--hidden_channels', type=int, default=64,
+    parser.add_argument('--hidden_channels', type=int, default=128,
                         help='the dimension of embeddings of nodes and edges')
     parser.add_argument('--block', default='res+', type=str,
                         help='graph backbone block type {res+, res, dense, plain}')
@@ -227,7 +220,7 @@ if __name__ == "__main__":
     parser.add_argument('--num_tasks', type=int, default=1,
                         help='the number of prediction tasks')
     
-    # learnable parameters
+    # Learnable parameters
     parser.add_argument('--t', type=float, default=1.0,
                         help='the temperature of SoftMax')
     parser.add_argument('--p', type=float, default=1.0,
@@ -247,21 +240,13 @@ if __name__ == "__main__":
     # save model
     parser.add_argument('--model_save_path', type=str, default='model_ckpt',
                         help='the directory used to save models')
-    parser.add_argument('--save', type=str, default='EXP', help='experiment name')
     # load pre-trained model
     parser.add_argument('--model_load_path', type=str, default='ogbn_proteins_pretrained_model.pth',
                         help='the path of pre-trained model')
-    # deq
-    parser.add_argument('--inject_input', action='store_true')
-    parser.add_argument('--pretrain_epochs', type=int, default=100,
-                        help='number of epochs to pretrain (default: 100)')
-    parser.add_argument(
-        "--dt",
-        type=str,
-        default="float",
-        help="data type(float, bfloat16)",
-    )
+    parser.add_argument("--dt", type=str, default="float", 
+                        help="data type(float, bfloat16)")
     args = parser.parse_args()
+
 
     random.seed(args.seed)
     np.random.seed(args.seed)

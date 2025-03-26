@@ -202,12 +202,12 @@ if __name__ == "__main__":
     
     # Interleaved workload
     parser.add_argument('--pid', nargs='+', type=int, default=None, help='PID of the small workload.')
-    parser.add_argument('--lm_model', type=str, default='deberta',
+    parser.add_argument('--lm_model', type=str, default='deberta-base',
                         help='deberta-base, ')
 
     # Model
-    parser.add_argument('--model', type=str, default='revgat',
-                        help='gcn backbone [revgnn, resgnn, revgat]')
+    parser.add_argument('--gnn_model', type=str, default='revgat',
+                        help='gcn backbone [revgcn, resgnn, revgat]')
     parser.add_argument('--backbone', type=str, default='rev',
                         help='gcn backbone [deepergcn, weighttied, deq, rev]')
     parser.add_argument('--group', type=int, default=2,
@@ -246,12 +246,8 @@ if __name__ == "__main__":
     parser.add_argument('--conv_encode_edge', action='store_true')
     # if use one-hot-encoding node feature
     parser.add_argument('--use_one_hot_encoding', action='store_true')
-    parser.add_argument(
-        "--dt",
-        type=str,
-        default="float",
-        help="data type(float, bfloat16)",
-    )
+    parser.add_argument("--dt", type=str, default="float", 
+                        help="data type(float, bfloat16)")
     args = parser.parse_args()
 
     random.seed(args.seed)
@@ -262,7 +258,7 @@ if __name__ == "__main__":
 
     # Load and preprocess dataset
     g, split_idx, features, labels, num_classes = get_dataset(args.dataset)
-    LM_emb_path = f"./lm_workloads/prt_lm/ogbn-arxiv/microsoft/deberta-base-seed0.emb"
+    LM_emb_path = f"./lm_workloads/prt_lm/{args.dataset}/microsoft/deberta-base-seed0.emb"
     if os.path.exists(LM_emb_path):
         if rank == 0:
             print("Loading trained LM features (title and abstract) ...")
@@ -334,13 +330,13 @@ if __name__ == "__main__":
                     n_hidden=args.hidden_channels,
                     n_layers=args.num_layers,
                     n_heads=args.num_heads,
-                    activation=F.relu,
+                    activation=torch.nn.Mish(),
                     dropout=args.dropout,
                     input_drop=0.25,
                     attn_drop=0.0,
                     edge_drop=0.3,
-                    use_attn_dst=False,
-                    use_symmetric_norm=True,
+                    use_attn_dst=True,
+                    use_symmetric_norm=False,
                     number_of_edges=packed_batch[0][0].num_edges(),
                     )
     trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -398,7 +394,7 @@ if __name__ == "__main__":
                 )
 
         # Validation
-        if epoch % 5 == 0:
+        if epoch % 1 == 0:
             results = evaluate(args, packed_batch, batch_nodes, split_idx, stage, schedule)
             if rank == num_stages - 1:
                 loss_list.append(loss)
@@ -411,8 +407,7 @@ if __name__ == "__main__":
 
         if not os.path.exists(f'./exps/{args.dataset}'): 
             os.makedirs(f'./exps/{args.dataset}')
-        np.save(f'./exps/{args.dataset}/{args.model}_pp_loss_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(loss_list))
-        np.save(f'./exps/{args.dataset}/{args.model}_pp_val_acc_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(val_acc_list))
-        np.save(f'./exps/{args.dataset}/{args.model}_pp_test_acc_{args.num_layers}layers_{num_batches}b_{num_microbatches}mb', np.array(test_acc_list))
-
+        np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{num_batches}b_{num_microbatches}mb_{args.lm_model}_loss', np.array(loss_list))
+        np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{num_batches}b_{num_microbatches}mb_{args.lm_model}_val_acc', np.array(val_acc_list))
+        np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{num_batches}b_{num_microbatches}mb_{args.lm_model}_test_acc', np.array(test_acc_list))
     dist.destroy_process_group()

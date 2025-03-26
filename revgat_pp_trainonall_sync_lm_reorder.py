@@ -222,12 +222,8 @@ if __name__ == "__main__":
     parser.add_argument('--conv_encode_edge', action='store_true')
     # if use one-hot-encoding node feature
     parser.add_argument('--use_one_hot_encoding', action='store_true')
-    parser.add_argument(
-        "--dt",
-        type=str,
-        default="float",
-        help="data type(float, bfloat16)",
-    )
+    parser.add_argument("--dt", type=str, default="float", 
+                        help="data type(float, bfloat16)")
     args = parser.parse_args()
 
     random.seed(args.seed)
@@ -249,7 +245,7 @@ if __name__ == "__main__":
 
     # Load and preprocess dataset
     g, split_idx, features, labels, num_classes = get_dataset(args.dataset)
-    # LM_emb_path = f"./lm_workloads/prt_lm/ogbn-arxiv/microsoft/deberta-base-seed0.emb"
+    # LM_emb_path = f"./lm_workloads/prt_lm/{args.dataset}/microsoft/deberta-base-seed0.emb"
     # if os.path.exists(LM_emb_path):
     #     if rank == 0:
     #         print("Loading trained LM features (title and abstract) ...")
@@ -300,13 +296,13 @@ if __name__ == "__main__":
                     n_hidden=args.hidden_channels,
                     n_layers=args.num_layers,
                     n_heads=args.num_heads,
-                    activation=F.relu,
+                    activation=torch.nn.Mish(),
                     dropout=args.dropout,
                     input_drop=0.25,
                     attn_drop=0.0,
                     edge_drop=0.3,
-                    use_attn_dst=False,
-                    use_symmetric_norm=True,
+                    use_attn_dst=True,
+                    use_symmetric_norm=False,
                     number_of_edges=packed_batch[0][0].num_edges(),
                     )
     stage = manual_model_split(args, model, example_input_microbatch)

@@ -217,12 +217,8 @@ if __name__ == "__main__":
     parser.add_argument('--conv_encode_edge', action='store_true')
     # if use one-hot-encoding node feature
     parser.add_argument('--use_one_hot_encoding', action='store_true')
-    parser.add_argument(
-        "--dt",
-        type=str,
-        default="float",
-        help="data type(float, bfloat16)",
-    )
+    parser.add_argument("--dt", type=str, default="float", 
+                        help="data type(float, bfloat16)")
     args = parser.parse_args()
 
     random.seed(args.seed)
