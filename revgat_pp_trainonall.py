@@ -160,7 +160,6 @@ def evaluate(args, packed_batch, batch_nodes, split_idx, stage, schedule):
 
         valid_acc = valid_correct.item() * 100.0 / len(valid_indices)
         test_acc = test_correct.item() * 100.0 / len(test_indices)
-        print("Valid acc {:.2f}% | Test acc {:.2f}%".format(valid_acc, test_acc))
         return (valid_acc, test_acc)
         
     
@@ -177,9 +176,9 @@ if __name__ == "__main__":
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--epochs', type=int, default=2000,
                         help='number of epochs to train (default: 2000)')
-    parser.add_argument('--lr', type=float, default=0.002,
+    parser.add_argument('--lr', type=float, default=0.001,
                         help='learning rate set for optimizer.')
-    parser.add_argument('--dropout', type=float, default=0.5)
+    parser.add_argument('--dropout', type=float, default=0.2)
     parser.add_argument('--bs', type=int, default=169340,
                        help='Number of microbatches.')
     parser.add_argument('--mb_size', type=int, default=84670, # 42335, 84670
@@ -357,15 +356,13 @@ if __name__ == "__main__":
     if rank == 0:
         print("Training...")
 
-    # m = torch.zeros(4, 8).bernoulli_(1 - 0.75)
-    # mask = m.requires_grad_(False) / (1 - 0.75) 
-    # print(rank, mask)
-    # exit()
-
     # Training loop
 
     loss_list, val_acc_list, test_acc_list, epoch_time_list = [], [], [], [] 
     for epoch in range(args.epochs):
+        # if epoch <= 50:
+        #     for param_group in optimizer.param_groups:
+        #         param_group['lr'] = args.lr * epoch / 50
         stage.submod.train()
         t0 = time.time()
         for i in range(num_batches):
@@ -383,31 +380,45 @@ if __name__ == "__main__":
 
             else:
                 schedule.step(g_i, split_idx=split_idx['train'])
-            torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
+            # torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
             optimizer.step()
         t1 = time.time()
-        if rank == num_stages - 1:
-            print(
-                    "Epoch {:05d} | Loss {:.4f} | Epoch Time {:.2f}s".format(
-                        epoch, loss, t1 - t0
+        epoch_time_list.append(t1 - t0)
+        if epoch > 4:
+            if rank == num_stages - 1:
+                print(
+                        "Epoch {:05d} | Loss {:.4f} | Avg Epoch Time {:.4f}s".format(
+                            epoch, loss, np.mean(epoch_time_list[5:])
+                        )
                     )
-                )
+        else:
+            if rank == num_stages - 1:
+                print(
+                        "Epoch {:05d} | Loss {:.4f} | Epoch Time {:.2f}s".format(
+                            epoch, loss, t1 - t0
+                        )
+                    )
 
         # Validation
         if epoch % 1 == 0:
             results = evaluate(args, packed_batch, batch_nodes, split_idx, stage, schedule)
-            if rank == num_stages - 1:
+            if rank == num_stages - 1 and epoch % 5 == 0:
+                print("Valid acc: {:.2f}% | Test acc: {:.2f}%".format(epoch, results[0], results[1]))
                 loss_list.append(loss)
                 val_acc_list.append(results[0])
                 test_acc_list.append(results[1])
                 epoch_time_list.append(t1 - t0)
         
     if rank == num_stages - 1:
-        print("Test accuracy {:.4f}".format(max(test_acc_list)))
+        print("Best TestAcc: {:.4f}".format(max(test_acc_list)))
 
         if not os.path.exists(f'./exps/{args.dataset}'): 
             os.makedirs(f'./exps/{args.dataset}')
         np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{num_batches}b_{num_microbatches}mb_{args.lm_model}_loss', np.array(loss_list))
         np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{num_batches}b_{num_microbatches}mb_{args.lm_model}_val_acc', np.array(val_acc_list))
         np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{num_batches}b_{num_microbatches}mb_{args.lm_model}_test_acc', np.array(test_acc_list))
+<<<<<<< HEAD
+=======
+
+>>>>>>> update eval results from 40
     dist.destroy_process_group()

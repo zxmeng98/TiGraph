@@ -236,8 +236,7 @@ if __name__ == "__main__":
     # load pre-trained model
     parser.add_argument('--model_load_path', type=str, default='ogbn_proteins_pretrained_model.pth',
                         help='the path of pre-trained model')
-    parser.add_argument("--dt", type=str, default="float", 
-                        help="data type(float, bfloat16)")
+    parser.add_argument("--dt", type=str, default="float", help="data type(float, bfloat16)")
     args = parser.parse_args()
 
     random.seed(args.seed)

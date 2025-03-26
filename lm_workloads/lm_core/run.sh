@@ -18,4 +18,4 @@ TOKENIZERS_PARALLELISM=True CUDA_VISIBLE_DEVICES=0 python -m lm_workloads.lm_cor
 
 WANDB_DISABLED=True TOKENIZERS_PARALLELISM=False CUDA_VISIBLE_DEVICES=0,1,2,3 python -m lm_workloads.lm_core.train_lm dataset ogbn-arxiv lm.train.use_gpt True
 
-TOKENIZERS_PARALLELISM=True torchrun --nnodes=1 --nproc_per_node=4 -m lm_workloads.lm_core.train_lm dataset ogbn-arxiv lm.train.use_gpt True
+TOKENIZERS_PARALLELISM=True torchrun --nnodes=1 --nproc_per_node=4 -m lm_workloads.lm_core.train_lm dataset ogbn-arxiv 
