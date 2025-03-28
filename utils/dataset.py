@@ -290,13 +290,38 @@ def get_dataset(dataset_name):
         # normalized_adj = adj_normalize(adj)
         # column_normalized_adj = column_normalize(adj)
     
-    elif dataset_name in ["ogbn-arxiv", "ogbn-products"]:
+    elif dataset_name in ["ogbn-arxiv"]:
         ogb_dataset = DglNodePropPredDataset(name=dataset_name, root=dataset_dir)
         g, data_y = ogb_dataset[0]
         data_y = torch.as_tensor(data_y).squeeze(1)
         split_idx = ogb_dataset.get_idx_split()
         data_x = torch.as_tensor(g.ndata["feat"])
         num_classes = ogb_dataset.num_classes
+        
+    elif dataset_name in ["ogbn-products"]:
+        data = torch.load('/home/mzhang/work/TAPE/dataset/ogbn_products/ogbn-products_subset.pt')
+        data.edge_index = data.adj_t.to_symmetric()
+        edge_index = data.edge_index.to_torch_sparse_coo_tensor().coalesce().indices()
+        g = dgl.DGLGraph()
+        g.add_nodes(data.num_nodes)
+        g.add_edges(edge_index[0], edge_index[1])
+        if data.edge_attr is not None:
+            g.edata['feat'] = torch.FloatTensor(data.edge_attr)
+        g = dgl.to_bidirected(g)
+        g = g.remove_self_loop().add_self_loop()
+        if data.x is not None:
+            g.ndata['feat'] = torch.FloatTensor(data.x)
+            data_x = g.ndata['feat']
+        g.ndata['label'] = torch.LongTensor(data.y)
+        data_y = g.ndata['label'].squeeze()
+        train_idx = torch.nonzero(data.train_mask, as_tuple=True)[0] 
+        val_idx = torch.nonzero(data.val_mask, as_tuple=True)[0]  
+        test_idx = torch.nonzero(data.test_mask, as_tuple=True)[0]    
+        split_idx = {'train': train_idx.to(torch.int32), # 14708:1572:37745
+                'valid': val_idx.to(torch.int32),
+                'test': test_idx.to(torch.int32)}
+        num_classes = 47
+        
     elif dataset_name in ["ogbn-proteins"]:
         from torch_scatter import scatter
         ogb_dataset = DglNodePropPredDataset(name=dataset_name, root=dataset_dir)

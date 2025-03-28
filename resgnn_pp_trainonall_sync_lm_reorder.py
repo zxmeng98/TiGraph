@@ -259,16 +259,16 @@ if __name__ == "__main__":
     # Load and preprocess dataset
     g, split_idx, features, labels, num_classes = get_dataset(args.dataset)
     LM_emb_path = f"./lm_workloads/prt_lm/{args.dataset}/microsoft/deberta-base-seed0.emb"
-    # if os.path.exists(LM_emb_path):
-    #     if rank == 0:
-    #         print("Loading trained LM features (title and abstract) ...")
-    #         print(f"LM_emb_path: {LM_emb_path}")
-    #     features = torch.from_numpy(np.array(
-    #             np.memmap(LM_emb_path, mode='r',
-    #                     dtype=np.float16,
-    #                     shape=(g.num_nodes(), 768)))
-    #     ).to(torch.float32)
-    #     g.ndata['feat'] = features
+    if os.path.exists(LM_emb_path):
+        if rank == 0:
+            print("Loading trained LM features (title and abstract) ...")
+            print(f"LM_emb_path: {LM_emb_path}")
+        features = torch.from_numpy(np.array(
+                np.memmap(LM_emb_path, mode='r',
+                        dtype=np.float16,
+                        shape=(g.num_nodes(), 768)))
+        ).to(torch.float32)
+        g.ndata['feat'] = features
 
     data_processed = DataProcess(args, g, split_idx, features, labels)
     args.in_size = data_processed.features.shape[1]
