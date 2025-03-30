@@ -215,7 +215,7 @@ class MyTrainer(Trainer):
         return SequentialSampler(self.train_dataset)
 
 
-    def training_step(self, model: nn.Module, inputs: Dict[str, Union[torch.Tensor, Any]], train_by_degree=True) -> torch.Tensor:
+    def training_step(self, model: nn.Module, inputs: Dict[str, Union[torch.Tensor, Any]], train_by_degree=False) -> torch.Tensor:
         """
         Perform a training step on a batch of inputs.
 
@@ -291,7 +291,7 @@ class MyTrainer(Trainer):
             total_batches = len(self.get_train_dataloader())
             if hasattr(self.data, 'degree_groups'):
                 num_groups = len(self.data.degree_groups)  # Or get dynamically if variable: len(self.data.degree_groups) if hasattr(self.data, 'degree_groups') else 3
-            
+
             # Determine which group this batch belongs to (0 = highest degree, num_groups-1 = lowest degree)
             batch_group = min(num_groups - 1, int(self._current_batch_idx * num_groups / total_batches))
             # Set exit_layer based on group

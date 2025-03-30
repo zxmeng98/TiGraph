@@ -235,9 +235,16 @@ if __name__ == "__main__":
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(args.seed)
     
-    # Initialize small worload PID
-    init_small_workload_pid(args.pid)
-    small_workload_pid = args.pid
+    # Initialize small workload PID
+    pid = None
+    if args.pid is not None:
+        if len(args.pid) > rank:  # This rank has a specified PID
+            pid = args.pid[rank]
+        elif len(args.pid) == 1 and rank == 0:  # Only first rank gets the single PID
+            pid = args.pid[0]
+
+    init_small_workload_pid(pid)
+    small_workload_pid = pid
 
     # Load and preprocess dataset
     g, split_idx, features, labels, num_classes = get_dataset(args.dataset)

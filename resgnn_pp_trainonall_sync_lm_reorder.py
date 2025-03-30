@@ -19,6 +19,7 @@ from pipelining import pipeline, SplitPoint, PipelineStage
 from pipelining.schedules_interleave_dp_reorder import ScheduleGPipe
 from pipelining._utils import partition_uniform
 from utils.dataset import get_dataset, intersection, DataProcess, reformat_graph, split_mb_in_advance
+from od_execution.client import send_signal
 from pipelining.initialize import (
     init_distributed, 
     init_small_workload_pid, 
@@ -317,6 +318,10 @@ if __name__ == "__main__":
 
     # Split in advance
     preprocessed_batches = split_mb_in_advance(data_processed.num_batches, schedule, packed_batch, device, k=4)
+
+    # After pp workload start up, pause the small workload till the bubble
+    if rank == 0 and small_workload_pid is not None:
+        send_signal(small_workload_pid, "pause")
 
     # model training
     if rank == 0:

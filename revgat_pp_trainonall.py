@@ -417,8 +417,4 @@ if __name__ == "__main__":
         np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{num_batches}b_{num_microbatches}mb_{args.lm_model}_loss', np.array(loss_list))
         np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{num_batches}b_{num_microbatches}mb_{args.lm_model}_val_acc', np.array(val_acc_list))
         np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{num_batches}b_{num_microbatches}mb_{args.lm_model}_test_acc', np.array(test_acc_list))
-<<<<<<< HEAD
-=======
-
->>>>>>> update eval results from 40
     dist.destroy_process_group()

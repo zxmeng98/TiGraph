@@ -24,18 +24,18 @@ def load_gpt_preds(dataset, topk):
 
 
 def load_data(dataset, use_dgl=False, use_text=False, use_gpt=False, seed=0):
-    # if dataset == 'cora':
-    #     from .load_cora import get_raw_text_cora as get_raw_text
-    #     num_classes = 7
-    # elif dataset == 'pubmed':
-    #     from core.data_utils.load_pubmed import get_raw_text_pubmed as get_raw_text
-    #     num_classes = 3
-    if dataset == 'ogbn-arxiv':
+    if dataset == 'cora':
+        from .load_cora import get_raw_text_cora as get_raw_text
+        num_classes = 7
+    elif dataset == 'pubmed':
+        from .load_pubmed import get_raw_text_pubmed as get_raw_text
+        num_classes = 3
+    elif dataset == 'ogbn-arxiv':
         from .load_arxiv import get_raw_text_arxiv as get_raw_text
         num_classes = 40
-    # elif dataset == 'ogbn-products':
-    #     from core.data_utils.load_products import get_raw_text_products as get_raw_text
-    #     num_classes = 47
+    elif dataset == 'ogbn-products':
+        from .load_products import get_raw_text_products as get_raw_text
+        num_classes = 47
     # elif dataset == 'arxiv_2023':
     #     from core.data_utils.load_arxiv_2023 import get_raw_text_arxiv_2023 as get_raw_text
     #     num_classes = 40
@@ -86,8 +86,23 @@ def sorted_nodes_by_degree(data, train_indices):
     # Calculate node degrees if not already calculated
     if not hasattr(data, 'node_degrees'):
         # Use the edge_index to calculate degrees
-        row, col, _ = data.adj_t.coo()
-        data.node_degrees = torch.bincount(row, minlength=data.num_nodes)
+        if hasattr(data, 'adj_t'):
+            # PyG 格式(使用 adj_t)
+            row, col, _ = data.adj_t.coo()
+            data.node_degrees = torch.bincount(row, minlength=data.num_nodes)
+        elif hasattr(data, 'edge_index'):
+            # PyG 格式(使用 edge_index)
+            row, col = data.edge_index
+            data.node_degrees = torch.bincount(row, minlength=data.num_nodes)
+        elif hasattr(data, 'g') and hasattr(data.g, 'in_degrees'):
+            # CustomDGLDataset 格式
+            data.node_degrees = data.g.in_degrees()
+        else:
+            # 直接尝试 DGL 方法
+            try:
+                data.node_degrees = data.in_degrees()
+            except:
+                raise AttributeError(f"无法计算节点度数，不支持的数据对象类型: {type(data)}")
 
     # Get degrees of training nodes
     train_node_degrees = data.node_degrees[train_indices]

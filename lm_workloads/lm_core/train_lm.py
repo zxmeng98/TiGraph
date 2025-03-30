@@ -87,7 +87,7 @@ class PrintEpochTimeCallback(TrainerCallback):
     def on_step_end(self, args, state, control, **kwargs):
         torch.cuda.synchronize() 
         step_time = time.time() - self.step_start_time # NOTE: 开了梯度累积这里统计的时间后面的epoch可能不对，因为step_begin是根据step%accum_steps==0来的，但是step_end是根据total_batched_samples % args.gradient_accumulation_steps==0，一个epoch结束后step会从0开始，但是total_batched_samples一直是累加的，后面这俩不同步了，间隔为accum_step就被打乱了。
-        slowdown_threshold = 2.3  # seconds - adjust based on your normal iteration time
+        slowdown_threshold = 1.7  # seconds - adjust based on your normal iteration time
     
         if step_time > slowdown_threshold:
             self.itrlv_iter_time_list.append(step_time) 
@@ -104,7 +104,8 @@ class PrintEpochTimeCallback(TrainerCallback):
                     
                     # Add iteration time info based on available data
                     if len(self.iter_time_list) >= 5:
-                        print_str += f"Iter Time = {np.mean(self.iter_time_list[5:]):.4f}s."
+                        print_str += f"Avg Iter Time = {np.mean(self.iter_time_list[5:]):.4f}s."
+                        # print_str += f"Iter Time = {step_time:.4f}s."
                     else:
                         print_str += f"Iter Time = {step_time:.4f}s."
                     
@@ -189,7 +190,7 @@ class LMTrainer():
         emb = np.memmap(init_path(f"{self.ckpt_dir}.emb"),
                         dtype=np.float16,
                         mode='w+',
-                        shape=(self.num_nodes, int(self.gnn_input_dim)))
+                        shape=(self.num_nodes, self.feat_shrink if self.feat_shrink else 768))
         pred = np.memmap(init_path(f"{self.ckpt_dir}.pred"),
                          dtype=np.float16,
                          mode='w+',
@@ -288,7 +289,7 @@ class LMTrainer():
         emb = np.memmap(init_path(f"{self.ckpt_dir}.emb"),
                         dtype=np.float16,
                         mode='w+',
-                        shape=(self.num_nodes, int(self.gnn_input_dim)))
+                        shape=(self.num_nodes, self.feat_shrink if self.feat_shrink else 768))
         pred = np.memmap(init_path(f"{self.ckpt_dir}.pred"),
                          dtype=np.float16,
                          mode='w+',
@@ -312,9 +313,9 @@ class LMTrainer():
         if "ogbn" in self.dataset_name:
             from ogb.nodeproppred import Evaluator
             _evaluator = Evaluator(name=self.dataset_name)
-        # else:
-        #     from core.GNNs.gnn_utils import Evaluator
-        #     _evaluator = Evaluator(name=self.dataset_name)
+        else:
+            from .gnn_utils import Evaluator
+            _evaluator = Evaluator(name=self.dataset_name)
 
         def evaluator(preds, labels): return _evaluator.eval({
             "y_true": torch.tensor(labels).view(-1, 1),
@@ -341,6 +342,8 @@ def run(cfg):
         init_dp()
         print(f"rank: {rank}, PID: {os.getpid()}")
         trainer = LMTrainer(cfg)
+
+        # time.sleep(20)
 
         timestamp = time.time()
         local_time = time.localtime(timestamp)

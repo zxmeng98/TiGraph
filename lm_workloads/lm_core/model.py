@@ -54,7 +54,7 @@ class BertClassifier(PreTrainedModel):
         cls_token_emb = emb.permute(1, 0, 2)[0]
         if self.feat_shrink:
             cls_token_emb = self.feat_shrink_layer(cls_token_emb)
-        cls_token_emb_save = self.feat_to_gnn_input_layer(cls_token_emb_save)
+        # cls_token_emb_save = self.feat_to_gnn_input_layer(cls_token_emb_save)
         self.emb[batch_nodes] = cls_token_emb_save.detach().cpu().numpy().astype(np.float16)
         logits = self.classifier(cls_token_emb)
 
@@ -96,8 +96,7 @@ class BertClaInfModel(PreTrainedModel):
         if self.feat_shrink:
             cls_token_emb = self.bert_classifier.feat_shrink_layer(
                 cls_token_emb)
-        else:
-            cls_token_emb = self.bert_classifier.feat_to_gnn_input_layer(
+        cls_token_emb_save = self.bert_classifier.feat_to_gnn_input_layer(
                 cls_token_emb)
         logits = self.bert_classifier.classifier(cls_token_emb)
 
