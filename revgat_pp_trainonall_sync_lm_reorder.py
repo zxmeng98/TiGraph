@@ -394,13 +394,13 @@ if __name__ == "__main__":
     formatted_time = f"{time_str}.{ms:03d}"
     print(f"{args.gnn_model} finish time: {formatted_time}, wall-time: {timestamp1-timestamp0:.3f}s")
         
-    if rank == num_stages - 1:
-        print("Best TestAcc: {:.4f}".format(max(test_acc_list)))
+    # if rank == num_stages - 1:
+    #     print("Best TestAcc: {:.4f}".format(max(test_acc_list)))
 
-        if not os.path.exists(f'./exps/{args.dataset}'): 
-            os.makedirs(f'./exps/{args.dataset}')
-        np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{data_processed.num_batches}b_{num_microbatches}mb_{args.lm_model}_loss', np.array(loss_list))
-        np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{data_processed.num_batches}b_{num_microbatches}mb_{args.lm_model}_val_acc', np.array(val_acc_list))
-        np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{data_processed.num_batches}b_{num_microbatches}mb_{args.lm_model}_test_acc', np.array(test_acc_list))
+    #     if not os.path.exists(f'./exps/{args.dataset}'): 
+    #         os.makedirs(f'./exps/{args.dataset}')
+    #     np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{data_processed.num_batches}b_{num_microbatches}mb_{args.lm_model}_loss', np.array(loss_list))
+    #     np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{data_processed.num_batches}b_{num_microbatches}mb_{args.lm_model}_val_acc', np.array(val_acc_list))
+    #     np.save(f'./exps/{args.dataset}/{args.num_layers}{args.gnn_model}_{num_stages}pp_{data_processed.num_batches}b_{num_microbatches}mb_{args.lm_model}_test_acc', np.array(test_acc_list))
 
     dist.destroy_process_group()

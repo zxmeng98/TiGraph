@@ -1,0 +1,95 @@
+(tigraph) (base) yezhisheng@n122-228-066:~/tigraph$ torchrun --nnodes 1 --nproc_per_node 4 --master_port 2923 revgat_pp_trainonall.py --dataset ogbn-arxiv --num_layers 20 --hidden_channels 256 --bs 169340 --mb_size 84670 --dropout 0.5 --lr 0.002 --epochs 500 --pid 2396756
+W0408 12:08:22.745000 140380958336000 torch/distributed/run.py:779] 
+W0408 12:08:22.745000 140380958336000 torch/distributed/run.py:779] *****************************************
+W0408 12:08:22.745000 140380958336000 torch/distributed/run.py:779] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+W0408 12:08:22.745000 140380958336000 torch/distributed/run.py:779] *****************************************
+> initializing torch distributed ...
+stage=2 layers=10 - 14
+ogbn-arxiv load successfully
+Total nodes: 169340, Train nodes: 90941, Val nodes: 29799, Test nodes: 48600
+Num of train batches: 1, num of train microbatches: 2, microbatch size: 84670
+stage=0 layers=0 - 4
+stage=3 layers=15 - 19
+stage=1 layers=5 - 9
+Training...
+Resume.
+Epoch 00000 | Loss 6.5347 | Epoch Time 7.43s
+Pause.
+Resume.
+Valid acc 3.79% | Test acc 3.84%
+Pause.
+Resume.
+Epoch 00001 | Loss 7.4045 | Epoch Time 1.56s
+Pause.
+Resume.
+Epoch 00002 | Loss 7.7498 | Epoch Time 1.60s
+Pause.
+Resume.
+Epoch 00003 | Loss 5.1221 | Epoch Time 1.59s
+Pause.
+Resume.
+Epoch 00004 | Loss 4.0369 | Epoch Time 1.58s
+Pause.
+Resume.
+Epoch 00005 | Loss 3.4592 | Epoch Time 1.61s
+Pause.
+Resume.
+Valid acc 30.52% | Test acc 33.24%
+Pause.
+Resume.
+Epoch 00006 | Loss 3.4423 | Epoch Time 1.57s
+Pause.
+Resume.
+Epoch 00007 | Loss 2.9072 | Epoch Time 1.61s
+Pause.
+Resume.
+Epoch 00008 | Loss 2.8340 | Epoch Time 1.59s
+Pause.
+Resume.
+Epoch 00009 | Loss 2.6447 | Epoch Time 1.58s
+Pause.
+Resume.
+Epoch 00010 | Loss 2.5701 | Epoch Time 1.60s
+Pause.
+Resume.
+Valid acc 30.27% | Test acc 32.45%
+Pause.
+Resume.
+Epoch 00011 | Loss 2.5350 | Epoch Time 1.56s
+Pause.
+Resume.
+Epoch 00012 | Loss 2.3726 | Epoch Time 1.59s
+Pause.
+Resume.
+Epoch 00013 | Loss 2.3537 | Epoch Time 1.59s
+Pause.
+Resume.
+Epoch 00014 | Loss 2.3515 | Epoch Time 1.58s
+Pause.
+Resume.
+Epoch 00015 | Loss 2.3448 | Epoch Time 1.58s
+Pause.
+Resume.
+Valid acc 44.68% | Test acc 42.31%
+Pause.
+Resume.
+Epoch 00016 | Loss 2.3056 | Epoch Time 1.57s
+Pause.
+Resume.
+Epoch 00017 | Loss 2.3014 | Epoch Time 1.59s
+Pause.
+Resume.
+Epoch 00018 | Loss 2.1979 | Epoch Time 1.59s
+Pause.
+Resume.
+Epoch 00019 | Loss 2.1754 | Epoch Time 1.58s
+Pause.
+Resume.
+Epoch 00020 | Loss 2.1201 | Epoch Time 1.57s
+Pause.
+Resume.
+Valid acc 49.77% | Test acc 49.16%
+Pause.
+Resume.
+Epoch 00021 | Loss 2.1384 | Epoch Time 1.56s
+Pause.

@@ -1,0 +1,42 @@
+(tigraph) (base) yezhisheng@n122-228-066:~/tigraph$ torchrun --nnodes 1 --nproc_per_node 4 --master_port 2923 revgnn_pp_trainonall_sync_data.py --dataset ogbn-arxiv --num_layers 112 --pid 1052842 1052844 1052845 1052846
+W0408 11:34:35.464000 140371140645888 torch/distributed/run.py:779] 
+W0408 11:34:35.464000 140371140645888 torch/distributed/run.py:779] *****************************************
+W0408 11:34:35.464000 140371140645888 torch/distributed/run.py:779] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+W0408 11:34:35.464000 140371140645888 torch/distributed/run.py:779] *****************************************
+> initializing torch distributed ...
+ogbn-arxiv load and processed successfully
+Train nodes: 90941, Val nodes: 29799, Test nodes: 48603
+Num of train batches: 1, num of train microbatches: 2, microbatch size: 84670
+stage=0 layers=0 - 28
+Training...
+stage=2 layers=56 - 84
+stage=3 layers=84 - 112
+stage=1 layers=28 - 56
+Epoch 00000 | Loss 3.8823 | Epoch Time 10.96s
+Epoch 00001 | Loss 3.2861 | Epoch Time 5.27s
+Epoch 00002 | Loss 3.2166 | Epoch Time 4.20s
+Epoch 00003 | Loss 3.1576 | Epoch Time 5.14s
+Epoch 00004 | Loss 3.1303 | Epoch Time 4.27s
+Epoch 00005 | Loss 3.1184 | Epoch Time 5.13s
+Epoch 00006 | Loss 3.1123 | Epoch Time 4.23s
+Epoch 00007 | Loss 3.1077 | Epoch Time 5.13s
+Epoch 00008 | Loss 3.1042 | Epoch Time 4.17s
+Loading trained LM features (title and abstract) ...
+LM_emb_path: ./lm_workloads/prt_lm/ogbn-arxiv2/microsoft/deberta-base-seed0.emb
+Null embeddings found, override with gold embeddings.
+Epoch 00009 | Loss 3.1024 | Epoch Time 5.02s
+Epoch 00010 | Loss 3.1006 | Epoch Time 4.22s
+Epoch 00011 | Loss 3.0991 | Epoch Time 5.14s
+Epoch 00012 | Loss 3.0992 | Epoch Time 4.24s
+Epoch 00013 | Loss 3.0978 | Epoch Time 5.15s
+Epoch 00014 | Loss 3.0959 | Epoch Time 4.22s
+Epoch 00015 | Loss 3.0935 | Epoch Time 5.13s
+Epoch 00016 | Loss 3.0921 | Epoch Time 4.20s
+Epoch 00017 | Loss 3.0904 | Epoch Time 5.14s
+Epoch 00018 | Loss 3.0872 | Epoch Time 4.22s
+Loading trained LM features (title and abstract) ...
+LM_emb_path: ./lm_workloads/prt_lm/ogbn-arxiv2/microsoft/deberta-base-seed0.emb
+Null embeddings found, override with gold embeddings.
+Epoch 00019 | Loss 3.0848 | Epoch Time 5.02s
+Epoch 00020 | Loss 3.0816 | Epoch Time 4.18s
+Epoch 00021 | Loss 3.0763 | Epoch Time 5.11s

@@ -1,0 +1,54 @@
+(tigraph) (base) yezhisheng@n122-228-066:~/tigraph$ torchrun --nnodes 1 --nproc_per_node 4 --master_port 2923 revgat_pp_trainonall.py --dataset ogbn-arxiv --num_layers 20 --hidden_channels 256 --bs 169340 --mb_size 84670 --dropout 0.5 --lr 0.002 --epochs 500 --pid 2152614 2152616 2152617 2152618
+W0408 12:03:03.457000 140592618464256 torch/distributed/run.py:779] 
+W0408 12:03:03.457000 140592618464256 torch/distributed/run.py:779] *****************************************
+W0408 12:03:03.457000 140592618464256 torch/distributed/run.py:779] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+W0408 12:03:03.457000 140592618464256 torch/distributed/run.py:779] *****************************************
+> initializing torch distributed ...
+stage=3 layers=15 - 19
+ogbn-arxiv load successfully
+Total nodes: 169340, Train nodes: 90941, Val nodes: 29799, Test nodes: 48600
+Num of train batches: 1, num of train microbatches: 2, microbatch size: 84670
+stage=0 layers=0 - 4
+stage=1 layers=5 - 9
+stage=2 layers=10 - 14
+Training...
+Resume.
+Epoch 00000 | Loss 6.5347 | Epoch Time 10.67s
+Pause.
+Resume.
+Valid acc 3.79% | Test acc 3.84%
+Pause.
+Resume.
+Epoch 00001 | Loss 7.4045 | Epoch Time 3.61s
+Pause.
+Resume.
+Epoch 00002 | Loss 7.7495 | Epoch Time 3.56s
+Pause.
+Resume.
+Epoch 00003 | Loss 5.1222 | Epoch Time 3.55s
+Pause.
+Resume.
+Epoch 00004 | Loss 4.0376 | Epoch Time 3.57s
+Pause.
+Resume.
+Epoch 00005 | Loss 3.4210 | Epoch Time 3.58s
+Pause.
+Resume.
+Valid acc 33.19% | Test acc 35.45%
+Pause.
+Resume.
+Epoch 00006 | Loss 3.3973 | Epoch Time 3.61s
+Pause.
+Resume.
+Epoch 00007 | Loss 2.9181 | Epoch Time 3.58s
+Pause.
+Resume.
+Epoch 00008 | Loss 2.8606 | Epoch Time 3.51s
+Pause.
+Resume.
+Epoch 00009 | Loss 2.6493 | Epoch Time 3.76s
+Pause.
+Resume.
+Epoch 00010 | Loss 2.5803 | Epoch Time 3.86s
+Pause.
+Resume.

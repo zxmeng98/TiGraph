@@ -1,0 +1,43 @@
+(tigraph) (base) yezhisheng@n122-228-066:~/tigraph$ torchrun --nnodes 1 --nproc_per_node 4 --master_port 2923 revgnn_pp_trainonall_sync_data.py --dataset ogbn-arxiv --num_layers 112
+W0408 11:26:19.525000 139753214026752 torch/distributed/run.py:779] 
+W0408 11:26:19.525000 139753214026752 torch/distributed/run.py:779] *****************************************
+W0408 11:26:19.525000 139753214026752 torch/distributed/run.py:779] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+W0408 11:26:19.525000 139753214026752 torch/distributed/run.py:779] *****************************************
+> initializing torch distributed ...
+ogbn-arxiv load and processed successfully
+Train nodes: 90941, Val nodes: 29799, Test nodes: 48603
+Num of train batches: 1, num of train microbatches: 2, microbatch size: 84670
+stage=0 layers=0 - 28
+stage=3 layers=84 - 112
+Training...
+stage=1 layers=28 - 56
+stage=2 layers=56 - 84
+Epoch 00000 | Loss 3.8823 | Epoch Time 8.34s
+Epoch 00001 | Loss 3.2861 | Epoch Time 3.74s
+Epoch 00002 | Loss 3.2166 | Epoch Time 3.47s
+Epoch 00003 | Loss 3.1576 | Epoch Time 3.43s
+Epoch 00004 | Loss 3.1303 | Epoch Time 3.43s
+Epoch 00005 | Loss 3.1184 | Epoch Time 3.47s
+Epoch 00006 | Loss 3.1123 | Epoch Time 3.42s
+Epoch 00007 | Loss 3.1077 | Epoch Time 3.42s
+Epoch 00008 | Loss 3.1042 | Epoch Time 3.46s
+Loading trained LM features (title and abstract) ...
+LM_emb_path: ./lm_workloads/prt_lm/ogbn-arxiv2/microsoft/deberta-base-seed0.emb
+Null embeddings found, override with gold embeddings.
+Epoch 00009 | Loss 3.1021 | Epoch Time 3.29s
+Epoch 00010 | Loss 3.1002 | Epoch Time 3.42s
+Epoch 00011 | Loss 3.0986 | Epoch Time 3.46s
+Epoch 00012 | Loss 3.0987 | Epoch Time 3.42s
+Epoch 00013 | Loss 3.0972 | Epoch Time 3.43s
+Epoch 00014 | Loss 3.0953 | Epoch Time 3.44s
+Epoch 00015 | Loss 3.0928 | Epoch Time 3.44s
+Epoch 00016 | Loss 3.0912 | Epoch Time 3.42s
+Epoch 00017 | Loss 3.0892 | Epoch Time 3.42s
+Epoch 00018 | Loss 3.0857 | Epoch Time 3.44s
+Epoch 00019 | Loss 3.0830 | Epoch Time 3.38s
+Epoch 00020 | Loss 3.0790 | Epoch Time 3.42s
+Epoch 00021 | Loss 3.0728 | Epoch Time 3.43s
+Epoch 00022 | Loss 3.0646 | Epoch Time 3.45s
+Epoch 00023 | Loss 3.0562 | Epoch Time 3.45s
+Epoch 00024 | Loss 3.0422 | Epoch Time 3.43s
+Epoch 00025 | Loss 3.0256 | Epoch Time 3.42s

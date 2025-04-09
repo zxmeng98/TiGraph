@@ -53,8 +53,8 @@ pp_profile = torch.profiler.profile(
     # f"./tensorboard_trace/revgnn_pp{num_stages}_stage{stage_index}_iter/"
     # with_stack=True,
     record_shapes=True,
-    with_modules=True,
-    # profile_memory=True,
+    # with_modules=True,
+    profile_memory=True,
 )
         
 
@@ -78,8 +78,8 @@ class PrintEpochTimeCallback(TrainerCallback):
     def get_rank(self):
         return dist.get_rank() if dist.is_initialized() else 0
 
-    # def on_train_begin(self, args, state, control, **kwargs):
-    #     pp_profile.start()  
+    def on_train_begin(self, args, state, control, **kwargs):
+        pp_profile.start()  
         
     def on_step_begin(self, args, state, control, **kwargs):
         self.step_start_time = time.time()
@@ -93,7 +93,7 @@ class PrintEpochTimeCallback(TrainerCallback):
             self.itrlv_iter_time_list.append(step_time) 
         else:
             self.iter_time_list.append(step_time)
-        # pp_profile.step()  
+        pp_profile.step()  
 
         if self.get_rank() == 0:
             if state.log_history:

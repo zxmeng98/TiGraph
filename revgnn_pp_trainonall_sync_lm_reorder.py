@@ -232,7 +232,7 @@ if __name__ == "__main__":
     if args.pid is not None:
         if len(args.pid) > rank:  # This rank has a specified PID
             pid = args.pid[rank]
-        elif len(args.pid) == 1 and rank == 0:  # Only first rank gets the single PID
+        elif len(args.pid) == 1 and rank == 1:  # Only first rank gets the single PID
             pid = args.pid[0]
 
     init_small_workload_pid(pid)
