@@ -215,7 +215,7 @@ class MyTrainer(Trainer):
         return SequentialSampler(self.train_dataset)
 
 
-    def training_step(self, model: nn.Module, inputs: Dict[str, Union[torch.Tensor, Any]], train_by_degree=False) -> torch.Tensor:
+    def training_step(self, model: nn.Module, inputs: Dict[str, Union[torch.Tensor, Any]], train_by_degree=True) -> torch.Tensor:
         """
         Perform a training step on a batch of inputs.
 

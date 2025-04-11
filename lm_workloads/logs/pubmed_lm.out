@@ -1,0 +1,128 @@
+rank: 3, PID: 2173128
+rank: 0, PID: 2173125
+rank: 2, PID: 2173127
+rank: 1, PID: 2173126
+rank: 1, PID: 2174847
+rank: 2, PID: 2174848
+rank: 0, PID: 2174846
+rank: 3, PID: 2174849
+rank: 0, PID: 2175306
+rank: 3, PID: 2175309
+rank: 2, PID: 2175308
+rank: 1, PID: 2175307
+Tokenizer in 6.2086 seconds.
+Train nodes: 2304, Val nodes: 3943, Test nodes: 3944
+
+Number of parameters: 138702467
+LM start time: 2025-04-11 18:16:28.321
+Start running train at 04-11 18:16:28
+
+Number of parameters: 138702467
+LM start time: 2025-04-11 18:16:28.393
+Start running train at 04-11 18:16:28
+Created directory lm_workloads/exps_lm/pubmed/microsoft/deberta-base-seed0/
+
+Number of parameters: 138702467
+LM start time: 2025-04-11 18:16:28.818
+Start running train at 04-11 18:16:28
+
+Number of parameters: 138702467
+LM start time: 2025-04-11 18:16:28.875
+Start running train at 04-11 18:16:28
+[2025-04-11 18:16:29,158] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2025-04-11 18:16:29,191] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2025-04-11 18:16:29,638] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2025-04-11 18:16:29,703] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+DDP-DDP-DDP-DDP-DDP-DDP-DDP
+DDP-DDP-DDP-DDP-DDP-DDP-DDP
+DDP-DDP-DDP-DDP-DDP-DDP-DDP
+DDP-DDP-DDP-DDP-DDP-DDP-DDP
+Rank 0, Iter 2/48: Loss = 1.2914, Iter Time = 0.8112s.
+Rank 0, Iter 3/48: Loss = 1.1956, Iter Time = 0.8139s.
+Rank 0, Iter 4/48: Loss = 1.2199, Iter Time = 0.8027s.
+Rank 0, Iter 5/48: Loss = 1.2783, Iter Time = 0.6148s.
+Rank 0, Iter 6/48: Loss = 1.3730, Iter Time = 0.6158s.
+Rank 0, Iter 7/48: Loss = 1.4142, Iter Time = 0.6163s.
+Rank 0, Iter 8/48: Loss = 1.2791, Iter Time = 0.6165s.
+Rank 0, Iter 9/48: Loss = 1.1967, Iter Time = 0.4213s.
+Rank 0, Iter 10/48: Loss = 1.1001, Iter Time = 0.4214s.
+Rank 0, Iter 11/48: Loss = 1.0616, Iter Time = 0.4314s.
+Rank 0, Iter 12/48: Loss = 1.1075, Iter Time = 0.4287s.
+Rank 0, Iter 13/48: Loss = 1.0664, Iter Time = 0.2330s.
+Rank 0, Iter 14/48: Loss = 1.1385, Iter Time = 0.2489s.
+Rank 0, Iter 15/48: Loss = 1.0811, Iter Time = 0.2605s.
+Rank 0, Iter 16/48: Loss = 1.0865, Iter Time = 0.4291s.
+Rank 0, Iter 17/48: Loss = 1.0857, Iter Time = 0.8498s.
+Rank 0, Iter 18/48: Loss = 1.0957, Iter Time = 0.8370s.
+Rank 0, Iter 19/48: Loss = 1.2212, Iter Time = 0.8357s.
+Rank 0, Iter 20/48: Loss = 1.1146, Iter Time = 0.8370s.
+Rank 0, Iter 21/48: Loss = 1.0962, Iter Time = 0.6219s.
+Rank 0, Iter 22/48: Loss = 1.4145, Iter Time = 0.6192s.
+Rank 0, Iter 23/48: Loss = 1.2892, Iter Time = 0.6215s.
+Rank 0, Iter 24/48: Loss = 1.2351, Iter Time = 0.6218s.
+Rank 0, Iter 25/48: Loss = 1.1701, Iter Time = 0.4258s.
+Rank 0, Iter 26/48: Loss = 1.2235, Iter Time = 0.4255s.
+Rank 0, Iter 27/48: Loss = 1.1547, Iter Time = 0.4262s.
+Rank 0, Iter 28/48: Loss = 1.0750, Iter Time = 0.4250s.
+Rank 0, Iter 29/48: Loss = 1.0587, Iter Time = 0.2293s.
+Rank 0, Iter 30/48: Loss = 1.0929, Iter Time = 0.2377s.
+Rank 0, Iter 31/48: Loss = 1.0908, Iter Time = 0.2499s.
+Rank 0, Iter 32/48: Loss = 1.0884, Iter Time = 0.4185s.
+Rank 0, Iter 33/48: Loss = 1.0895, Iter Time = 0.8328s.
+Rank 0, Iter 34/48: Loss = 1.0785, Iter Time = 0.8189s.
+Rank 0, Iter 35/48: Loss = 1.1161, Iter Time = 0.8199s.
+Rank 0, Iter 36/48: Loss = 1.1002, Iter Time = 0.8207s.
+Rank 0, Iter 37/48: Loss = 1.0739, Iter Time = 0.6221s.
+Rank 0, Iter 38/48: Loss = 1.0195, Iter Time = 0.6232s.
+Rank 0, Iter 39/48: Loss = 1.0801, Iter Time = 0.6232s.
+Rank 0, Iter 40/48: Loss = 1.0564, Iter Time = 0.6237s.
+Rank 0, Iter 41/48: Loss = 1.0704, Iter Time = 0.4261s.
+Rank 0, Iter 42/48: Loss = 1.0383, Iter Time = 0.4270s.
+Rank 0, Iter 43/48: Loss = 1.0133, Iter Time = 0.4275s.
+Rank 0, Iter 44/48: Loss = 1.0667, Iter Time = 0.4276s.
+Rank 0, Iter 45/48: Loss = 1.0213, Iter Time = 0.2310s.
+Rank 0, Iter 46/48: Loss = 1.0543, Iter Time = 0.2367s.
+Rank 0, Iter 47/48: Loss = 1.0336, Iter Time = 0.2524s.
+Rank 0, Iter 48/48: Loss = 1.0369, Iter Time = 0.4434s.
+rank: 0, PID: 2183817
+rank: 3, PID: 2183820
+rank: 2, PID: 2183819
+rank: 1, PID: 2183818
+Tokenizer in 6.3445 seconds.
+Train nodes: 11830, Val nodes: 3943, Test nodes: 3944
+
+Number of parameters: 138702467
+LM start time: 2025-04-11 18:26:25.261
+Start running train at 04-11 18:26:25
+
+Number of parameters: 138702467
+LM start time: 2025-04-11 18:26:25.441
+Start running train at 04-11 18:26:25
+
+Number of parameters: 138702467
+LM start time: 2025-04-11 18:26:25.635
+Start running train at 04-11 18:26:25
+
+Number of parameters: 138702467
+LM start time: 2025-04-11 18:26:25.977
+Start running train at 04-11 18:26:25
+[2025-04-11 18:26:26,038] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2025-04-11 18:26:26,279] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2025-04-11 18:26:26,323] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+[2025-04-11 18:26:26,714] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
+DDP-DDP-DDP-DDP-DDP-DDP-DDP
+DDP-DDP-DDP-DDP-DDP-DDP-DDP
+DDP-DDP-DDP-DDP-DDP-DDP-DDP
+DDP-DDP-DDP-DDP-DDP-DDP-DDP
+Rank 0, Iter 2/246: Loss = 1.2914, Iter Time = 0.8184s.
+Rank 0, Iter 3/246: Loss = 1.1956, Iter Time = 0.8251s.
+Rank 0, Iter 4/246: Loss = 1.2199, Iter Time = 0.8108s.
+Rank 0, Iter 5/246: Loss = 1.2774, Iter Time = 0.8198s.
+Step 5 - Eval Accuracy: 0.3929
+
+Step 5 - Eval Accuracy: 0.3929
+
+Step 5 - Eval Accuracy: 0.3929
+
+Step 5 - Eval Accuracy: 0.3929
+

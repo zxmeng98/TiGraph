@@ -96,24 +96,26 @@ class PrintEpochTimeCallback(TrainerCallback):
         pp_profile.step()  
 
         if self.get_rank() == 0:
-            if state.log_history:
-                loss = state.log_history[-1]["loss"] 
-                if loss is not None:
-                    # Base print string with common information
-                    print_str = f"Rank {self.get_rank()}, Iter {state.global_step}/{state.max_steps}: Loss = {loss:.4f}, "
+            print_str = f"Rank {self.get_rank()}, Iter {state.global_step}/{state.max_steps}: Iter Time = {step_time:.4f}s."
+            print(print_str)
+            # if state.log_history:
+            #     loss = state.log_history[-1]["loss"] 
+            #     if loss is not None:
+            #         # Base print string with common information
+            #         print_str = f"Rank {self.get_rank()}, Iter {state.global_step}/{state.max_steps}: Loss = {loss:.4f}, "
                     
-                    # Add iteration time info based on available data
-                    if len(self.iter_time_list) >= 5:
-                        print_str += f"Avg Iter Time = {np.mean(self.iter_time_list[5:]):.4f}s."
-                        # print_str += f"Iter Time = {step_time:.4f}s."
-                    else:
-                        print_str += f"Iter Time = {step_time:.4f}s."
+            #         # Add iteration time info based on available data
+            #         if len(self.iter_time_list) >= 5:
+            #             # print_str += f"Avg Iter Time = {np.mean(self.iter_time_list[5:]):.4f}s."
+            #             print_str += f"Iter Time = {step_time:.4f}s."
+            #         else:
+            #             print_str += f"Iter Time = {step_time:.4f}s."
                     
-                    # Add interleaved time info if available
-                    if len(self.itrlv_iter_time_list) > 0:
-                        print_str = f"Rank {self.get_rank()}, Iter {state.global_step}/{state.max_steps}: Loss = {loss:.4f}, Iter Time = {step_time:.4f}s, Avg Interlvd Time: {np.mean(self.itrlv_iter_time_list):.4f}s."
+            #         # Add interleaved time info if available
+            #         if len(self.itrlv_iter_time_list) > 0:
+            #             print_str = f"Rank {self.get_rank()}, Iter {state.global_step}/{state.max_steps}: Loss = {loss:.4f}, Iter Time = {step_time:.4f}s, Avg Interlvd Time: {np.mean(self.itrlv_iter_time_list):.4f}s."
                         
-                    print(print_str)
+            #         print(print_str)
             # print(f"Iter {state.global_step}/{state.max_steps}: Iter Time = {step_time:.4f} s.")
         
     # def on_epoch_end(self, args, state, control, **kwargs):
@@ -133,6 +135,45 @@ class PrintEpochTimeCallback(TrainerCallback):
     # def on_train_end(self, args, state, control, **kwargs):
     #     pp_profile.stop()  # 停止 Profiler
     #     print("Profiling Complete! View results in TensorBoard.")
+
+
+class MetricsTrackingCallback(TrainerCallback):
+    """Custom callback to track and save metrics at each evaluation step."""
+    
+    def __init__(self, output_path=None):
+        super().__init__()
+        self.metrics_history = {
+            'global_step': [],
+            'eval_loss': [],
+            'eval_accuracy': [],
+        }
+        self.output_path = output_path
+        
+    def on_evaluate(self, args, state, control, metrics=None, **kwargs):
+        if metrics is not None:
+            # Save the current global step
+            self.metrics_history['global_step'].append(state.global_step)
+            
+            # Save the metrics from this evaluation
+            if 'eval_loss' in metrics:
+                self.metrics_history['eval_loss'].append(metrics['eval_loss'])
+            if 'eval_accuracy' in metrics:
+                self.metrics_history['eval_accuracy'].append(metrics['eval_accuracy'])
+            
+            # Print metrics for this step
+            print(f"Step {state.global_step} - Eval Accuracy: {metrics.get('eval_accuracy', 'N/A'):.4f}\n")
+            
+            # Optionally save metrics to file
+            if self.output_path:
+                try:
+                    import pandas as pd
+                    metrics_df = pd.DataFrame(self.metrics_history)
+                    metrics_df.to_csv(self.output_path, index=False)
+                except Exception as e:
+                    print(f"Error saving metrics to file: {e}")
+    
+    def get_metrics_history(self):
+        return self.metrics_history
 
 
 class LMTrainer():
@@ -156,6 +197,7 @@ class LMTrainer():
         self.lr = cfg.lm.train.lr
 
         self.use_gpt_str = "2" if cfg.lm.train.use_gpt else ""
+        self.exps_dir = f'lm_workloads/exps_lm/{self.dataset_name}{self.use_gpt_str}/{self.model_name}-seed{self.seed}'
         self.output_dir = f'lm_workloads/output/{self.dataset_name}{self.use_gpt_str}/{self.model_name}-seed{self.seed}'
         self.ckpt_dir = f'lm_workloads/prt_lm/{self.dataset_name}{self.use_gpt_str}/{self.model_name}-seed{self.seed}'
 
@@ -224,7 +266,7 @@ class LMTrainer():
         eq_batch_size = self.batch_size * 4
         train_steps = self.num_nodes // eq_batch_size + 1
         # eval_steps = self.eval_patience // eq_batch_size
-        eval_steps = len(self.train_dataset) // 3
+        eval_steps = 10 if self.dataset_name == 'ogbn-arxiv' else 5
         warmup_steps = int(self.warmup_epochs * train_steps) 
 
         # if torch.cuda.device_count() > 1:
@@ -272,7 +314,10 @@ class LMTrainer():
             train_dataset=self.train_dataset,
             eval_dataset=self.eval_dataset,
             compute_metrics=compute_metrics,
-            callbacks=[PrintEpochTimeCallback(self.model, self.ckpt_dir, self.num_nodes, self.feat_shrink)],
+            callbacks=[
+                PrintEpochTimeCallback(self.model, self.ckpt_dir, self.num_nodes, self.feat_shrink), 
+                MetricsTrackingCallback(output_path=init_path(f'{self.exps_dir}/metrics.csv')),
+                ],
             # callbacks=[EarlyStoppingCallback(early_stopping_patience=3)],
         )
 

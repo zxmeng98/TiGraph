@@ -1,0 +1,625 @@
+{'loss': 3.418, 'grad_norm': 3.2763895988464355, 'learning_rate': 1.994193718659277e-05, 'epoch': 0.00870942201108472}
+Rank 0, Iter 23/7578: Loss = 3.4180, Iter Time = 0.3030 s.
+{'loss': 3.3009, 'grad_norm': 3.0716609954833984, 'learning_rate': 1.9939297967801532e-05, 'epoch': 0.009105304829770388}
+Rank 0, Iter 24/7578: Loss = 3.3009, Iter Time = 0.3023 s.
+{'loss': 3.3155, 'grad_norm': 3.741748571395874, 'learning_rate': 1.9936658749010293e-05, 'epoch': 0.009501187648456057}
+Rank 0, Iter 25/7578: Loss = 3.3155, Iter Time = 0.3020 s.
+{'loss': 3.2634, 'grad_norm': 3.642267942428589, 'learning_rate': 1.993401953021906e-05, 'epoch': 0.009897070467141725}
+Rank 0, Iter 26/7578: Loss = 3.2634, Iter Time = 0.3024 s.
+{'loss': 3.4883, 'grad_norm': 3.459047794342041, 'learning_rate': 1.993138031142782e-05, 'epoch': 0.010292953285827395}
+Rank 0, Iter 27/7578: Loss = 3.4883, Iter Time = 0.3021 s.
+{'loss': 3.3524, 'grad_norm': 3.1722471714019775, 'learning_rate': 1.992874109263658e-05, 'epoch': 0.010688836104513063}
+Rank 0, Iter 28/7578: Loss = 3.3524, Iter Time = 0.3023 s.
+{'loss': 3.17, 'grad_norm': 3.3752598762512207, 'learning_rate': 1.9926101873845343e-05, 'epoch': 0.011084718923198733}
+Rank 0, Iter 29/7578: Loss = 3.1700, Iter Time = 0.3026 s.
+{'loss': 3.3433, 'grad_norm': 3.7286832332611084, 'learning_rate': 1.9923462655054108e-05, 'epoch': 0.011480601741884403}
+Rank 0, Iter 30/7578: Loss = 3.3433, Iter Time = 0.3030 s.
+{'loss': 3.1061, 'grad_norm': 3.86507248878479, 'learning_rate': 1.992082343626287e-05, 'epoch': 0.011876484560570071}
+Rank 0, Iter 31/7578: Loss = 3.1061, Iter Time = 0.3021 s.
+{'loss': 3.4474, 'grad_norm': 4.079928398132324, 'learning_rate': 1.991818421747163e-05, 'epoch': 0.01227236737925574}
+Rank 0, Iter 32/7578: Loss = 3.4474, Iter Time = 0.3149 s.
+{'loss': 3.1988, 'grad_norm': 4.2148118019104, 'learning_rate': 1.9915544998680393e-05, 'epoch': 0.012668250197941409}
+Rank 0, Iter 33/7578: Loss = 3.1988, Iter Time = 0.3022 s.
+{'loss': 3.0831, 'grad_norm': 4.507480144500732, 'learning_rate': 1.9912905779889154e-05, 'epoch': 0.013064133016627079}
+Rank 0, Iter 34/7578: Loss = 3.0831, Iter Time = 0.3021 s.
+{'loss': 3.0665, 'grad_norm': 3.831568479537964, 'learning_rate': 1.9910266561097916e-05, 'epoch': 0.013460015835312747}
+Rank 0, Iter 35/7578: Loss = 3.0665, Iter Time = 0.3051 s.
+{'loss': 3.1445, 'grad_norm': 3.8681018352508545, 'learning_rate': 1.9907627342306678e-05, 'epoch': 0.013855898653998416}
+Rank 0, Iter 36/7578: Loss = 3.1445, Iter Time = 0.3034 s.
+{'loss': 3.0399, 'grad_norm': 4.175502300262451, 'learning_rate': 1.990498812351544e-05, 'epoch': 0.014251781472684086}
+Rank 0, Iter 37/7578: Loss = 3.0399, Iter Time = 0.3025 s.
+{'loss': 3.1115, 'grad_norm': 4.315795421600342, 'learning_rate': 1.99023489047242e-05, 'epoch': 0.014647664291369754}
+Rank 0, Iter 38/7578: Loss = 3.1115, Iter Time = 0.3030 s.
+{'loss': 3.1655, 'grad_norm': 4.155198574066162, 'learning_rate': 1.9899709685932966e-05, 'epoch': 0.015043547110055424}
+Rank 0, Iter 39/7578: Loss = 3.1655, Iter Time = 0.3028 s.
+{'loss': 3.0485, 'grad_norm': 4.281932830810547, 'learning_rate': 1.9897070467141727e-05, 'epoch': 0.015439429928741092}
+Rank 0, Iter 40/7578: Loss = 3.0485, Iter Time = 0.3027 s.
+{'loss': 3.1689, 'grad_norm': 4.057400226593018, 'learning_rate': 1.989443124835049e-05, 'epoch': 0.01583531274742676}
+Rank 0, Iter 41/7578: Loss = 3.1689, Iter Time = 0.3034 s.
+{'loss': 2.9107, 'grad_norm': 4.04713249206543, 'learning_rate': 1.989179202955925e-05, 'epoch': 0.01623119556611243}
+Rank 0, Iter 42/7578: Loss = 2.9107, Iter Time = 0.3024 s.
+{'loss': 3.0455, 'grad_norm': 4.251405239105225, 'learning_rate': 1.9889152810768012e-05, 'epoch': 0.0166270783847981}
+Rank 0, Iter 43/7578: Loss = 3.0455, Iter Time = 0.3032 s.
+{'loss': 2.8484, 'grad_norm': 3.7581851482391357, 'learning_rate': 1.9886513591976777e-05, 'epoch': 0.017022961203483768}
+Rank 0, Iter 44/7578: Loss = 2.8484, Iter Time = 0.3030 s.
+{'loss': 3.0418, 'grad_norm': 4.639902114868164, 'learning_rate': 1.988387437318554e-05, 'epoch': 0.01741884402216944}
+Rank 0, Iter 45/7578: Loss = 3.0418, Iter Time = 0.3025 s.
+{'loss': 2.9644, 'grad_norm': 4.162696361541748, 'learning_rate': 1.98812351543943e-05, 'epoch': 0.017814726840855107}
+Rank 0, Iter 46/7578: Loss = 2.9644, Iter Time = 0.3155 s.
+{'loss': 2.9872, 'grad_norm': 3.743107557296753, 'learning_rate': 1.9878595935603062e-05, 'epoch': 0.018210609659540775}
+Rank 0, Iter 47/7578: Loss = 2.9872, Iter Time = 0.3044 s.
+{'loss': 3.1775, 'grad_norm': 4.156371593475342, 'learning_rate': 1.9875956716811827e-05, 'epoch': 0.018606492478226443}
+Rank 0, Iter 48/7578: Loss = 3.1775, Iter Time = 0.3028 s.
+{'loss': 2.941, 'grad_norm': 5.880876541137695, 'learning_rate': 1.987331749802059e-05, 'epoch': 0.019002375296912115}
+Rank 0, Iter 49/7578: Loss = 2.9410, Iter Time = 0.3032 s.
+{'loss': 2.6668, 'grad_norm': 3.768691062927246, 'learning_rate': 1.987067827922935e-05, 'epoch': 0.019398258115597783}
+Rank 0, Iter 50/7578: Loss = 2.6668, Iter Time = 0.3028 s.
+{'loss': 2.8718, 'grad_norm': 3.814755439758301, 'learning_rate': 1.9868039060438112e-05, 'epoch': 0.01979414093428345}
+Rank 0, Iter 51/7578: Loss = 2.8718, Iter Time = 0.3051 s.
+{'loss': 3.0485, 'grad_norm': 4.0226149559021, 'learning_rate': 1.9865399841646877e-05, 'epoch': 0.020190023752969122}
+Rank 0, Iter 52/7578: Loss = 3.0485, Iter Time = 0.3035 s.
+{'loss': 2.9378, 'grad_norm': 3.9897708892822266, 'learning_rate': 1.9862760622855638e-05, 'epoch': 0.02058590657165479}
+Rank 0, Iter 53/7578: Loss = 2.9378, Iter Time = 0.3034 s.
+{'loss': 2.7312, 'grad_norm': 3.954465627670288, 'learning_rate': 1.98601214040644e-05, 'epoch': 0.02098178939034046}
+Rank 0, Iter 54/7578: Loss = 2.7312, Iter Time = 0.3026 s.
+{'loss': 2.8055, 'grad_norm': 3.8017425537109375, 'learning_rate': 1.985748218527316e-05, 'epoch': 0.021377672209026127}
+Rank 0, Iter 55/7578: Loss = 2.8055, Iter Time = 0.3022 s.
+{'loss': 3.0485, 'grad_norm': 4.373578071594238, 'learning_rate': 1.9854842966481923e-05, 'epoch': 0.021773555027711798}
+Rank 0, Iter 56/7578: Loss = 3.0485, Iter Time = 0.3026 s.
+{'loss': 2.7934, 'grad_norm': 4.250144004821777, 'learning_rate': 1.9852203747690685e-05, 'epoch': 0.022169437846397466}
+Rank 0, Iter 57/7578: Loss = 2.7934, Iter Time = 0.3018 s.
+{'loss': 2.8165, 'grad_norm': 4.0836687088012695, 'learning_rate': 1.9849564528899446e-05, 'epoch': 0.022565320665083134}
+Rank 0, Iter 58/7578: Loss = 2.8165, Iter Time = 0.3022 s.
+{'loss': 2.6732, 'grad_norm': 4.085311412811279, 'learning_rate': 1.9846925310108208e-05, 'epoch': 0.022961203483768806}
+Rank 0, Iter 59/7578: Loss = 2.6732, Iter Time = 0.3025 s.
+{'loss': 2.7081, 'grad_norm': 3.7447168827056885, 'learning_rate': 1.984428609131697e-05, 'epoch': 0.023357086302454474}
+Rank 0, Iter 60/7578: Loss = 2.7081, Iter Time = 0.3024 s.
+{'loss': 2.7027, 'grad_norm': 4.224061489105225, 'learning_rate': 1.9841646872525734e-05, 'epoch': 0.023752969121140142}
+Rank 0, Iter 61/7578: Loss = 2.7027, Iter Time = 0.3155 s.
+{'loss': 2.574, 'grad_norm': 4.164456844329834, 'learning_rate': 1.9839007653734496e-05, 'epoch': 0.02414885193982581}
+Rank 0, Iter 62/7578: Loss = 2.5740, Iter Time = 0.3025 s.
+{'loss': 2.6491, 'grad_norm': 3.4428560733795166, 'learning_rate': 1.9836368434943258e-05, 'epoch': 0.02454473475851148}
+Rank 0, Iter 63/7578: Loss = 2.6491, Iter Time = 0.3096 s.
+{'loss': 2.6825, 'grad_norm': 4.51106595993042, 'learning_rate': 1.983372921615202e-05, 'epoch': 0.02494061757719715}
+Rank 0, Iter 64/7578: Loss = 2.6825, Iter Time = 0.3027 s.
+{'loss': 2.8471, 'grad_norm': 4.592043399810791, 'learning_rate': 1.983108999736078e-05, 'epoch': 0.025336500395882817}
+Rank 0, Iter 65/7578: Loss = 2.8471, Iter Time = 0.3041 s.
+{'loss': 2.8189, 'grad_norm': 4.168270111083984, 'learning_rate': 1.9828450778569546e-05, 'epoch': 0.02573238321456849}
+Rank 0, Iter 66/7578: Loss = 2.8189, Iter Time = 0.3028 s.
+{'loss': 2.6692, 'grad_norm': 4.347479343414307, 'learning_rate': 1.9825811559778307e-05, 'epoch': 0.026128266033254157}
+Rank 0, Iter 67/7578: Loss = 2.6692, Iter Time = 0.3038 s.
+{'loss': 2.5822, 'grad_norm': 4.190952777862549, 'learning_rate': 1.982317234098707e-05, 'epoch': 0.026524148851939825}
+Rank 0, Iter 68/7578: Loss = 2.5822, Iter Time = 0.3029 s.
+{'loss': 2.8583, 'grad_norm': 4.34397554397583, 'learning_rate': 1.982053312219583e-05, 'epoch': 0.026920031670625493}
+Rank 0, Iter 69/7578: Loss = 2.8583, Iter Time = 0.3030 s.
+{'loss': 2.8468, 'grad_norm': 4.756292343139648, 'learning_rate': 1.9817893903404595e-05, 'epoch': 0.027315914489311165}
+Rank 0, Iter 70/7578: Loss = 2.8468, Iter Time = 0.3027 s.
+{'loss': 2.4257, 'grad_norm': 3.9332971572875977, 'learning_rate': 1.9815254684613357e-05, 'epoch': 0.027711797307996833}
+Rank 0, Iter 71/7578: Loss = 2.4257, Iter Time = 0.3028 s.
+{'loss': 2.8392, 'grad_norm': 4.349038124084473, 'learning_rate': 1.981261546582212e-05, 'epoch': 0.0281076801266825}
+Rank 0, Iter 72/7578: Loss = 2.8392, Iter Time = 0.3039 s.
+{'loss': 2.6012, 'grad_norm': 4.069404602050781, 'learning_rate': 1.980997624703088e-05, 'epoch': 0.028503562945368172}
+Rank 0, Iter 73/7578: Loss = 2.6012, Iter Time = 0.3026 s.
+{'loss': 2.3981, 'grad_norm': 3.7458434104919434, 'learning_rate': 1.9807337028239645e-05, 'epoch': 0.02889944576405384}
+Rank 0, Iter 74/7578: Loss = 2.3981, Iter Time = 0.3027 s.
+{'loss': 2.5817, 'grad_norm': 4.3716888427734375, 'learning_rate': 1.9804697809448407e-05, 'epoch': 0.02929532858273951}
+Rank 0, Iter 75/7578: Loss = 2.5817, Iter Time = 0.3026 s.
+{'loss': 2.4255, 'grad_norm': 4.0611653327941895, 'learning_rate': 1.980205859065717e-05, 'epoch': 0.029691211401425176}
+Rank 0, Iter 76/7578: Loss = 2.4255, Iter Time = 0.3032 s.
+{'loss': 2.5502, 'grad_norm': 4.5914411544799805, 'learning_rate': 1.979941937186593e-05, 'epoch': 0.030087094220110848}
+Rank 0, Iter 77/7578: Loss = 2.5502, Iter Time = 0.3032 s.
+{'loss': 2.5324, 'grad_norm': 3.7300474643707275, 'learning_rate': 1.979678015307469e-05, 'epoch': 0.030482977038796516}
+Rank 0, Iter 78/7578: Loss = 2.5324, Iter Time = 0.3030 s.
+{'loss': 2.5164, 'grad_norm': 3.628484010696411, 'learning_rate': 1.9794140934283453e-05, 'epoch': 0.030878859857482184}
+Rank 0, Iter 79/7578: Loss = 2.5164, Iter Time = 0.3031 s.
+{'loss': 2.4069, 'grad_norm': 4.614039897918701, 'learning_rate': 1.9791501715492215e-05, 'epoch': 0.03127474267616785}
+Rank 0, Iter 80/7578: Loss = 2.4069, Iter Time = 0.3062 s.
+{'loss': 2.5599, 'grad_norm': 3.821056842803955, 'learning_rate': 1.9788862496700976e-05, 'epoch': 0.03167062549485352}
+Rank 0, Iter 81/7578: Loss = 2.5599, Iter Time = 0.3101 s.
+{'loss': 2.6096, 'grad_norm': 6.4168572425842285, 'learning_rate': 1.9786223277909738e-05, 'epoch': 0.032066508313539195}
+Rank 0, Iter 82/7578: Loss = 2.6096, Iter Time = 0.3034 s.
+{'loss': 2.2766, 'grad_norm': 3.876035690307617, 'learning_rate': 1.9783584059118503e-05, 'epoch': 0.03246239113222486}
+Rank 0, Iter 83/7578: Loss = 2.2766, Iter Time = 0.3038 s.
+{'loss': 2.6215, 'grad_norm': 4.949821949005127, 'learning_rate': 1.9780944840327265e-05, 'epoch': 0.03285827395091053}
+Rank 0, Iter 84/7578: Loss = 2.6215, Iter Time = 0.3041 s.
+{'loss': 2.4439, 'grad_norm': 3.5314271450042725, 'learning_rate': 1.9778305621536026e-05, 'epoch': 0.0332541567695962}
+Rank 0, Iter 85/7578: Loss = 2.4439, Iter Time = 0.3036 s.
+{'loss': 2.4318, 'grad_norm': 3.977893114089966, 'learning_rate': 1.9775666402744788e-05, 'epoch': 0.03365003958828187}
+Rank 0, Iter 86/7578: Loss = 2.4318, Iter Time = 0.3043 s.
+{'loss': 2.4345, 'grad_norm': 4.652026653289795, 'learning_rate': 1.977302718395355e-05, 'epoch': 0.034045922406967535}
+Rank 0, Iter 87/7578: Loss = 2.4345, Iter Time = 0.3056 s.
+{'loss': 2.3228, 'grad_norm': 3.6692211627960205, 'learning_rate': 1.9770387965162314e-05, 'epoch': 0.0344418052256532}
+Rank 0, Iter 88/7578: Loss = 2.3228, Iter Time = 0.3057 s.
+{'loss': 2.3102, 'grad_norm': 3.7281057834625244, 'learning_rate': 1.9767748746371076e-05, 'epoch': 0.03483768804433888}
+Rank 0, Iter 89/7578: Loss = 2.3102, Iter Time = 0.3031 s.
+{'loss': 2.6856, 'grad_norm': 3.8385634422302246, 'learning_rate': 1.9765109527579837e-05, 'epoch': 0.035233570863024546}
+Rank 0, Iter 90/7578: Loss = 2.6856, Iter Time = 0.3027 s.
+{'loss': 2.5007, 'grad_norm': 3.597386598587036, 'learning_rate': 1.97624703087886e-05, 'epoch': 0.035629453681710214}
+Rank 0, Iter 91/7578: Loss = 2.5007, Iter Time = 0.3024 s.
+{'loss': 2.4207, 'grad_norm': 3.2895021438598633, 'learning_rate': 1.9759831089997364e-05, 'epoch': 0.03602533650039588}
+Rank 0, Iter 92/7578: Loss = 2.4207, Iter Time = 0.3041 s.
+{'loss': 2.624, 'grad_norm': 3.7514073848724365, 'learning_rate': 1.9757191871206126e-05, 'epoch': 0.03642121931908155}
+Rank 0, Iter 93/7578: Loss = 2.6240, Iter Time = 0.3024 s.
+{'loss': 2.557, 'grad_norm': 4.493238925933838, 'learning_rate': 1.9754552652414887e-05, 'epoch': 0.03681710213776722}
+Rank 0, Iter 94/7578: Loss = 2.5570, Iter Time = 0.3021 s.
+{'loss': 2.5273, 'grad_norm': 3.904348611831665, 'learning_rate': 1.975191343362365e-05, 'epoch': 0.03721298495645289}
+Rank 0, Iter 95/7578: Loss = 2.5273, Iter Time = 0.3029 s.
+{'loss': 2.4383, 'grad_norm': 3.6857481002807617, 'learning_rate': 1.974927421483241e-05, 'epoch': 0.03760886777513856}
+Rank 0, Iter 96/7578: Loss = 2.4383, Iter Time = 0.3032 s.
+{'loss': 2.4138, 'grad_norm': 3.902141809463501, 'learning_rate': 1.9746634996041175e-05, 'epoch': 0.03800475059382423}
+Rank 0, Iter 97/7578: Loss = 2.4138, Iter Time = 1.4574 s.
+{'loss': 2.3457, 'grad_norm': 3.096970558166504, 'learning_rate': 1.9743995777249937e-05, 'epoch': 0.0384006334125099}
+Rank 0, Iter 98/7578: Loss = 2.3457, Iter Time = 0.3040 s.
+{'loss': 2.3496, 'grad_norm': 3.2851057052612305, 'learning_rate': 1.97413565584587e-05, 'epoch': 0.038796516231195566}
+Rank 0, Iter 99/7578: Loss = 2.3496, Iter Time = 0.3029 s.
+{'loss': 2.3468, 'grad_norm': 2.9042813777923584, 'learning_rate': 1.973871733966746e-05, 'epoch': 0.039192399049881234}
+Rank 0, Iter 100/7578: Loss = 2.3468, Iter Time = 0.3030 s.
+{'loss': 2.6884, 'grad_norm': 4.405045509338379, 'learning_rate': 1.9736078120876222e-05, 'epoch': 0.0395882818685669}
+Rank 0, Iter 101/7578: Loss = 2.6884, Iter Time = 0.3048 s.
+{'loss': 2.5255, 'grad_norm': 4.315539360046387, 'learning_rate': 1.9733438902084983e-05, 'epoch': 0.03998416468725257}
+Rank 0, Iter 102/7578: Loss = 2.5255, Iter Time = 0.3048 s.
+{'loss': 2.4926, 'grad_norm': 3.64631724357605, 'learning_rate': 1.9730799683293745e-05, 'epoch': 0.040380047505938245}
+Rank 0, Iter 103/7578: Loss = 2.4926, Iter Time = 0.3028 s.
+{'loss': 2.2523, 'grad_norm': 3.9456653594970703, 'learning_rate': 1.9728160464502507e-05, 'epoch': 0.04077593032462391}
+Rank 0, Iter 104/7578: Loss = 2.2523, Iter Time = 0.3030 s.
+{'loss': 2.5209, 'grad_norm': 4.037032127380371, 'learning_rate': 1.972552124571127e-05, 'epoch': 0.04117181314330958}
+Rank 0, Iter 105/7578: Loss = 2.5209, Iter Time = 0.3038 s.
+{'loss': 2.291, 'grad_norm': 3.495609760284424, 'learning_rate': 1.9722882026920033e-05, 'epoch': 0.04156769596199525}
+Rank 0, Iter 106/7578: Loss = 2.2910, Iter Time = 0.3023 s.
+{'loss': 2.7333, 'grad_norm': 4.019993305206299, 'learning_rate': 1.9720242808128795e-05, 'epoch': 0.04196357878068092}
+Rank 0, Iter 107/7578: Loss = 2.7333, Iter Time = 0.3047 s.
+{'loss': 2.4965, 'grad_norm': 4.356838703155518, 'learning_rate': 1.9717603589337556e-05, 'epoch': 0.042359461599366585}
+Rank 0, Iter 108/7578: Loss = 2.4965, Iter Time = 0.3034 s.
+{'loss': 2.5175, 'grad_norm': 5.021052837371826, 'learning_rate': 1.9714964370546318e-05, 'epoch': 0.04275534441805225}
+Rank 0, Iter 109/7578: Loss = 2.5175, Iter Time = 0.3040 s.
+{'loss': 2.2741, 'grad_norm': 4.364986419677734, 'learning_rate': 1.9712325151755083e-05, 'epoch': 0.04315122723673793}
+Rank 0, Iter 110/7578: Loss = 2.2741, Iter Time = 0.3024 s.
+{'loss': 2.4387, 'grad_norm': 4.800539016723633, 'learning_rate': 1.9709685932963844e-05, 'epoch': 0.043547110055423596}
+Rank 0, Iter 111/7578: Loss = 2.4387, Iter Time = 0.3029 s.
+{'loss': 2.7213, 'grad_norm': 4.381499767303467, 'learning_rate': 1.9707046714172606e-05, 'epoch': 0.043942992874109264}
+Rank 0, Iter 112/7578: Loss = 2.7213, Iter Time = 0.3026 s.
+{'loss': 2.558, 'grad_norm': 4.53700065612793, 'learning_rate': 1.9704407495381368e-05, 'epoch': 0.04433887569279493}
+Rank 0, Iter 113/7578: Loss = 2.5580, Iter Time = 0.3028 s.
+{'loss': 2.4387, 'grad_norm': 4.302804470062256, 'learning_rate': 1.9701768276590133e-05, 'epoch': 0.0447347585114806}
+Rank 0, Iter 114/7578: Loss = 2.4387, Iter Time = 0.3031 s.
+{'loss': 2.586, 'grad_norm': 4.729875564575195, 'learning_rate': 1.9699129057798894e-05, 'epoch': 0.04513064133016627}
+Rank 0, Iter 115/7578: Loss = 2.5860, Iter Time = 0.3041 s.
+{'loss': 2.3392, 'grad_norm': 4.24967622756958, 'learning_rate': 1.9696489839007656e-05, 'epoch': 0.045526524148851936}
+Rank 0, Iter 116/7578: Loss = 2.3392, Iter Time = 0.3046 s.
+{'loss': 2.6412, 'grad_norm': 5.424881458282471, 'learning_rate': 1.9693850620216417e-05, 'epoch': 0.04592240696753761}
+Rank 0, Iter 117/7578: Loss = 2.6412, Iter Time = 0.3053 s.
+{'loss': 2.5631, 'grad_norm': 4.788843154907227, 'learning_rate': 1.969121140142518e-05, 'epoch': 0.04631828978622328}
+Rank 0, Iter 118/7578: Loss = 2.5631, Iter Time = 0.3070 s.
+{'loss': 2.4445, 'grad_norm': 4.661612510681152, 'learning_rate': 1.9688572182633944e-05, 'epoch': 0.04671417260490895}
+Rank 0, Iter 119/7578: Loss = 2.4445, Iter Time = 0.3041 s.
+{'loss': 2.4015, 'grad_norm': 4.336356163024902, 'learning_rate': 1.9685932963842706e-05, 'epoch': 0.047110055423594616}
+Rank 0, Iter 120/7578: Loss = 2.4015, Iter Time = 0.3064 s.
+{'loss': 2.2388, 'grad_norm': 4.621469974517822, 'learning_rate': 1.9683293745051467e-05, 'epoch': 0.047505938242280284}
+Rank 0, Iter 121/7578: Loss = 2.2388, Iter Time = 0.3030 s.
+{'loss': 2.505, 'grad_norm': 5.015449047088623, 'learning_rate': 1.968065452626023e-05, 'epoch': 0.04790182106096595}
+Rank 0, Iter 122/7578: Loss = 2.5050, Iter Time = 0.3030 s.
+{'loss': 2.472, 'grad_norm': 3.8355391025543213, 'learning_rate': 1.967801530746899e-05, 'epoch': 0.04829770387965162}
+Rank 0, Iter 123/7578: Loss = 2.4720, Iter Time = 0.3096 s.
+{'loss': 2.5068, 'grad_norm': 4.003294944763184, 'learning_rate': 1.9675376088677752e-05, 'epoch': 0.048693586698337295}
+Rank 0, Iter 124/7578: Loss = 2.5068, Iter Time = 0.3027 s.
+{'loss': 2.3719, 'grad_norm': 4.725489616394043, 'learning_rate': 1.9672736869886514e-05, 'epoch': 0.04908946951702296}
+Rank 0, Iter 125/7578: Loss = 2.3719, Iter Time = 0.3075 s.
+{'loss': 2.2788, 'grad_norm': 3.456242084503174, 'learning_rate': 1.967009765109528e-05, 'epoch': 0.04948535233570863}
+Rank 0, Iter 126/7578: Loss = 2.2788, Iter Time = 0.3031 s.
+{'loss': 2.1855, 'grad_norm': 3.61356782913208, 'learning_rate': 1.966745843230404e-05, 'epoch': 0.0498812351543943}
+Rank 0, Iter 127/7578: Loss = 2.1855, Iter Time = 0.3033 s.
+{'loss': 2.3614, 'grad_norm': 4.688633918762207, 'learning_rate': 1.96648192135128e-05, 'epoch': 0.05027711797307997}
+Rank 0, Iter 128/7578: Loss = 2.3614, Iter Time = 0.3035 s.
+{'loss': 2.3243, 'grad_norm': 3.8637290000915527, 'learning_rate': 1.9662179994721563e-05, 'epoch': 0.050673000791765635}
+Rank 0, Iter 129/7578: Loss = 2.3243, Iter Time = 0.3064 s.
+{'loss': 2.2642, 'grad_norm': 2.99570369720459, 'learning_rate': 1.9659540775930325e-05, 'epoch': 0.0510688836104513}
+Rank 0, Iter 130/7578: Loss = 2.2642, Iter Time = 0.3046 s.
+{'loss': 2.4679, 'grad_norm': 4.0723066329956055, 'learning_rate': 1.9656901557139086e-05, 'epoch': 0.05146476642913698}
+Rank 0, Iter 131/7578: Loss = 2.4679, Iter Time = 0.3038 s.
+{'loss': 2.1799, 'grad_norm': 3.491528272628784, 'learning_rate': 1.965426233834785e-05, 'epoch': 0.051860649247822646}
+Rank 0, Iter 132/7578: Loss = 2.1799, Iter Time = 0.3049 s.
+{'loss': 2.4709, 'grad_norm': 4.041240215301514, 'learning_rate': 1.9651623119556613e-05, 'epoch': 0.052256532066508314}
+Rank 0, Iter 133/7578: Loss = 2.4709, Iter Time = 0.3119 s.
+{'loss': 2.6151, 'grad_norm': 4.190578937530518, 'learning_rate': 1.9648983900765375e-05, 'epoch': 0.05265241488519398}
+Rank 0, Iter 134/7578: Loss = 2.6151, Iter Time = 0.3048 s.
+{'loss': 2.6212, 'grad_norm': 4.121758937835693, 'learning_rate': 1.9646344681974136e-05, 'epoch': 0.05304829770387965}
+Rank 0, Iter 135/7578: Loss = 2.6212, Iter Time = 0.3055 s.
+{'loss': 2.6275, 'grad_norm': 4.2155375480651855, 'learning_rate': 1.96437054631829e-05, 'epoch': 0.05344418052256532}
+Rank 0, Iter 136/7578: Loss = 2.6275, Iter Time = 0.3132 s.
+{'loss': 2.4482, 'grad_norm': 4.509828090667725, 'learning_rate': 1.9641066244391663e-05, 'epoch': 0.053840063341250986}
+Rank 0, Iter 137/7578: Loss = 2.4482, Iter Time = 0.3102 s.
+{'loss': 2.3667, 'grad_norm': 4.148830890655518, 'learning_rate': 1.9638427025600424e-05, 'epoch': 0.05423594615993666}
+Rank 0, Iter 138/7578: Loss = 2.3667, Iter Time = 0.3092 s.
+{'loss': 2.5947, 'grad_norm': 3.981790781021118, 'learning_rate': 1.9635787806809186e-05, 'epoch': 0.05463182897862233}
+Rank 0, Iter 139/7578: Loss = 2.5947, Iter Time = 0.3086 s.
+{'loss': 2.5923, 'grad_norm': 3.9850189685821533, 'learning_rate': 1.9633148588017948e-05, 'epoch': 0.055027711797308}
+Rank 0, Iter 140/7578: Loss = 2.5923, Iter Time = 0.3056 s.
+{'loss': 2.5253, 'grad_norm': 3.904499053955078, 'learning_rate': 1.9630509369226713e-05, 'epoch': 0.055423594615993665}
+Rank 0, Iter 141/7578: Loss = 2.5253, Iter Time = 0.3041 s.
+{'loss': 2.0708, 'grad_norm': 2.9323065280914307, 'learning_rate': 1.9627870150435474e-05, 'epoch': 0.055819477434679333}
+Rank 0, Iter 142/7578: Loss = 2.0708, Iter Time = 0.3048 s.
+{'loss': 2.3116, 'grad_norm': 3.1815450191497803, 'learning_rate': 1.9625230931644236e-05, 'epoch': 0.056215360253365}
+Rank 0, Iter 143/7578: Loss = 2.3116, Iter Time = 0.3032 s.
+{'loss': 2.5019, 'grad_norm': 4.273937225341797, 'learning_rate': 1.9622591712852997e-05, 'epoch': 0.05661124307205067}
+Rank 0, Iter 144/7578: Loss = 2.5019, Iter Time = 0.3036 s.
+{'loss': 2.3815, 'grad_norm': 4.179977893829346, 'learning_rate': 1.961995249406176e-05, 'epoch': 0.057007125890736345}
+Rank 0, Iter 145/7578: Loss = 2.3815, Iter Time = 0.3063 s.
+{'loss': 2.5519, 'grad_norm': 4.095631122589111, 'learning_rate': 1.961731327527052e-05, 'epoch': 0.05740300870942201}
+Rank 0, Iter 146/7578: Loss = 2.5519, Iter Time = 0.3033 s.
+{'loss': 2.5096, 'grad_norm': 3.991373300552368, 'learning_rate': 1.9614674056479282e-05, 'epoch': 0.05779889152810768}
+Rank 0, Iter 147/7578: Loss = 2.5096, Iter Time = 0.3037 s.
+{'loss': 2.1598, 'grad_norm': 2.928344964981079, 'learning_rate': 1.9612034837688047e-05, 'epoch': 0.05819477434679335}
+Rank 0, Iter 148/7578: Loss = 2.1598, Iter Time = 0.3077 s.
+{'loss': 2.3461, 'grad_norm': 3.4863080978393555, 'learning_rate': 1.960939561889681e-05, 'epoch': 0.05859065716547902}
+Rank 0, Iter 149/7578: Loss = 2.3461, Iter Time = 0.3106 s.
+{'loss': 2.4995, 'grad_norm': 3.5815982818603516, 'learning_rate': 1.960675640010557e-05, 'epoch': 0.058986539984164685}
+Rank 0, Iter 150/7578: Loss = 2.4995, Iter Time = 0.3059 s.
+{'loss': 2.3748, 'grad_norm': 4.641660690307617, 'learning_rate': 1.9604117181314332e-05, 'epoch': 0.05938242280285035}
+Rank 0, Iter 151/7578: Loss = 2.3748, Iter Time = 0.3042 s.
+{'loss': 2.4635, 'grad_norm': 3.803074598312378, 'learning_rate': 1.9601477962523093e-05, 'epoch': 0.05977830562153603}
+Rank 0, Iter 152/7578: Loss = 2.4635, Iter Time = 0.3218 s.
+{'loss': 2.4253, 'grad_norm': 3.85068678855896, 'learning_rate': 1.9598838743731855e-05, 'epoch': 0.060174188440221696}
+Rank 0, Iter 153/7578: Loss = 2.4253, Iter Time = 0.3038 s.
+{'loss': 2.4131, 'grad_norm': 3.687610387802124, 'learning_rate': 1.959619952494062e-05, 'epoch': 0.060570071258907364}
+Rank 0, Iter 154/7578: Loss = 2.4131, Iter Time = 0.3040 s.
+{'loss': 2.5333, 'grad_norm': 4.676684856414795, 'learning_rate': 1.959356030614938e-05, 'epoch': 0.06096595407759303}
+Rank 0, Iter 155/7578: Loss = 2.5333, Iter Time = 0.3030 s.
+{'loss': 2.3151, 'grad_norm': 3.8778786659240723, 'learning_rate': 1.9590921087358143e-05, 'epoch': 0.0613618368962787}
+Rank 0, Iter 156/7578: Loss = 2.3151, Iter Time = 0.3037 s.
+{'loss': 2.4244, 'grad_norm': 4.851794242858887, 'learning_rate': 1.9588281868566905e-05, 'epoch': 0.06175771971496437}
+Rank 0, Iter 157/7578: Loss = 2.4244, Iter Time = 0.3080 s.
+{'loss': 2.5727, 'grad_norm': 4.282851219177246, 'learning_rate': 1.958564264977567e-05, 'epoch': 0.062153602533650036}
+Rank 0, Iter 158/7578: Loss = 2.5727, Iter Time = 0.3090 s.
+{'loss': 2.6155, 'grad_norm': 4.61021614074707, 'learning_rate': 1.958300343098443e-05, 'epoch': 0.0625494853523357}
+Rank 0, Iter 159/7578: Loss = 2.6155, Iter Time = 0.3110 s.
+{'loss': 2.4293, 'grad_norm': 4.492426872253418, 'learning_rate': 1.9580364212193193e-05, 'epoch': 0.06294536817102138}
+Rank 0, Iter 160/7578: Loss = 2.4293, Iter Time = 0.3077 s.
+{'loss': 2.295, 'grad_norm': 3.761749029159546, 'learning_rate': 1.9577724993401955e-05, 'epoch': 0.06334125098970704}
+Rank 0, Iter 161/7578: Loss = 2.2950, Iter Time = 0.3063 s.
+{'loss': 2.2693, 'grad_norm': 4.262296676635742, 'learning_rate': 1.9575085774610716e-05, 'epoch': 0.06373713380839272}
+Rank 0, Iter 162/7578: Loss = 2.2693, Iter Time = 0.3034 s.
+{'loss': 2.4406, 'grad_norm': 4.415647506713867, 'learning_rate': 1.957244655581948e-05, 'epoch': 0.06413301662707839}
+Rank 0, Iter 163/7578: Loss = 2.4406, Iter Time = 0.3042 s.
+{'loss': 2.4111, 'grad_norm': 3.938278913497925, 'learning_rate': 1.9569807337028243e-05, 'epoch': 0.06452889944576405}
+Rank 0, Iter 164/7578: Loss = 2.4111, Iter Time = 0.3031 s.
+{'loss': 2.3292, 'grad_norm': 3.8200290203094482, 'learning_rate': 1.9567168118237004e-05, 'epoch': 0.06492478226444973}
+Rank 0, Iter 165/7578: Loss = 2.3292, Iter Time = 0.3041 s.
+{'loss': 2.3198, 'grad_norm': 4.174858570098877, 'learning_rate': 1.9564528899445766e-05, 'epoch': 0.06532066508313539}
+Rank 0, Iter 166/7578: Loss = 2.3198, Iter Time = 0.3030 s.
+{'loss': 2.2936, 'grad_norm': 3.287184238433838, 'learning_rate': 1.9561889680654527e-05, 'epoch': 0.06571654790182106}
+Rank 0, Iter 167/7578: Loss = 2.2936, Iter Time = 0.3051 s.
+{'loss': 2.3366, 'grad_norm': 3.8248751163482666, 'learning_rate': 1.955925046186329e-05, 'epoch': 0.06611243072050672}
+Rank 0, Iter 168/7578: Loss = 2.3366, Iter Time = 0.3038 s.
+{'loss': 2.2019, 'grad_norm': 3.1263210773468018, 'learning_rate': 1.955661124307205e-05, 'epoch': 0.0665083135391924}
+Rank 0, Iter 169/7578: Loss = 2.2019, Iter Time = 0.3034 s.
+{'loss': 2.4654, 'grad_norm': 5.0261149406433105, 'learning_rate': 1.9553972024280816e-05, 'epoch': 0.06690419635787807}
+Rank 0, Iter 170/7578: Loss = 2.4654, Iter Time = 0.3040 s.
+{'loss': 2.5035, 'grad_norm': 4.088314533233643, 'learning_rate': 1.9551332805489577e-05, 'epoch': 0.06730007917656373}
+Rank 0, Iter 171/7578: Loss = 2.5035, Iter Time = 0.3036 s.
+{'loss': 2.2964, 'grad_norm': 3.778907537460327, 'learning_rate': 1.954869358669834e-05, 'epoch': 0.06769596199524941}
+Rank 0, Iter 172/7578: Loss = 2.2964, Iter Time = 0.3034 s.
+{'loss': 2.2349, 'grad_norm': 6.7738261222839355, 'learning_rate': 1.95460543679071e-05, 'epoch': 0.06809184481393507}
+Rank 0, Iter 173/7578: Loss = 2.2349, Iter Time = 0.3032 s.
+{'loss': 2.6811, 'grad_norm': 4.31511926651001, 'learning_rate': 1.9543415149115862e-05, 'epoch': 0.06848772763262075}
+Rank 0, Iter 174/7578: Loss = 2.6811, Iter Time = 0.3032 s.
+{'loss': 2.4339, 'grad_norm': 4.7822585105896, 'learning_rate': 1.9540775930324624e-05, 'epoch': 0.0688836104513064}
+Rank 0, Iter 175/7578: Loss = 2.4339, Iter Time = 0.3036 s.
+{'loss': 2.3957, 'grad_norm': 4.111942768096924, 'learning_rate': 1.953813671153339e-05, 'epoch': 0.06927949326999208}
+Rank 0, Iter 176/7578: Loss = 2.3957, Iter Time = 0.3037 s.
+{'loss': 2.6549, 'grad_norm': 4.871600151062012, 'learning_rate': 1.953549749274215e-05, 'epoch': 0.06967537608867776}
+Rank 0, Iter 177/7578: Loss = 2.6549, Iter Time = 0.3040 s.
+{'loss': 2.5777, 'grad_norm': 5.096832752227783, 'learning_rate': 1.9532858273950912e-05, 'epoch': 0.07007125890736342}
+Rank 0, Iter 178/7578: Loss = 2.5777, Iter Time = 0.3035 s.
+{'loss': 2.6995, 'grad_norm': 4.56132173538208, 'learning_rate': 1.9530219055159673e-05, 'epoch': 0.07046714172604909}
+Rank 0, Iter 179/7578: Loss = 2.6995, Iter Time = 0.3047 s.
+{'loss': 2.1948, 'grad_norm': 3.488858699798584, 'learning_rate': 1.9527579836368435e-05, 'epoch': 0.07086302454473475}
+Rank 0, Iter 180/7578: Loss = 2.1948, Iter Time = 0.3036 s.
+{'loss': 2.4582, 'grad_norm': 3.9658074378967285, 'learning_rate': 1.95249406175772e-05, 'epoch': 0.07125890736342043}
+Rank 0, Iter 181/7578: Loss = 2.4582, Iter Time = 0.3032 s.
+{'loss': 2.5217, 'grad_norm': 4.892615795135498, 'learning_rate': 1.952230139878596e-05, 'epoch': 0.07165479018210609}
+Rank 0, Iter 182/7578: Loss = 2.5217, Iter Time = 0.3032 s.
+{'loss': 2.4079, 'grad_norm': 3.813199996948242, 'learning_rate': 1.9519662179994723e-05, 'epoch': 0.07205067300079177}
+Rank 0, Iter 183/7578: Loss = 2.4079, Iter Time = 0.3032 s.
+{'loss': 2.6148, 'grad_norm': 4.458456516265869, 'learning_rate': 1.9517022961203485e-05, 'epoch': 0.07244655581947744}
+Rank 0, Iter 184/7578: Loss = 2.6148, Iter Time = 0.3034 s.
+{'loss': 2.2801, 'grad_norm': 4.270383358001709, 'learning_rate': 1.951438374241225e-05, 'epoch': 0.0728424386381631}
+Rank 0, Iter 185/7578: Loss = 2.2801, Iter Time = 0.3142 s.
+{'loss': 2.5257, 'grad_norm': 4.521932601928711, 'learning_rate': 1.951174452362101e-05, 'epoch': 0.07323832145684878}
+Rank 0, Iter 186/7578: Loss = 2.5257, Iter Time = 0.3037 s.
+{'loss': 2.0179, 'grad_norm': 4.875918388366699, 'learning_rate': 1.9509105304829773e-05, 'epoch': 0.07363420427553444}
+Rank 0, Iter 187/7578: Loss = 2.0179, Iter Time = 0.3034 s.
+{'loss': 2.1296, 'grad_norm': 4.130946636199951, 'learning_rate': 1.9506466086038534e-05, 'epoch': 0.07403008709422011}
+Rank 0, Iter 188/7578: Loss = 2.1296, Iter Time = 0.3040 s.
+{'loss': 2.1424, 'grad_norm': 3.8252105712890625, 'learning_rate': 1.9503826867247296e-05, 'epoch': 0.07442596991290577}
+Rank 0, Iter 189/7578: Loss = 2.1424, Iter Time = 0.3098 s.
+{'loss': 2.5334, 'grad_norm': 4.072883129119873, 'learning_rate': 1.9501187648456058e-05, 'epoch': 0.07482185273159145}
+Rank 0, Iter 190/7578: Loss = 2.5334, Iter Time = 0.3046 s.
+{'loss': 2.426, 'grad_norm': 4.938248157501221, 'learning_rate': 1.949854842966482e-05, 'epoch': 0.07521773555027712}
+Rank 0, Iter 191/7578: Loss = 2.4260, Iter Time = 0.3087 s.
+{'loss': 2.6632, 'grad_norm': 4.447005748748779, 'learning_rate': 1.9495909210873584e-05, 'epoch': 0.07561361836896278}
+Rank 0, Iter 192/7578: Loss = 2.6632, Iter Time = 0.3086 s.
+{'loss': 2.1293, 'grad_norm': 3.015070676803589, 'learning_rate': 1.9493269992082346e-05, 'epoch': 0.07600950118764846}
+Rank 0, Iter 193/7578: Loss = 2.1293, Iter Time = 0.3083 s.
+{'loss': 2.5275, 'grad_norm': 4.460002422332764, 'learning_rate': 1.9490630773291107e-05, 'epoch': 0.07640538400633412}
+Rank 0, Iter 194/7578: Loss = 2.5275, Iter Time = 0.3069 s.
+{'loss': 2.4487, 'grad_norm': 4.020631313323975, 'learning_rate': 1.948799155449987e-05, 'epoch': 0.0768012668250198}
+Rank 0, Iter 195/7578: Loss = 2.4487, Iter Time = 0.3077 s.
+{'loss': 2.6545, 'grad_norm': 4.294032096862793, 'learning_rate': 1.948535233570863e-05, 'epoch': 0.07719714964370546}
+Rank 0, Iter 196/7578: Loss = 2.6545, Iter Time = 0.3089 s.
+{'loss': 2.3583, 'grad_norm': 4.353962421417236, 'learning_rate': 1.9482713116917392e-05, 'epoch': 0.07759303246239113}
+Rank 0, Iter 197/7578: Loss = 2.3583, Iter Time = 0.3043 s.
+{'loss': 2.2881, 'grad_norm': 3.8753340244293213, 'learning_rate': 1.9480073898126157e-05, 'epoch': 0.0779889152810768}
+Rank 0, Iter 198/7578: Loss = 2.2881, Iter Time = 0.3045 s.
+{'loss': 2.2008, 'grad_norm': 3.8077211380004883, 'learning_rate': 1.947743467933492e-05, 'epoch': 0.07838479809976247}
+Rank 0, Iter 199/7578: Loss = 2.2008, Iter Time = 0.3047 s.
+{'loss': 2.5028, 'grad_norm': 4.334994316101074, 'learning_rate': 1.947479546054368e-05, 'epoch': 0.07878068091844814}
+Rank 0, Iter 200/7578: Loss = 2.5028, Iter Time = 0.3096 s.
+{'loss': 2.228, 'grad_norm': 4.02264404296875, 'learning_rate': 1.9472156241752442e-05, 'epoch': 0.0791765637371338}
+Rank 0, Iter 201/7578: Loss = 2.2280, Iter Time = 0.3049 s.
+{'loss': 2.4634, 'grad_norm': 5.218798637390137, 'learning_rate': 1.9469517022961203e-05, 'epoch': 0.07957244655581948}
+Rank 0, Iter 202/7578: Loss = 2.4634, Iter Time = 0.3030 s.
+{'loss': 2.4536, 'grad_norm': 4.531486988067627, 'learning_rate': 1.946687780416997e-05, 'epoch': 0.07996832937450514}
+Rank 0, Iter 203/7578: Loss = 2.4536, Iter Time = 0.3030 s.
+{'loss': 2.6699, 'grad_norm': 5.4415283203125, 'learning_rate': 1.946423858537873e-05, 'epoch': 0.08036421219319081}
+Rank 0, Iter 204/7578: Loss = 2.6699, Iter Time = 0.3043 s.
+{'loss': 2.2591, 'grad_norm': 3.836782217025757, 'learning_rate': 1.946159936658749e-05, 'epoch': 0.08076009501187649}
+Rank 0, Iter 205/7578: Loss = 2.2591, Iter Time = 0.3023 s.
+{'loss': 2.3902, 'grad_norm': 4.065903186798096, 'learning_rate': 1.9458960147796253e-05, 'epoch': 0.08115597783056215}
+Rank 0, Iter 206/7578: Loss = 2.3902, Iter Time = 0.3025 s.
+{'loss': 2.226, 'grad_norm': 3.646012544631958, 'learning_rate': 1.9456320929005018e-05, 'epoch': 0.08155186064924783}
+Rank 0, Iter 207/7578: Loss = 2.2260, Iter Time = 0.3025 s.
+{'loss': 2.3964, 'grad_norm': 4.987652778625488, 'learning_rate': 1.945368171021378e-05, 'epoch': 0.08194774346793349}
+Rank 0, Iter 208/7578: Loss = 2.3964, Iter Time = 0.3019 s.
+{'loss': 2.308, 'grad_norm': 4.459842681884766, 'learning_rate': 1.945104249142254e-05, 'epoch': 0.08234362628661916}
+Rank 0, Iter 209/7578: Loss = 2.3080, Iter Time = 0.3025 s.
+{'loss': 2.3454, 'grad_norm': 5.113022327423096, 'learning_rate': 1.9448403272631303e-05, 'epoch': 0.08273950910530482}
+Rank 0, Iter 210/7578: Loss = 2.3454, Iter Time = 0.3031 s.
+{'loss': 2.2541, 'grad_norm': 4.273824691772461, 'learning_rate': 1.9445764053840065e-05, 'epoch': 0.0831353919239905}
+Rank 0, Iter 211/7578: Loss = 2.2541, Iter Time = 0.3029 s.
+{'loss': 2.4242, 'grad_norm': 5.27466344833374, 'learning_rate': 1.9443124835048826e-05, 'epoch': 0.08353127474267617}
+Rank 0, Iter 212/7578: Loss = 2.4242, Iter Time = 0.3032 s.
+{'loss': 2.3856, 'grad_norm': 4.497067451477051, 'learning_rate': 1.9440485616257588e-05, 'epoch': 0.08392715756136183}
+Rank 0, Iter 213/7578: Loss = 2.3856, Iter Time = 0.3029 s.
+{'loss': 2.6407, 'grad_norm': 4.676470756530762, 'learning_rate': 1.9437846397466353e-05, 'epoch': 0.08432304038004751}
+Rank 0, Iter 214/7578: Loss = 2.6407, Iter Time = 0.3028 s.
+{'loss': 2.291, 'grad_norm': 5.114372730255127, 'learning_rate': 1.9435207178675114e-05, 'epoch': 0.08471892319873317}
+Rank 0, Iter 215/7578: Loss = 2.2910, Iter Time = 0.3025 s.
+{'loss': 2.2217, 'grad_norm': 3.713081121444702, 'learning_rate': 1.9432567959883876e-05, 'epoch': 0.08511480601741885}
+Rank 0, Iter 216/7578: Loss = 2.2217, Iter Time = 0.3027 s.
+{'loss': 2.7357, 'grad_norm': 4.725881099700928, 'learning_rate': 1.9429928741092638e-05, 'epoch': 0.0855106888361045}
+Rank 0, Iter 217/7578: Loss = 2.7357, Iter Time = 0.3036 s.
+{'loss': 2.1724, 'grad_norm': 4.024138927459717, 'learning_rate': 1.94272895223014e-05, 'epoch': 0.08590657165479018}
+Rank 0, Iter 218/7578: Loss = 2.1724, Iter Time = 0.3027 s.
+{'loss': 2.3145, 'grad_norm': 4.703169822692871, 'learning_rate': 1.942465030351016e-05, 'epoch': 0.08630245447347586}
+Rank 0, Iter 219/7578: Loss = 2.3145, Iter Time = 0.3044 s.
+{'loss': 2.5037, 'grad_norm': 4.387044906616211, 'learning_rate': 1.9422011084718926e-05, 'epoch': 0.08669833729216152}
+Rank 0, Iter 220/7578: Loss = 2.5037, Iter Time = 0.3034 s.
+{'loss': 2.3603, 'grad_norm': 3.779726982116699, 'learning_rate': 1.9419371865927687e-05, 'epoch': 0.08709422011084719}
+Rank 0, Iter 221/7578: Loss = 2.3603, Iter Time = 0.3049 s.
+{'loss': 2.3114, 'grad_norm': 3.335143566131592, 'learning_rate': 1.941673264713645e-05, 'epoch': 0.08749010292953285}
+Rank 0, Iter 222/7578: Loss = 2.3114, Iter Time = 0.3058 s.
+{'loss': 2.2328, 'grad_norm': 3.6229758262634277, 'learning_rate': 1.941409342834521e-05, 'epoch': 0.08788598574821853}
+Rank 0, Iter 223/7578: Loss = 2.2328, Iter Time = 0.3029 s.
+{'loss': 2.237, 'grad_norm': 3.519965648651123, 'learning_rate': 1.9411454209553972e-05, 'epoch': 0.08828186856690419}
+Rank 0, Iter 224/7578: Loss = 2.2370, Iter Time = 0.3067 s.
+{'loss': 2.5509, 'grad_norm': 3.8884437084198, 'learning_rate': 1.9408814990762737e-05, 'epoch': 0.08867775138558986}
+Rank 0, Iter 225/7578: Loss = 2.5509, Iter Time = 0.3027 s.
+{'loss': 2.2437, 'grad_norm': 3.331963300704956, 'learning_rate': 1.94061757719715e-05, 'epoch': 0.08907363420427554}
+Rank 0, Iter 226/7578: Loss = 2.2437, Iter Time = 0.3091 s.
+{'loss': 2.3184, 'grad_norm': 3.7548747062683105, 'learning_rate': 1.940353655318026e-05, 'epoch': 0.0894695170229612}
+Rank 0, Iter 227/7578: Loss = 2.3184, Iter Time = 0.3027 s.
+{'loss': 2.3344, 'grad_norm': 4.248388290405273, 'learning_rate': 1.9400897334389022e-05, 'epoch': 0.08986539984164688}
+Rank 0, Iter 228/7578: Loss = 2.3344, Iter Time = 0.3155 s.
+{'loss': 2.3993, 'grad_norm': 3.747689723968506, 'learning_rate': 1.9398258115597787e-05, 'epoch': 0.09026128266033254}
+Rank 0, Iter 229/7578: Loss = 2.3993, Iter Time = 0.3034 s.
+{'loss': 2.1853, 'grad_norm': 3.1658706665039062, 'learning_rate': 1.939561889680655e-05, 'epoch': 0.09065716547901821}
+Rank 0, Iter 230/7578: Loss = 2.1853, Iter Time = 0.3036 s.
+{'loss': 1.9895, 'grad_norm': 3.201409339904785, 'learning_rate': 1.939297967801531e-05, 'epoch': 0.09105304829770387}
+Rank 0, Iter 231/7578: Loss = 1.9895, Iter Time = 0.3060 s.
+{'loss': 2.4708, 'grad_norm': 3.872323989868164, 'learning_rate': 1.939034045922407e-05, 'epoch': 0.09144893111638955}
+Rank 0, Iter 232/7578: Loss = 2.4708, Iter Time = 0.3038 s.
+{'loss': 2.3363, 'grad_norm': 4.082381248474121, 'learning_rate': 1.9387701240432833e-05, 'epoch': 0.09184481393507522}
+Rank 0, Iter 233/7578: Loss = 2.3363, Iter Time = 0.3097 s.
+{'loss': 2.5857, 'grad_norm': 4.969956874847412, 'learning_rate': 1.9385062021641595e-05, 'epoch': 0.09224069675376088}
+Rank 0, Iter 234/7578: Loss = 2.5857, Iter Time = 0.3163 s.
+{'loss': 2.3783, 'grad_norm': 3.6639506816864014, 'learning_rate': 1.938242280285036e-05, 'epoch': 0.09263657957244656}
+Rank 0, Iter 235/7578: Loss = 2.3783, Iter Time = 0.3052 s.
+{'loss': 2.252, 'grad_norm': 3.3705334663391113, 'learning_rate': 1.937978358405912e-05, 'epoch': 0.09303246239113222}
+Rank 0, Iter 236/7578: Loss = 2.2520, Iter Time = 0.3032 s.
+{'loss': 2.5046, 'grad_norm': 3.6030306816101074, 'learning_rate': 1.9377144365267883e-05, 'epoch': 0.0934283452098179}
+Rank 0, Iter 237/7578: Loss = 2.5046, Iter Time = 0.3039 s.
+{'loss': 2.2693, 'grad_norm': 4.192406177520752, 'learning_rate': 1.9374505146476644e-05, 'epoch': 0.09382422802850356}
+Rank 0, Iter 238/7578: Loss = 2.2693, Iter Time = 0.3025 s.
+{'loss': 2.3415, 'grad_norm': 3.606151819229126, 'learning_rate': 1.9371865927685406e-05, 'epoch': 0.09422011084718923}
+Rank 0, Iter 239/7578: Loss = 2.3415, Iter Time = 0.3025 s.
+{'loss': 2.3265, 'grad_norm': 3.9519591331481934, 'learning_rate': 1.9369226708894168e-05, 'epoch': 0.0946159936658749}
+Rank 0, Iter 240/7578: Loss = 2.3265, Iter Time = 0.3044 s.
+{'loss': 2.8812, 'grad_norm': 5.498083591461182, 'learning_rate': 1.936658749010293e-05, 'epoch': 0.09501187648456057}
+Rank 0, Iter 241/7578: Loss = 2.8812, Iter Time = 0.3025 s.
+{'loss': 2.4876, 'grad_norm': 4.429704666137695, 'learning_rate': 1.9363948271311694e-05, 'epoch': 0.09540775930324624}
+Rank 0, Iter 242/7578: Loss = 2.4876, Iter Time = 0.3025 s.
+{'loss': 2.2397, 'grad_norm': 3.259824752807617, 'learning_rate': 1.9361309052520456e-05, 'epoch': 0.0958036421219319}
+Rank 0, Iter 243/7578: Loss = 2.2397, Iter Time = 0.3027 s.
+{'loss': 2.3622, 'grad_norm': 4.305640697479248, 'learning_rate': 1.9358669833729217e-05, 'epoch': 0.09619952494061758}
+Rank 0, Iter 244/7578: Loss = 2.3622, Iter Time = 0.3029 s.
+{'loss': 2.3092, 'grad_norm': 4.216607093811035, 'learning_rate': 1.935603061493798e-05, 'epoch': 0.09659540775930324}
+Rank 0, Iter 245/7578: Loss = 2.3092, Iter Time = 0.3026 s.
+{'loss': 2.2803, 'grad_norm': 4.1592888832092285, 'learning_rate': 1.935339139614674e-05, 'epoch': 0.09699129057798891}
+Rank 0, Iter 246/7578: Loss = 2.2803, Iter Time = 0.3061 s.
+{'loss': 2.2517, 'grad_norm': 3.2574446201324463, 'learning_rate': 1.9350752177355506e-05, 'epoch': 0.09738717339667459}
+Rank 0, Iter 247/7578: Loss = 2.2517, Iter Time = 0.3020 s.
+{'loss': 2.4157, 'grad_norm': 4.4795637130737305, 'learning_rate': 1.9348112958564267e-05, 'epoch': 0.09778305621536025}
+Rank 0, Iter 248/7578: Loss = 2.4157, Iter Time = 0.3023 s.
+{'loss': 2.0067, 'grad_norm': 3.409787178039551, 'learning_rate': 1.934547373977303e-05, 'epoch': 0.09817893903404593}
+Rank 0, Iter 249/7578: Loss = 2.0067, Iter Time = 0.3020 s.
+{'loss': 2.1658, 'grad_norm': 3.7471001148223877, 'learning_rate': 1.934283452098179e-05, 'epoch': 0.09857482185273159}
+Rank 0, Iter 250/7578: Loss = 2.1658, Iter Time = 0.3020 s.
+{'loss': 2.2724, 'grad_norm': 3.7576680183410645, 'learning_rate': 1.9340195302190555e-05, 'epoch': 0.09897070467141726}
+Rank 0, Iter 251/7578: Loss = 2.2724, Iter Time = 0.3027 s.
+{'loss': 2.225, 'grad_norm': 3.702791929244995, 'learning_rate': 1.9337556083399317e-05, 'epoch': 0.09936658749010292}
+Rank 0, Iter 252/7578: Loss = 2.2250, Iter Time = 0.3021 s.
+{'loss': 2.3846, 'grad_norm': 4.35558557510376, 'learning_rate': 1.933491686460808e-05, 'epoch': 0.0997624703087886}
+Rank 0, Iter 253/7578: Loss = 2.3846, Iter Time = 0.3023 s.
+{'loss': 2.331, 'grad_norm': 4.489329814910889, 'learning_rate': 1.933227764581684e-05, 'epoch': 0.10015835312747427}
+Rank 0, Iter 254/7578: Loss = 2.3310, Iter Time = 0.3035 s.
+{'loss': 2.3003, 'grad_norm': 3.7873036861419678, 'learning_rate': 1.9329638427025602e-05, 'epoch': 0.10055423594615993}
+Rank 0, Iter 255/7578: Loss = 2.3003, Iter Time = 0.3026 s.
+{'loss': 2.1327, 'grad_norm': 3.4654881954193115, 'learning_rate': 1.9326999208234363e-05, 'epoch': 0.10095011876484561}
+Rank 0, Iter 256/7578: Loss = 2.1327, Iter Time = 0.3033 s.
+{'loss': 2.4655, 'grad_norm': 4.665909767150879, 'learning_rate': 1.9324359989443128e-05, 'epoch': 0.10134600158353127}
+Rank 0, Iter 257/7578: Loss = 2.4655, Iter Time = 0.3031 s.
+{'loss': 2.2793, 'grad_norm': 4.163510799407959, 'learning_rate': 1.932172077065189e-05, 'epoch': 0.10174188440221694}
+Rank 0, Iter 258/7578: Loss = 2.2793, Iter Time = 0.3028 s.
+{'loss': 2.3661, 'grad_norm': 3.8903627395629883, 'learning_rate': 1.931908155186065e-05, 'epoch': 0.1021377672209026}
+Rank 0, Iter 259/7578: Loss = 2.3661, Iter Time = 0.3023 s.
+{'loss': 2.1675, 'grad_norm': 4.177892684936523, 'learning_rate': 1.9316442333069413e-05, 'epoch': 0.10253365003958828}
+Rank 0, Iter 260/7578: Loss = 2.1675, Iter Time = 0.3031 s.
+{'loss': 2.226, 'grad_norm': 3.29120135307312, 'learning_rate': 1.9313803114278175e-05, 'epoch': 0.10292953285827396}
+Rank 0, Iter 261/7578: Loss = 2.2260, Iter Time = 0.3037 s.
+{'loss': 2.6915, 'grad_norm': 4.755834579467773, 'learning_rate': 1.9311163895486936e-05, 'epoch': 0.10332541567695962}
+Rank 0, Iter 262/7578: Loss = 2.6915, Iter Time = 0.3030 s.
+{'loss': 2.3626, 'grad_norm': 4.312860488891602, 'learning_rate': 1.9308524676695698e-05, 'epoch': 0.10372129849564529}
+Rank 0, Iter 263/7578: Loss = 2.3626, Iter Time = 0.3028 s.
+{'loss': 2.566, 'grad_norm': 4.972361087799072, 'learning_rate': 1.930588545790446e-05, 'epoch': 0.10411718131433095}
+Rank 0, Iter 264/7578: Loss = 2.5660, Iter Time = 0.3024 s.
+{'loss': 2.3057, 'grad_norm': 4.5609612464904785, 'learning_rate': 1.9303246239113224e-05, 'epoch': 0.10451306413301663}
+Rank 0, Iter 265/7578: Loss = 2.3057, Iter Time = 0.3020 s.
+{'loss': 2.1241, 'grad_norm': 4.50551176071167, 'learning_rate': 1.9300607020321986e-05, 'epoch': 0.10490894695170229}
+Rank 0, Iter 266/7578: Loss = 2.1241, Iter Time = 0.3026 s.
+{'loss': 2.2159, 'grad_norm': 3.858353614807129, 'learning_rate': 1.9297967801530748e-05, 'epoch': 0.10530482977038796}
+Rank 0, Iter 267/7578: Loss = 2.2159, Iter Time = 0.3019 s.
+{'loss': 2.2372, 'grad_norm': 3.5815746784210205, 'learning_rate': 1.929532858273951e-05, 'epoch': 0.10570071258907364}
+Rank 0, Iter 268/7578: Loss = 2.2372, Iter Time = 0.3022 s.
+{'loss': 2.8117, 'grad_norm': 4.426853656768799, 'learning_rate': 1.9292689363948274e-05, 'epoch': 0.1060965954077593}
+Rank 0, Iter 269/7578: Loss = 2.8117, Iter Time = 0.3150 s.
+{'loss': 2.29, 'grad_norm': 3.472036123275757, 'learning_rate': 1.9290050145157036e-05, 'epoch': 0.10649247822644498}
+Rank 0, Iter 270/7578: Loss = 2.2900, Iter Time = 0.3025 s.
+{'loss': 2.1515, 'grad_norm': 3.6545491218566895, 'learning_rate': 1.9287410926365797e-05, 'epoch': 0.10688836104513064}
+Rank 0, Iter 271/7578: Loss = 2.1515, Iter Time = 0.3020 s.
+{'loss': 2.4175, 'grad_norm': 3.7757842540740967, 'learning_rate': 1.928477170757456e-05, 'epoch': 0.10728424386381631}
+Rank 0, Iter 272/7578: Loss = 2.4175, Iter Time = 0.3039 s.
+{'loss': 2.4296, 'grad_norm': 3.569267749786377, 'learning_rate': 1.9282132488783324e-05, 'epoch': 0.10768012668250197}
+Rank 0, Iter 273/7578: Loss = 2.4296, Iter Time = 0.3114 s.
+{'loss': 2.6431, 'grad_norm': 4.367393493652344, 'learning_rate': 1.9279493269992085e-05, 'epoch': 0.10807600950118765}
+Rank 0, Iter 274/7578: Loss = 2.6431, Iter Time = 0.3046 s.
+{'loss': 2.4324, 'grad_norm': 4.200279235839844, 'learning_rate': 1.9276854051200847e-05, 'epoch': 0.10847189231987332}
+Rank 0, Iter 275/7578: Loss = 2.4324, Iter Time = 0.3028 s.
+{'loss': 2.2648, 'grad_norm': 3.7525880336761475, 'learning_rate': 1.927421483240961e-05, 'epoch': 0.10886777513855898}
+Rank 0, Iter 276/7578: Loss = 2.2648, Iter Time = 0.3033 s.
+{'loss': 2.5248, 'grad_norm': 4.558765411376953, 'learning_rate': 1.927157561361837e-05, 'epoch': 0.10926365795724466}
+Rank 0, Iter 277/7578: Loss = 2.5248, Iter Time = 0.3046 s.
+{'loss': 2.3323, 'grad_norm': 4.2620038986206055, 'learning_rate': 1.9268936394827132e-05, 'epoch': 0.10965954077593032}
+Rank 0, Iter 278/7578: Loss = 2.3323, Iter Time = 0.3055 s.
+{'loss': 2.4022, 'grad_norm': 3.697061538696289, 'learning_rate': 1.9266297176035897e-05, 'epoch': 0.110055423594616}
+Rank 0, Iter 279/7578: Loss = 2.4022, Iter Time = 0.3055 s.
+{'loss': 2.2258, 'grad_norm': 3.938546895980835, 'learning_rate': 1.926365795724466e-05, 'epoch': 0.11045130641330166}
+Rank 0, Iter 280/7578: Loss = 2.2258, Iter Time = 0.3038 s.
+{'loss': 2.3573, 'grad_norm': 4.37373161315918, 'learning_rate': 1.926101873845342e-05, 'epoch': 0.11084718923198733}
+Rank 0, Iter 281/7578: Loss = 2.3573, Iter Time = 0.3072 s.
+{'loss': 2.1863, 'grad_norm': 3.454282283782959, 'learning_rate': 1.925837951966218e-05, 'epoch': 0.111243072050673}
+Rank 0, Iter 282/7578: Loss = 2.1863, Iter Time = 0.3064 s.
+{'loss': 2.5764, 'grad_norm': 4.956264495849609, 'learning_rate': 1.9255740300870943e-05, 'epoch': 0.11163895486935867}
+Rank 0, Iter 283/7578: Loss = 2.5764, Iter Time = 0.3053 s.
+{'loss': 2.2933, 'grad_norm': 3.9537858963012695, 'learning_rate': 1.9253101082079705e-05, 'epoch': 0.11203483768804434}
+Rank 0, Iter 284/7578: Loss = 2.2933, Iter Time = 0.3040 s.
+{'loss': 2.4974, 'grad_norm': 4.240142822265625, 'learning_rate': 1.9250461863288466e-05, 'epoch': 0.11243072050673}
+Rank 0, Iter 285/7578: Loss = 2.4974, Iter Time = 0.3050 s.
+{'loss': 2.2215, 'grad_norm': 3.6290056705474854, 'learning_rate': 1.9247822644497228e-05, 'epoch': 0.11282660332541568}
+Rank 0, Iter 286/7578: Loss = 2.2215, Iter Time = 0.3064 s.
+{'loss': 2.3837, 'grad_norm': 3.9992427825927734, 'learning_rate': 1.9245183425705993e-05, 'epoch': 0.11322248614410134}
+Rank 0, Iter 287/7578: Loss = 2.3837, Iter Time = 0.3085 s.
+{'loss': 2.2113, 'grad_norm': 4.312658786773682, 'learning_rate': 1.9242544206914755e-05, 'epoch': 0.11361836896278701}
+Rank 0, Iter 288/7578: Loss = 2.2113, Iter Time = 0.3150 s.
+{'loss': 2.4255, 'grad_norm': 4.486072063446045, 'learning_rate': 1.9239904988123516e-05, 'epoch': 0.11401425178147269}
+Rank 0, Iter 289/7578: Loss = 2.4255, Iter Time = 0.3073 s.
+{'loss': 2.2146, 'grad_norm': 3.745903730392456, 'learning_rate': 1.9237265769332278e-05, 'epoch': 0.11441013460015835}
+Rank 0, Iter 290/7578: Loss = 2.2146, Iter Time = 0.3037 s.
+{'loss': 2.3928, 'grad_norm': 4.410072326660156, 'learning_rate': 1.9234626550541043e-05, 'epoch': 0.11480601741884403}
+Rank 0, Iter 291/7578: Loss = 2.3928, Iter Time = 0.3184 s.
+{'loss': 2.3699, 'grad_norm': 3.722715377807617, 'learning_rate': 1.9231987331749804e-05, 'epoch': 0.11520190023752969}
+Rank 0, Iter 292/7578: Loss = 2.3699, Iter Time = 5.3435 s.
+{'loss': 2.5177, 'grad_norm': 4.376299858093262, 'learning_rate': 1.9229348112958566e-05, 'epoch': 0.11559778305621536}
+Rank 0, Iter 293/7578: Loss = 2.5177, Iter Time = 0.3041 s.
+{'loss': 2.2966, 'grad_norm': 3.7003254890441895, 'learning_rate': 1.9226708894167327e-05, 'epoch': 0.11599366587490102}
+Rank 0, Iter 294/7578: Loss = 2.2966, Iter Time = 0.3096 s.
+{'loss': 2.41, 'grad_norm': 3.7486164569854736, 'learning_rate': 1.922406967537609e-05, 'epoch': 0.1163895486935867}
+Rank 0, Iter 295/7578: Loss = 2.4100, Iter Time = 0.3072 s.
+{'loss': 2.4796, 'grad_norm': 4.898924827575684, 'learning_rate': 1.9221430456584854e-05, 'epoch': 0.11678543151227237}
+Rank 0, Iter 296/7578: Loss = 2.4796, Iter Time = 2.2393 s.
+{'loss': 2.4237, 'grad_norm': 4.5319929122924805, 'learning_rate': 1.9218791237793616e-05, 'epoch': 0.11718131433095803}
+Rank 0, Iter 297/7578: Loss = 2.4237, Iter Time = 0.4610 s.
+{'loss': 2.3208, 'grad_norm': 4.137768745422363, 'learning_rate': 1.9216152019002377e-05, 'epoch': 0.11757719714964371}
+Rank 0, Iter 298/7578: Loss = 2.3208, Iter Time = 2.2216 s.
+{'loss': 2.3303, 'grad_norm': 4.136341571807861, 'learning_rate': 1.921351280021114e-05, 'epoch': 0.11797307996832937}
+Rank 0, Iter 299/7578: Loss = 2.3303, Iter Time = 1.8795 s.
+{'loss': 2.4868, 'grad_norm': 4.7275071144104, 'learning_rate': 1.92108735814199e-05, 'epoch': 0.11836896278701504}
+Rank 0, Iter 300/7578: Loss = 2.4868, Iter Time = 3.2580 s.
+{'loss': 2.1169, 'grad_norm': 3.987105369567871, 'learning_rate': 1.9208234362628665e-05, 'epoch': 0.1187648456057007}
+Rank 0, Iter 301/7578: Loss = 2.1169, Iter Time = 3.2577 s.
+{'loss': 2.3325, 'grad_norm': 3.2487661838531494, 'learning_rate': 1.9205595143837427e-05, 'epoch': 0.11916072842438638}
+Rank 0, Iter 302/7578: Loss = 2.3325, Iter Time = 3.3344 s.
+{'loss': 2.3027, 'grad_norm': 3.6383533477783203, 'learning_rate': 1.920295592504619e-05, 'epoch': 0.11955661124307206}
+Rank 0, Iter 303/7578: Loss = 2.3027, Iter Time = 2.0245 s.
+{'loss': 2.1627, 'grad_norm': 3.6187045574188232, 'learning_rate': 1.920031670625495e-05, 'epoch': 0.11995249406175772}
+Rank 0, Iter 304/7578: Loss = 2.1627, Iter Time = 1.8724 s.
+{'loss': 2.2207, 'grad_norm': 3.8274805545806885, 'learning_rate': 1.9197677487463712e-05, 'epoch': 0.12034837688044339}
+Rank 0, Iter 305/7578: Loss = 2.2207, Iter Time = 3.3105 s.
+{'loss': 2.4271, 'grad_norm': 4.4431633949279785, 'learning_rate': 1.9195038268672473e-05, 'epoch': 0.12074425969912905}
+Rank 0, Iter 306/7578: Loss = 2.4271, Iter Time = 3.2051 s.
+{'loss': 2.1144, 'grad_norm': 3.735950469970703, 'learning_rate': 1.9192399049881235e-05, 'epoch': 0.12114014251781473}
+Rank 0, Iter 307/7578: Loss = 2.1144, Iter Time = 3.3180 s.
+{'loss': 2.4319, 'grad_norm': 4.580329418182373, 'learning_rate': 1.9189759831089997e-05, 'epoch': 0.12153602533650039}
+Rank 0, Iter 308/7578: Loss = 2.4319, Iter Time = 0.4335 s.
+{'loss': 2.2031, 'grad_norm': 3.5656497478485107, 'learning_rate': 1.918712061229876e-05, 'epoch': 0.12193190815518606}
+Rank 0, Iter 309/7578: Loss = 2.2031, Iter Time = 3.3418 s.
+{'loss': 2.4181, 'grad_norm': 4.662736892700195, 'learning_rate': 1.9184481393507523e-05, 'epoch': 0.12232779097387174}
+Rank 0, Iter 310/7578: Loss = 2.4181, Iter Time = 3.2967 s.
+{'loss': 2.4913, 'grad_norm': 4.638854503631592, 'learning_rate': 1.9181842174716285e-05, 'epoch': 0.1227236737925574}
+Rank 0, Iter 311/7578: Loss = 2.4913, Iter Time = 3.2636 s.
+{'loss': 2.3455, 'grad_norm': 3.701141834259033, 'learning_rate': 1.9179202955925046e-05, 'epoch': 0.12311955661124308}
+Rank 0, Iter 312/7578: Loss = 2.3455, Iter Time = 2.0073 s.
+{'loss': 2.4642, 'grad_norm': 4.478714466094971, 'learning_rate': 1.917656373713381e-05, 'epoch': 0.12351543942992874}
+Rank 0, Iter 313/7578: Loss = 2.4642, Iter Time = 1.8999 s.
+{'loss': 2.3253, 'grad_norm': 4.439728260040283, 'learning_rate': 1.9173924518342573e-05, 'epoch': 0.12391132224861441}
+Rank 0, Iter 314/7578: Loss = 2.3253, Iter Time = 3.2802 s.
+{'loss': 2.1825, 'grad_norm': 3.441244125366211, 'learning_rate': 1.9171285299551334e-05, 'epoch': 0.12430720506730007}
+Rank 0, Iter 315/7578: Loss = 2.1825, Iter Time = 3.2272 s.
+{'loss': 2.331, 'grad_norm': 3.677678108215332, 'learning_rate': 1.9168646080760096e-05, 'epoch': 0.12470308788598575}
+Rank 0, Iter 316/7578: Loss = 2.3310, Iter Time = 3.2896 s.
+{'loss': 2.393, 'grad_norm': 4.102210998535156, 'learning_rate': 1.9166006861968858e-05, 'epoch': 0.1250989707046714}
+Rank 0, Iter 317/7578: Loss = 2.3930, Iter Time = 1.9978 s.
+{'loss': 2.2549, 'grad_norm': 3.8338112831115723, 'learning_rate': 1.9163367643177623e-05, 'epoch': 0.1254948535233571}
+Rank 0, Iter 318/7578: Loss = 2.2549, Iter Time = 1.8977 s.
+{'loss': 2.2775, 'grad_norm': 3.223080635070801, 'learning_rate': 1.9160728424386384e-05, 'epoch': 0.12589073634204276}
+Rank 0, Iter 319/7578: Loss = 2.2775, Iter Time = 3.2700 s.
+{'loss': 2.2277, 'grad_norm': 3.4797096252441406, 'learning_rate': 1.9158089205595146e-05, 'epoch': 0.12628661916072842}
+Rank 0, Iter 320/7578: Loss = 2.2277, Iter Time = 3.1892 s.
+{'loss': 2.4585, 'grad_norm': 4.293337345123291, 'learning_rate': 1.9155449986803907e-05, 'epoch': 0.12668250197941408}
+Rank 0, Iter 321/7578: Loss = 2.4585, Iter Time = 3.3582 s.
+{'loss': 2.6252, 'grad_norm': 4.642772197723389, 'learning_rate': 1.9152810768012672e-05, 'epoch': 0.12707838479809977}
+Rank 0, Iter 322/7578: Loss = 2.6252, Iter Time = 2.0259 s.
+{'loss': 2.3099, 'grad_norm': 4.749830722808838, 'learning_rate': 1.9150171549221434e-05, 'epoch': 0.12747426761678543}
+Rank 0, Iter 323/7578: Loss = 2.3099, Iter Time = 1.8952 s.
+{'loss': 2.2206, 'grad_norm': 3.5611085891723633, 'learning_rate': 1.9147532330430196e-05, 'epoch': 0.1278701504354711}
+Rank 0, Iter 324/7578: Loss = 2.2206, Iter Time = 3.2811 s.
+{'loss': 2.4078, 'grad_norm': 3.791934013366699, 'learning_rate': 1.9144893111638957e-05, 'epoch': 0.12826603325415678}
+Rank 0, Iter 325/7578: Loss = 2.4078, Iter Time = 3.2501 s.
+{'loss': 2.2425, 'grad_norm': 3.768869161605835, 'learning_rate': 1.914225389284772e-05, 'epoch': 0.12866191607284244}
+Rank 0, Iter 326/7578: Loss = 2.2425, Iter Time = 3.2634 s.
+{'loss': 2.3181, 'grad_norm': 3.7038538455963135, 'learning_rate': 1.913961467405648e-05, 'epoch': 0.1290577988915281}
+Rank 0, Iter 327/7578: Loss = 2.3181, Iter Time = 1.9972 s.
+{'loss': 2.521, 'grad_norm': 3.8564834594726562, 'learning_rate': 1.9136975455265242e-05, 'epoch': 0.12945368171021376}
+Rank 0, Iter 328/7578: Loss = 2.5210, Iter Time = 1.9221 s.
+{'loss': 2.2822, 'grad_norm': 3.600181818008423, 'learning_rate': 1.9134336236474004e-05, 'epoch': 0.12984956452889945}
+Rank 0, Iter 329/7578: Loss = 2.2822, Iter Time = 3.2283 s.
+{'loss': 2.1698, 'grad_norm': 3.318474531173706, 'learning_rate': 1.9131697017682765e-05, 'epoch': 0.1302454473475851}
+Rank 0, Iter 330/7578: Loss = 2.1698, Iter Time = 3.2739 s.
+{'loss': 2.1371, 'grad_norm': 3.9714181423187256, 'learning_rate': 1.912905779889153e-05, 'epoch': 0.13064133016627077}
+Rank 0, Iter 331/7578: Loss = 2.1371, Iter Time = 3.2743 s.
+{'loss': 2.5007, 'grad_norm': 4.059420108795166, 'learning_rate': 1.912641858010029e-05, 'epoch': 0.13103721298495646}
+Rank 0, Iter 332/7578: Loss = 2.5007, Iter Time = 2.0054 s.
+{'loss': 2.4605, 'grad_norm': 3.6460864543914795, 'learning_rate': 1.9123779361309053e-05, 'epoch': 0.13143309580364212}
+Rank 0, Iter 333/7578: Loss = 2.4605, Iter Time = 1.8679 s.
+{'loss': 2.2724, 'grad_norm': 3.583214044570923, 'learning_rate': 1.9121140142517815e-05, 'epoch': 0.13182897862232779}
+Rank 0, Iter 334/7578: Loss = 2.2724, Iter Time = 3.2851 s.
+{'loss': 1.9389, 'grad_norm': 2.3189568519592285, 'learning_rate': 1.911850092372658e-05, 'epoch': 0.13222486144101345}

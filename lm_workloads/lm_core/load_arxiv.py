@@ -5,7 +5,7 @@ import pandas as pd
 from torch_geometric.utils import degree
 
 
-def get_raw_text_arxiv(use_text=False, seed=0, group_by_degree=3):
+def get_raw_text_arxiv(use_text=False, seed=0, group_by_degree=4):
     data_dir = '/home/mzhang/work/TAPE/dataset/'
     dataset = PygNodePropPredDataset(
         name='ogbn-arxiv', transform=T.ToSparseTensor(), root = data_dir)
