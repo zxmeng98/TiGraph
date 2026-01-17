@@ -340,7 +340,7 @@ if __name__ == "__main__":
             skip_first=1, wait=1, warmup=1, active=3, repeat=1
         ),
         on_trace_ready=torch.profiler.tensorboard_trace_handler(
-            f"./tensorboard_trace/"
+            f"./tensorboard_trace/GNN-PP-LM-DP/revgnn-arxiv-4mb-0cluster/"
         ),
         # f"./tensorboard_trace/revgnn_pp{num_stages}_stage{stage_index}_iter/"
         with_stack=True,
@@ -369,7 +369,7 @@ if __name__ == "__main__":
 
             torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
             optimizer.step()
-            # pp_profile.step()
+            pp_profile.step()
             
         t1 = time.time()
         epoch_time_list.append(t1 - t0)

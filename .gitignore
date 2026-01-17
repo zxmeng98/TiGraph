@@ -1,6 +1,8 @@
 **__pycache__
 /datasets
+/dataset
 /exps
+/figs
 /tensorboard_trace
 /lm_workloads/output
 /lm_workloads/prt_lm
