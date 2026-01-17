@@ -325,17 +325,17 @@ if __name__ == "__main__":
             torch.profiler.ProfilerActivity.CUDA,
         ],
         schedule=torch.profiler.schedule(
-            skip_first=5, wait=1, warmup=1, active=3, repeat=1
+            skip_first=1, wait=1, warmup=1, active=3, repeat=1
         ),
         on_trace_ready=torch.profiler.tensorboard_trace_handler(
-            f"./tensorboard_trace/GNN-PP-LM-DP/gnn-pp-reorder/"
+            f"./tensorboard_trace/GNN-PP-LM-DP/revgnn-arxiv-4mb-4cluster/"
         ),
         # f"./tensorboard_trace/revgnn_pp{num_stages}_stage{stage_index}_iter/"
         # with_stack=True,
         with_modules=True,
         # profile_memory=True,
     )
-    # pp_profile.start()
+    pp_profile.start()
 
     delta_sync = 20
     last_written_rows = 0
@@ -369,7 +369,7 @@ if __name__ == "__main__":
             
             torch.nn.utils.clip_grad_norm_(stage.submod.parameters(), 1.0)
             optimizer.step()
-            # pp_profile.step()
+            pp_profile.step()
             
         t1 = time.time()
         epoch_time_list.append(t1 - t0)

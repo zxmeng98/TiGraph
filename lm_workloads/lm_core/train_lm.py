@@ -265,8 +265,8 @@ class LMTrainer():
         # Define training parameters
         eq_batch_size = self.batch_size * 4
         train_steps = self.num_nodes // eq_batch_size + 1
-        # eval_steps = self.eval_patience // eq_batch_size
-        eval_steps = 10 if self.dataset_name == 'ogbn-arxiv' else 5
+        eval_steps = self.eval_patience // eq_batch_size
+        # eval_steps = 10 if self.dataset_name == 'ogbn-arxiv' else 5
         warmup_steps = int(self.warmup_epochs * train_steps) 
 
         # if torch.cuda.device_count() > 1:
@@ -316,7 +316,7 @@ class LMTrainer():
             compute_metrics=compute_metrics,
             callbacks=[
                 PrintEpochTimeCallback(self.model, self.ckpt_dir, self.num_nodes, self.feat_shrink), 
-                MetricsTrackingCallback(output_path=init_path(f'{self.exps_dir}/metrics.csv')),
+                # MetricsTrackingCallback(output_path=init_path(f'{self.exps_dir}/metrics.csv')),
                 ],
             # callbacks=[EarlyStoppingCallback(early_stopping_patience=3)],
         )

@@ -9,9 +9,9 @@ python revgnn_naive.py --model revgnn --num_layers 112 --hidden_channels 224 --d
 dataset=ogbn-arxiv
 layers=112
 hidden=224
-torchrun --nnodes 1 --nproc_per_node 4 revgnn_pp_trainonall.py --dataset $dataset --num_layers $layers --hidden_channels $hidden --epochs 500 --dropout 0.2 --lr 0.001 --bs 2708 --mb_size 2708 --pid 3592940 >> logs/${layers}-${hidden}revgnn_${dataset}_sync_lm_acc.log
+torchrun --nnodes 1 --nproc_per_node 4 --master_port 2923 revgnn_pp_trainonall.py --dataset $dataset --num_layers $layers --hidden_channels $hidden --epochs 500 --dropout 0.2 --lr 0.001 --bs 169340 --mb_size 42335 --pid 2875996 2875997 2875998 2875999
 
-torchrun --nnodes 1 --nproc_per_node 4 --master_port 2923 revgnn_pp_trainonall_sync_lm_reorder.py --dataset $dataset --num_layers $layers --hidden_channels $hidden --epochs 1000 --dropout 0.2 --lr 0.001 --bs 169340 --mb_size 84670 --pid 1397973
+torchrun --nnodes 1 --nproc_per_node 4 --master_port 2923 revgnn_pp_trainonall_sync_lm_reorder.py --dataset $dataset --num_layers $layers --hidden_channels $hidden --epochs 1000 --dropout 0.2 --lr 0.001 --bs 169340 --mb_size 42335 --pid 2855785 2855786 2855787 2855788
 
 
 # revgat
@@ -20,9 +20,12 @@ python revgnn_naive.py --model revgat --num_layers 20 --hidden_channels 256 --dr
 dataset=ogbn-arxiv
 layers=20
 hidden=256
-torchrun --nnodes 1 --nproc_per_node 4 revgat_pp_trainonall.py --dataset $dataset --num_layers $layers --hidden_channels $hidden --bs 169340 --mb_size 84670 --dropout 0.5 --lr 0.002 --epochs 500 >> logs/${layers}-${hidden}revgat_${dataset}_sync_lm_acc.log
+for mb_size in 84670
+do
+torchrun --nnodes 1 --nproc_per_node 4 --master_port 2923 revgat_pp_trainonall.py --dataset $dataset --num_layers $layers --hidden_channels $hidden --bs 169340 --mb_size $mb_size --dropout 0.5 --lr 0.002 --epochs 2000 
+done
 
-torchrun --nnodes 1 --nproc_per_node 4 --master_port 2923 revgat_pp_trainonall_sync_lm_reorder.py --dataset $dataset --num_layers $layers --hidden_channels $hidden --bs 169340 --mb_size 84670 --dropout 0.5 --lr 0.002 --epochs 500 --pid 4058272 4058273 4058274 4058275
+torchrun --nnodes 1 --nproc_per_node 4 --master_port 2923 revgat_pp_trainonall_sync_lm_reorder.py --dataset $dataset --num_layers $layers --hidden_channels $hidden --bs 169328 --mb_size 84670 --dropout 0.5 --lr 0.002 --epochs 500 --pid 4058272 4058273 4058274 4058275
 
 
 ( echo "Running command: torchrun --nnodes 1 --nproc_per_node 4 revgat_pp_trainonall.py --dataset ogbn-arxiv --num_layers 40 --hidden_channels 256"; echo ""; torchrun --nnodes 1 --nproc_per_node 4 revgat_pp_trainonall_sync_lm_reorder.py --dataset ogbn-arxiv --num_layers 20 --hidden_channels 256 ) 2>&1 | tee logs/20revgat_arxiv_sync_lm_acc.log
