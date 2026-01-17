@@ -307,6 +307,10 @@ if __name__ == "__main__":
 
     # Create GCN model
     model = DeeperGCN(args)
+    
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print(f"\nNumber of parameters: {trainable_params}")
+    
     stage = manual_model_split(args, model, example_input_microbatch)
 
     loss_fcn = nn.CrossEntropyLoss(reduction='mean')

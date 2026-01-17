@@ -686,7 +686,19 @@ def split_mb_in_advance(num_batches, schedule, packed_batch, device, k, reorder_
                 chunked_sg_ori_node_idxes[i] = chunked_sg_ori_node_idxes[i][sorted_indices].to(device)
                 reordered_targets.append(targets_split[i][sorted_indices].to(device))
         else:
-            reordered_targets = targets_split
+            for i, args_chunk in enumerate(args_split):
+                # Move graph to GPU directly
+                args_chunk[0] = args_chunk[0].to(device)
+                
+                # Process remaining arguments
+                if len(args_chunk) > 1:
+                    for j in range(1, len(args_chunk)):
+                        if isinstance(args_chunk[j], torch.Tensor):
+                            args_chunk[j] = args_chunk[j].to(device)
+                
+                # Keep original args_split structure with GPU-moved data
+                chunked_sg_ori_node_idxes[i] = chunked_sg_ori_node_idxes[i].to(device)
+                reordered_targets.append(targets_split[i].to(device))
 
         # Save the processed batch
         preprocessed_batches.append({

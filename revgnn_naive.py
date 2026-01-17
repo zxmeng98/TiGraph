@@ -12,7 +12,7 @@ import random
 import numpy as np
 import os
 from GNNs.RevGNN.revgcn import RevGCN
-from GNNs.resgnn_pp import DeeperGCN
+from GNNs.resgnn import DeeperGCN
 from GNNs.revgat import RevGAT
 from utils.dataset import get_dataset, adjust_dataset
 
@@ -37,7 +37,7 @@ def train(g, features, labels, split_idx, model, device):
     # define train/val samples, loss function and optimizer
     train_idx, valid_idx = split_idx['train'], split_idx['valid']
     loss_fcn = nn.CrossEntropyLoss()
-    if args.model == 'revgnn':
+    if args.model == 'revgnn' or args.model == 'resgnn':
         optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     elif args.model == 'revgat':
         optimizer = torch.optim.RMSprop(model.parameters(), lr=args.lr, weight_decay=0)
@@ -60,7 +60,6 @@ def train(g, features, labels, split_idx, model, device):
         optimizer.step()
         t1 = time.time()
         epoch_time_list.append(t1 - t0)
-        
         acc = evaluate(g, features, labels, valid_idx, model, device)
         test_acc = evaluate(g, features, labels, split_idx['test'], model, device)
         # print(
@@ -103,14 +102,14 @@ if __name__ == "__main__":
                         help='the number of sub-graphs for training')
     parser.add_argument('--valid_cluster_number', type=int, default=5,
                         help='the number of sub-graphs for evaluation')
-    parser.add_argument('--aggr', type=str, default='add',
+    parser.add_argument('--aggr', type=str, default='max',
                         help='the aggregation operator to obtain nodes\' initial features [mean, max, add]')
     parser.add_argument('--nf_path', type=str, default='init_node_features_add.pt',
                         help='the file path of extracted node features saved.')
     
     # training & eval settings
     parser.add_argument('--use_gpu', action='store_true')
-    parser.add_argument('--device', type=int, default=2,
+    parser.add_argument('--device', type=int, default=0,
                         help='which gpu to use if any (default: 0)')
     parser.add_argument('--epochs', type=int, default=2000,
                         help='number of epochs to train (default: 2000)')
@@ -119,7 +118,7 @@ if __name__ == "__main__":
     parser.add_argument('--lr', type=float, default=0.002,
                         help='learning rate set for optimizer.')
     parser.add_argument('--dropout', type=float, default=0.75)
-    parser.add_argument('--bs', type=int, default=169340,
+    parser.add_argument('--bs', type=int, default=169343,
                        help='Number of microbatches.')
     # model
     parser.add_argument('--model', type=str, default='revgnn',
@@ -138,10 +137,8 @@ if __name__ == "__main__":
                         help='the dimension of embeddings of nodes and edges')
     parser.add_argument('--out_size', type=int, default=3,
                         help='the dimension of embeddings of nodes and edges')
-    parser.add_argument('--hidden_channels', type=int, default=2224,
+    parser.add_argument('--hidden_channels', type=int, default=224,
                         help='the dimension of embeddings of nodes and edges')
-    parser.add_argument('--block', default='plain', type=str,
-                        help='graph backbone block type {res+, res, dense, plain}')
     parser.add_argument('--conv', type=str, default='gen',
                         help='the type of GCNs')
     parser.add_argument('--gcn_aggr', type=str, default='max',
@@ -150,6 +147,8 @@ if __name__ == "__main__":
                         help='the type of normalization layer')
     parser.add_argument('--num_tasks', type=int, default=1,
                         help='the number of prediction tasks')
+    parser.add_argument('--block', default='res+', type=str,
+                        help='graph backbone block type {res+, res, dense, plain}')
     # learnable parameters
     parser.add_argument('--t', type=float, default=1.0,
                         help='the temperature of SoftMax')
@@ -190,6 +189,16 @@ if __name__ == "__main__":
 
     # load and preprocess dataset
     g, split_idx, features, labels, num_classes = get_dataset(args.dataset)
+    LM_emb_path = f"./lm_workloads/prt_lm/{args.dataset}/microsoft/deberta-base-seed0.emb"
+    if os.path.exists(LM_emb_path):
+        print("Loading trained LM features (title and abstract) ...")
+        print(f"LM_emb_path: {LM_emb_path}")
+        features = torch.from_numpy(np.array(
+                np.memmap(LM_emb_path, mode='r',
+                        dtype=np.float16,
+                        shape=(g.num_nodes(), 768)))
+        ).to(torch.float32)
+        g.ndata['feat'] = features
     g, split_idx, features, labels = adjust_dataset(args, g, split_idx, features, labels)
     if args.model == 'revgat':
         g = dgl.to_bidirected(g)
@@ -224,6 +233,11 @@ if __name__ == "__main__":
                         ).to(device)
     elif args.model == 'revgnn':
         model = RevGCN(args).to(device)
+    elif args.model == 'resgnn':
+        model = DeeperGCN(args).to(device)
+        
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print(f"\nNumber of parameters: {trainable_params}")
 
     # for name, param in model.named_parameters():
     #     print(name, param)

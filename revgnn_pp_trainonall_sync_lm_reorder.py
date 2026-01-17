@@ -302,7 +302,7 @@ if __name__ == "__main__":
         send_signal(small_workload_pid, "pause")
 
     # Split in advance
-    preprocessed_batches = split_mb_in_advance(data_processed.num_batches, schedule, packed_batch, device, k=4)
+    preprocessed_batches = split_mb_in_advance(data_processed.num_batches, schedule, packed_batch, device, k=8, reorder_graph=True)
 
 
     # Model training

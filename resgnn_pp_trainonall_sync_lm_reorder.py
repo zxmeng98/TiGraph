@@ -368,7 +368,7 @@ if __name__ == "__main__":
         else:
             if rank == num_stages - 1:
                 print(
-                        "Epoch {:05d} | Loss {:.4f} | Epoch Time {:.2f}s".format(
+                        "Epoch {:05d} | Loss {:.4f} | Epoch Time {:.4f}s".format(
                             epoch, loss, t1 - t0
                         )
                     )

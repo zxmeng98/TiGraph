@@ -384,20 +384,20 @@ if __name__ == "__main__":
             optimizer.step()
         t1 = time.time()
         epoch_time_list.append(t1 - t0)
-        if epoch > 4:
-            if rank == num_stages - 1:
-                print(
-                        "Epoch {:05d} | Loss {:.4f} | Avg Epoch Time {:.4f}s".format(
-                            epoch, loss, np.mean(epoch_time_list[5:])
-                        )
+        # if epoch > 4:
+        #     if rank == num_stages - 1:
+        #         print(
+        #                 "Epoch {:05d} | Loss {:.4f} | Avg Epoch Time {:.4f}s".format(
+        #                     epoch, loss, np.mean(epoch_time_list[5:])
+        #                 )
+        #             )
+        # else:
+        if rank == num_stages - 1:
+            print(
+                    "Epoch {:05d} | Loss {:.4f} | Epoch Time {:.2f}s".format(
+                        epoch, loss, t1 - t0
                     )
-        else:
-            if rank == num_stages - 1:
-                print(
-                        "Epoch {:05d} | Loss {:.4f} | Epoch Time {:.2f}s".format(
-                            epoch, loss, t1 - t0
-                        )
-                    )
+                )
 
         # Validation
         if epoch % 1 == 0:
